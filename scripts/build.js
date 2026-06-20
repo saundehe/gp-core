@@ -2,13 +2,12 @@
 // Vite apps use the source directly via npm install; this is only for script-tag import.
 import { build } from 'esbuild';
 
-await build({
-  entryPoints: ['src/gear/index.js'],
-  bundle: true,
-  format: 'esm',
-  outfile: 'dist/gear.esm.js',
-  minify: true,
-  platform: 'browser',
-});
+const bundles = [
+  { entryPoints: ['src/gear/index.js'],    outfile: 'dist/gear.esm.js' },
+  { entryPoints: ['src/account/index.js'], outfile: 'dist/account.esm.js' },
+];
 
-console.log('Built dist/gear.esm.js');
+for (const b of bundles) {
+  await build({ ...b, bundle: true, format: 'esm', minify: true, platform: 'browser' });
+  console.log('Built', b.outfile);
+}
