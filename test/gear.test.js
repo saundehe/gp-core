@@ -2,15 +2,20 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { pedalLib, deviceDefs, createGearItem, createBoard, normalizeGearItem, normalizeBoard } from '../src/gear/index.js';
 
+// Categories without a pedalboard footprint — skip physical dimension checks for these.
+const NON_PEDALBOARD_CATS = new Set(['Synthesizer', 'Drum machine', 'Outboard', 'DI box']);
+
 test('pedalLib has entries with required fields', () => {
   assert.ok(Object.keys(pedalLib).length > 60, 'should have 60+ pedals');
   for (const [name, p] of Object.entries(pedalLib)) {
     assert.ok(typeof p.v === 'number',   `${name}: missing v`);
     assert.ok(typeof p.ma === 'number',  `${name}: missing ma`);
-    assert.ok(typeof p.w === 'number',   `${name}: missing w`);
-    assert.ok(typeof p.d === 'number',   `${name}: missing d`);
     assert.ok(typeof p.cat === 'string', `${name}: missing cat`);
-    assert.ok(typeof p.inJ === 'string', `${name}: missing inJ`);
+    if (!NON_PEDALBOARD_CATS.has(p.cat)) {
+      assert.ok(typeof p.w === 'number',   `${name}: missing w`);
+      assert.ok(typeof p.d === 'number',   `${name}: missing d`);
+      assert.ok(typeof p.inJ === 'string', `${name}: missing inJ`);
+    }
   }
 });
 

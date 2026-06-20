@@ -536,6 +536,239 @@ export const deviceDefs = {
     strymonSysex: { model: 0x02 },
   },
 
+  // ── Synthesizers ──
+
+  sequential_prophet_rev2: {
+    label: 'Sequential Prophet Rev2', type: 'Synth',
+    // VERIFIED against Sequential Prophet Rev2 User's Guide v1.2.4, Appendix E (MIDI CC list, p. 82).
+    // Primary automation uses NRPN (covers all parameters); CCs below are the available performance CCs.
+    // Bi-timbral: Layer A = ch N, Layer B = ch N+1 (set in Global). Per-layer control via NRPN.
+    note: 'Bi-timbral. Most params require NRPN for full recall. CCs listed are the available performance CCs from the manual appendix.',
+    params: [
+      { cc: 102, label: 'Filter Cutoff',              def: 64  },
+      { cc: 103, label: 'Resonance',                  def: 0   },
+      { cc: 106, label: 'Filter Env Amount',          def: 64  },
+      { cc: 107, label: 'Filter Env Velocity',        def: 0   },
+      { cc: 109, label: 'Filter Attack',              def: 20  },
+      { cc: 110, label: 'Filter Decay',               def: 50  },
+      { cc: 111, label: 'Filter Sustain',             def: 64  },
+      { cc: 112, label: 'Filter Release',             def: 40  },
+      { cc: 118, label: 'Amp Attack',                 def: 10  },
+      { cc: 119, label: 'Amp Decay',                  def: 40  },
+      { cc: 75,  label: 'Amp Sustain',                def: 100 },
+      { cc: 76,  label: 'Amp Release',                def: 40  },
+      { cc: 20,  label: 'Osc 1 Frequency',            def: 64  },
+      { cc: 22,  label: 'Osc 1 Shape',                def: 64  },
+      { cc: 24,  label: 'Osc 2 Frequency',            def: 64  },
+      { cc: 26,  label: 'Osc 2 Shape',                def: 64  },
+      { cc: 28,  label: 'Osc Mix',                    def: 64  },
+      { cc: 29,  label: 'Noise Level',                def: 0   },
+      { cc: 113, label: 'VCA Level',                  def: 100 },
+      { cc: 5,   label: 'Glide Time',                 def: 0   },
+      { cc: 65,  label: 'Glide On/Off (0/127)',        def: 0   },
+      { cc: 17,  label: 'FX Mix',                     def: 64  },
+      { cc: 7,   label: 'Master Volume',              def: 100 },
+    ],
+    starterPresets: [
+      { name: 'Init Patch', recallPC: -1, ccValues: { 102:64,  103:0,  106:64, 113:100, 7:100 } },
+      { name: 'Warm Pad',   recallPC: -1, ccValues: { 102:50,  103:20, 106:50, 75:100,  76:80, 118:40 } },
+      { name: 'Lead',       recallPC: -1, ccValues: { 102:80,  103:60, 106:80, 118:0,   119:30 } },
+      { name: 'Bass',       recallPC: -1, ccValues: { 102:40,  103:30, 106:60, 28:30,   75:80 } },
+    ],
+  },
+
+  moog_subsequent_37: {
+    label: 'Moog Subsequent 37', type: 'Synth',
+    // VERIFIED against Moog Subsequent 37 User Manual, Appendix D (MIDI CC table).
+    // Toggle convention: 0–63 = Off, 64–127 = On for most switches.
+    // Duo mode (CC110 ≥ 64) gives two independent CV-gated voices for monophonic layering.
+    note: 'Semi-modular with patchable CV matrix. Toggle switches: 0–63=Off, 64–127=On. Duo mode (CC110≥64) = 2-voice mono. Glide destination per-oscillator via CC102.',
+    params: [
+      { cc: 19,  label: 'Filter Cutoff',              def: 64  },
+      { cc: 21,  label: 'Filter Resonance',           def: 0   },
+      { cc: 27,  label: 'Filter Env Amount',          def: 64  },
+      { cc: 23,  label: 'Filter Env Attack',          def: 20  },
+      { cc: 24,  label: 'Filter Env Decay',           def: 50  },
+      { cc: 25,  label: 'Filter Env Sustain',         def: 64  },
+      { cc: 26,  label: 'Filter Env Release',         def: 40  },
+      { cc: 28,  label: 'Amp Env Attack',             def: 10  },
+      { cc: 29,  label: 'Amp Env Decay',              def: 40  },
+      { cc: 30,  label: 'Amp Env Sustain',            def: 100 },
+      { cc: 31,  label: 'Amp Env Release',            def: 40  },
+      { cc: 9,   label: 'Osc 1 Wave',                 def: 64  },
+      { cc: 12,  label: 'Osc 2 Frequency',            def: 64  },
+      { cc: 14,  label: 'Osc 2 Wave',                 def: 64  },
+      { cc: 114, label: 'Osc 1 Level',                def: 100 },
+      { cc: 116, label: 'Osc 2 Level',                def: 80  },
+      { cc: 117, label: 'Noise Level',                def: 0   },
+      { cc: 3,   label: 'LFO 1 Rate',                 def: 64  },
+      { cc: 5,   label: 'Glide Time',                 def: 0   },
+      { cc: 65,  label: 'Glide On (0–63=Off)',         def: 0   },
+      { cc: 110, label: 'Duo Mode (64+=On)',           def: 0   },
+      { cc: 7,   label: 'Master Volume',              def: 100 },
+    ],
+    starterPresets: [
+      { name: 'Init Patch', recallPC: -1, ccValues: { 19:64,  21:0,  27:64, 114:100, 116:0, 7:100 } },
+      { name: 'Bass',       recallPC: -1, ccValues: { 19:40,  21:40, 27:80, 116:0,   9:0   } },
+      { name: 'Lead',       recallPC: -1, ccValues: { 19:90,  21:60, 27:80, 28:5,    114:100, 116:50 } },
+      { name: 'Drone',      recallPC: -1, ccValues: { 19:50,  21:20, 27:30, 30:127,  65:64  } },
+    ],
+  },
+
+  korg_minilogue_xd: {
+    label: 'Korg Minilogue XD', type: 'Synth',
+    // VERIFIED against Korg Minilogue XD MIDI Implementation Chart (official TXT, 2019).
+    // Sync/Ring (CC80/81): Korg reverses convention — 0–63=On, 64–127=Off.
+    // CV/gate I/O: mono CV out and gate out follow the note played; two CV ins assignable via CC118/119.
+    note: 'CV/gate I/O for modular. Sync/Ring (CC80/81) reversed: 0–63=On, 64–127=Off. Multi Engine (CC53): 0–42=Noise, 43–85=VPM, 86–127=User. EG Target (CC23): 0/43/86 = Cutoff/Pitch2/Pitch.',
+    params: [
+      { cc: 43,  label: 'Cutoff',                     def: 80  },
+      { cc: 44,  label: 'Resonance',                  def: 0   },
+      { cc: 20,  label: 'EG Attack',                  def: 20  },
+      { cc: 21,  label: 'EG Decay',                   def: 50  },
+      { cc: 22,  label: 'EG Int',                     def: 64  },
+      { cc: 23,  label: 'EG Target (0/43/86)',         def: 0   },
+      { cc: 16,  label: 'Amp EG Attack',              def: 5   },
+      { cc: 17,  label: 'Amp EG Decay',               def: 40  },
+      { cc: 18,  label: 'Amp EG Sustain',             def: 100 },
+      { cc: 19,  label: 'Amp EG Release',             def: 30  },
+      { cc: 24,  label: 'LFO Rate',                   def: 64  },
+      { cc: 26,  label: 'LFO Int',                    def: 0   },
+      { cc: 56,  label: 'LFO Target (0/43/86)',        def: 0   },
+      { cc: 57,  label: 'LFO Wave (0/43/86)',          def: 43  },
+      { cc: 34,  label: 'VCO 1 Pitch',                def: 64  },
+      { cc: 35,  label: 'VCO 2 Pitch',                def: 64  },
+      { cc: 50,  label: 'VCO 1 Wave (0/43/86)',        def: 86  },
+      { cc: 51,  label: 'VCO 2 Wave (0/43/86)',        def: 86  },
+      { cc: 39,  label: 'VCO 1 Level',                def: 100 },
+      { cc: 40,  label: 'VCO 2 Level',                def: 80  },
+      { cc: 5,   label: 'Portamento',                 def: 0   },
+      { cc: 92,  label: 'Mod FX On (64+=On)',          def: 0   },
+      { cc: 93,  label: 'Delay On (64+=On)',           def: 0   },
+      { cc: 94,  label: 'Reverb On (64+=On)',          def: 0   },
+    ],
+    starterPresets: [
+      { name: 'Init Patch', recallPC: -1, ccValues: { 43:80, 44:0,  39:100, 40:80, 16:5,  18:100 } },
+      { name: 'Lead',       recallPC: -1, ccValues: { 43:90, 44:60, 39:100, 40:0,  20:5,  21:40  } },
+      { name: 'Pad',        recallPC: -1, ccValues: { 43:60, 44:10, 39:80,  40:80, 16:40, 18:80, 94:64 } },
+      { name: 'Bass',       recallPC: -1, ccValues: { 43:50, 44:40, 39:100, 40:0,  17:60, 18:80  } },
+    ],
+  },
+
+  elektron_analog_four_mkii: {
+    label: 'Elektron Analog Four MKII', type: 'Synth',
+    // VERIFIED against Elektron Analog Four MKII manual, Appendix C (MIDI implementation).
+    // Most synthesis params (OSC pitch/detune, filter routing, LFO shapes) are NRPN-only.
+    // Performance Params A–J (CC3/4/8/9/11/64-68) are macro CCs — map to anything via Assign page.
+    note: 'Elektron sequencer-centric. Perf Params A–J (CC3,4,8,9,11,64–68) are free macros: assign to any internal param via the Assign page. OSC pitch/waveform is NRPN-only.',
+    params: [
+      { cc: 18,  label: 'Filter 1 Frequency',         def: 127 },
+      { cc: 89,  label: 'Filter 1 Resonance',         def: 0   },
+      { cc: 102, label: 'Filter 1 Env Depth',         def: 64  },
+      { cc: 108, label: 'Filter Env Attack',          def: 10  },
+      { cc: 109, label: 'Filter Env Decay',           def: 50  },
+      { cc: 110, label: 'Filter Env Sustain',         def: 64  },
+      { cc: 111, label: 'Filter Env Release',         def: 40  },
+      { cc: 104, label: 'Amp Env Attack',             def: 5   },
+      { cc: 105, label: 'Amp Env Decay',              def: 30  },
+      { cc: 106, label: 'Amp Env Sustain',            def: 127 },
+      { cc: 107, label: 'Amp Env Release',            def: 30  },
+      { cc: 7,   label: 'Amp Volume',                 def: 100 },
+      { cc: 10,  label: 'Amp Pan',                    def: 64  },
+      { cc: 116, label: 'LFO 1 Speed',                def: 64  },
+      { cc: 118, label: 'LFO 2 Speed',                def: 64  },
+      { cc: 92,  label: 'Delay Send',                 def: 0   },
+      { cc: 93,  label: 'Reverb Send',                def: 0   },
+      { cc: 3,   label: 'Perf Param A (macro)',        def: 0   },
+      { cc: 4,   label: 'Perf Param B (macro)',        def: 0   },
+      { cc: 8,   label: 'Perf Param C (macro)',        def: 0   },
+      { cc: 9,   label: 'Perf Param D (macro)',        def: 0   },
+    ],
+    starterPresets: [
+      { name: 'Init Patch', recallPC: -1, ccValues: { 18:127, 89:0,  104:5, 106:127, 7:100 } },
+      { name: 'Bass',       recallPC: -1, ccValues: { 18:50,  89:50, 104:2, 105:40,  107:10 } },
+      { name: 'Lead',       recallPC: -1, ccValues: { 18:100, 89:70, 104:5, 105:30,  7:100  } },
+    ],
+  },
+
+  arturia_minifreak: {
+    label: 'Arturia MiniFreak', type: 'Synth',
+    // VERIFIED against Arturia MiniFreak User Manual v4.0.1, Chapter 16 (MIDI CC implementation).
+    // VCO Wave CCs (CC14/18) sweep through all oscillator models in one 0–127 range.
+    // FX1/FX2/FX3 are the three insert effects slots (Time/Intensity/Amount per slot).
+    note: 'Digital/analog hybrid. VCO Wave (CC14/18): sweeps through all oscillator models 0–127. Cycling Env = free-running env/LFO hybrid (CC76/77 = Rise/Fall). Macros M1/M2 are front-panel knobs.',
+    params: [
+      { cc: 74,  label: 'VCF Cutoff',                 def: 100 },
+      { cc: 71,  label: 'VCF Resonance',              def: 0   },
+      { cc: 24,  label: 'VCF Env Amount',             def: 64  },
+      { cc: 80,  label: 'Amp Env Attack',             def: 5   },
+      { cc: 81,  label: 'Amp Env Decay',              def: 40  },
+      { cc: 82,  label: 'Amp Env Sustain',            def: 80  },
+      { cc: 83,  label: 'Amp Env Release',            def: 30  },
+      { cc: 85,  label: 'LFO 1 Rate',                 def: 64  },
+      { cc: 87,  label: 'LFO 2 Rate',                 def: 64  },
+      { cc: 14,  label: 'VCO 1 Wave (model 0-127)',   def: 0   },
+      { cc: 15,  label: 'VCO 1 Timbre',              def: 64  },
+      { cc: 16,  label: 'VCO 1 Shape',               def: 64  },
+      { cc: 17,  label: 'VCO 1 Volume',              def: 100 },
+      { cc: 18,  label: 'VCO 2 Wave (model 0-127)',   def: 0   },
+      { cc: 19,  label: 'VCO 2 Timbre',              def: 64  },
+      { cc: 20,  label: 'VCO 2 Shape',               def: 64  },
+      { cc: 21,  label: 'VCO 2 Volume',              def: 100 },
+      { cc: 76,  label: 'Cycling Env Rise',           def: 40  },
+      { cc: 77,  label: 'Cycling Env Fall',           def: 40  },
+      { cc: 117, label: 'Macro M1',                   def: 64  },
+      { cc: 118, label: 'Macro M2',                   def: 64  },
+      { cc: 5,   label: 'Glide',                      def: 0   },
+    ],
+    starterPresets: [
+      { name: 'Init Patch',     recallPC: -1, ccValues: { 74:100, 71:0,  17:100, 21:80,  80:5,  82:80  } },
+      { name: 'Wavetable Lead', recallPC: -1, ccValues: { 74:90,  71:60, 17:100, 21:0,   14:20, 80:5   } },
+      { name: 'Pad',            recallPC: -1, ccValues: { 74:60,  71:10, 17:80,  21:80,  80:40, 82:80, 85:40 } },
+      { name: 'Cycling Seq',    recallPC: -1, ccValues: { 74:80,  71:30, 76:50,  77:50,  117:64 } },
+    ],
+  },
+
+  roland_ju_06a: {
+    label: 'Roland JU-06A', type: 'Synth',
+    // VERIFIED against Roland JU-06A MIDI Implementation Chart (JU-06A_MIDIImpleChart01_W.pdf, Sep 2019).
+    // Models the Juno-60 (JU-06A) and Juno-106. Single shared ENV ADSR serves both VCF and VCA.
+    // Chorus CC93 range: 0–42=Off, 43–85=Chorus I, 86–127=Chorus II (exact is continuous, not stepped).
+    note: 'Juno-60/106 clone. Single ENV for both VCF and VCA (CCs 73/75/27/72). CC93 Chorus: 0–42=Off, 43–85=I, 86–127=II. Poly/Solo/Unison via CC86. Does not respond to velocity or aftertouch.',
+    params: [
+      { cc: 74,  label: 'VCF Frequency',              def: 80  },
+      { cc: 71,  label: 'VCF Resonance',              def: 0   },
+      { cc: 22,  label: 'VCF Env Depth',              def: 64  },
+      { cc: 23,  label: 'VCF LFO',                    def: 0   },
+      { cc: 73,  label: 'ENV Attack',                 def: 0   },
+      { cc: 75,  label: 'ENV Decay',                  def: 60  },
+      { cc: 27,  label: 'ENV Sustain',                def: 80  },
+      { cc: 72,  label: 'ENV Release',                def: 30  },
+      { cc: 25,  label: 'VCA ENV/Gate (0/127)',        def: 127 },
+      { cc: 26,  label: 'VCA Level',                  def: 100 },
+      { cc: 12,  label: 'DCO Range',                  def: 64  },
+      { cc: 13,  label: 'DCO LFO Depth',              def: 0   },
+      { cc: 14,  label: 'DCO PWM',                    def: 0   },
+      { cc: 18,  label: 'DCO Sub Level',              def: 0   },
+      { cc: 19,  label: 'DCO Noise Level',            def: 0   },
+      { cc: 3,   label: 'LFO Rate',                   def: 40  },
+      { cc: 9,   label: 'LFO Delay',                  def: 0   },
+      { cc: 29,  label: 'LFO Wave (0-127)',            def: 0   },
+      { cc: 93,  label: 'Chorus (0/43/86)',            def: 0   },
+      { cc: 91,  label: 'Delay Level',                def: 0   },
+      { cc: 82,  label: 'Delay Time',                 def: 64  },
+      { cc: 5,   label: 'Portamento Time',            def: 0   },
+      { cc: 86,  label: 'Poly/Solo/Unison (0-127)',   def: 0   },
+    ],
+    starterPresets: [
+      { name: 'Init Patch',   recallPC: -1, ccValues: { 74:80, 71:0,  73:0,  75:60, 27:80, 26:100, 25:127 } },
+      { name: 'Juno Pad',     recallPC: -1, ccValues: { 74:60, 71:20, 73:40, 75:80, 27:80, 93:43,  13:20  } },
+      { name: 'Juno Bass',    recallPC: -1, ccValues: { 74:50, 71:50, 22:80, 73:0,  75:40, 26:100, 93:0   } },
+      { name: 'Juno Lead',    recallPC: -1, ccValues: { 74:100, 71:80, 73:0, 75:30, 93:43, 13:30  } },
+      { name: 'Chorus Sweep', recallPC: -1, ccValues: { 74:80, 71:30, 93:43, 22:60, 75:80 } },
+    ],
+  },
+
   // ── Software / standalone plugins (MIDI-learn; no fixed factory CC map) ──
   // `starter` becomes customParams on the device at creation.
 
