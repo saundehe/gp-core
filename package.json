@@ -1,12 +1,13 @@
 {
   "name": "@gp/core",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "type": "module",
   "description": "GP product family shared spine — gear library, MIDI device defs, shared schemas.",
   "exports": {
     "./gear":    "./src/gear/index.js",
     "./account": "./src/account/index.js",
-    "./part":    "./src/part/index.js"
+    "./part":    "./src/part/index.js",
+    "./theory":  "./src/theory/index.js"
   },
   "files": [
     "src/",
@@ -14,7 +15,7 @@
   ],
   "scripts": {
     "build": "node scripts/build.js",
-    "test": "node --test test/gear.test.js test/account.test.js test/part.test.js"
+    "test": "node --test test/gear.test.js test/account.test.js test/part.test.js test/theory.test.js"
   },
   "devDependencies": {
     "esbuild": "^0.24.0"

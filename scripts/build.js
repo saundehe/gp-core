@@ -6,6 +6,7 @@ const bundles = [
   { entryPoints: ['src/gear/index.js'],    outfile: 'dist/gear.esm.js' },
   { entryPoints: ['src/account/index.js'], outfile: 'dist/account.esm.js' },
   { entryPoints: ['src/part/index.js'],    outfile: 'dist/part.esm.js' },
+  { entryPoints: ['src/theory/index.js'], outfile: 'dist/theory.esm.js' },
 ];
 
 for (const b of bundles) {
