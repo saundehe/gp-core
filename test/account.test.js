@@ -6,6 +6,7 @@ import {
   midiDeviceCap, cloudSongCap, trialDaysRemaining, isExpired,
   isVersionLocked, ownsVersion, getTierLabel,
   createLicense, normalizeLicense, createUser, createTrial,
+  FREE_STATE, sessionToLicense, resolveAccountState,
 } from '../src/account/index.js';
 
 test('TIERS constants', () => {
@@ -267,4 +268,129 @@ test('isExpired - no current_period_end (perpetual) returns false', () => {
 
 test('isExpired - null license returns false', () => {
   assert.ok(!isExpired(null));
+});
+
+// ── FREE_STATE ────────────────────────────────────────────────────────────────
+
+test('FREE_STATE shape', () => {
+  assert.equal(FREE_STATE.user,      null);
+  assert.equal(FREE_STATE.license,   null);
+  assert.equal(FREE_STATE.isPro,     false);
+  assert.equal(FREE_STATE.isTrial,   false);
+  assert.equal(FREE_STATE.daysLeft,  null);
+  assert.equal(FREE_STATE.tierLabel, 'Free');
+  assert.equal(FREE_STATE.midiCap,   2);
+  assert.equal(FREE_STATE.songCap,   5);
+});
+
+test('FREE_STATE is frozen', () => {
+  assert.throws(() => { FREE_STATE.isPro = true; }, TypeError);
+});
+
+// ── sessionToLicense ──────────────────────────────────────────────────────────
+
+test('sessionToLicense - empty array returns null', () => {
+  assert.equal(sessionToLicense([], PRODUCTS.rigwork), null);
+});
+
+test('sessionToLicense - null rows returns null', () => {
+  assert.equal(sessionToLicense(null, PRODUCTS.rigwork), null);
+});
+
+test('sessionToLicense - product mismatch returns null', () => {
+  const rows = [createLicense({ product: PRODUCTS.riffwork, status: STATUS.active, tier: TIERS.monthly })];
+  assert.equal(sessionToLicense(rows, PRODUCTS.rigwork), null);
+});
+
+test('sessionToLicense - single matching row returned', () => {
+  const lic = createLicense({ product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.monthly });
+  assert.deepEqual(sessionToLicense([lic], PRODUCTS.rigwork), lic);
+});
+
+test('sessionToLicense - active beats trialing', () => {
+  const trial  = createLicense({ product: PRODUCTS.rigwork, status: STATUS.trialing, tier: TIERS.monthly });
+  const active = createLicense({ product: PRODUCTS.rigwork, status: STATUS.active,   tier: TIERS.annual });
+  const result = sessionToLicense([trial, active], PRODUCTS.rigwork);
+  assert.equal(result.status, STATUS.active);
+});
+
+test('sessionToLicense - trialing beats cancelled', () => {
+  const cancelled = createLicense({ product: PRODUCTS.rigwork, status: STATUS.cancelled, tier: TIERS.monthly });
+  const trial     = createLicense({ product: PRODUCTS.rigwork, status: STATUS.trialing,  tier: TIERS.monthly });
+  const result    = sessionToLicense([cancelled, trial], PRODUCTS.rigwork);
+  assert.equal(result.status, STATUS.trialing);
+});
+
+test('sessionToLicense - filters cross-product rows', () => {
+  const riffLic = createLicense({ product: PRODUCTS.riffwork, status: STATUS.active, tier: TIERS.monthly });
+  const rigLic  = createLicense({ product: PRODUCTS.rigwork,  status: STATUS.trialing, tier: TIERS.monthly });
+  assert.equal(sessionToLicense([riffLic, rigLic], PRODUCTS.riffwork).product, PRODUCTS.riffwork);
+  assert.equal(sessionToLicense([riffLic, rigLic], PRODUCTS.rigwork).product,  PRODUCTS.rigwork);
+});
+
+// ── resolveAccountState ───────────────────────────────────────────────────────
+
+test('resolveAccountState - null user returns FREE_STATE copy', () => {
+  const state = resolveAccountState(null, [], PRODUCTS.rigwork);
+  assert.equal(state.isPro,    false);
+  assert.equal(state.user,     null);
+  assert.equal(state.midiCap,  2);
+});
+
+test('resolveAccountState - logged in, no licenses = free', () => {
+  const user  = { id: 'u1', email: 'heath@gp.com' };
+  const state = resolveAccountState(user, [], PRODUCTS.rigwork);
+  assert.equal(state.user.id,  'u1');
+  assert.equal(state.isPro,    false);
+  assert.equal(state.license,  null);
+  assert.equal(state.midiCap,  2);
+  assert.equal(state.songCap,  5);
+});
+
+test('resolveAccountState - active Pro license', () => {
+  const user    = { id: 'u1', email: 'heath@gp.com' };
+  const rows    = [createLicense({ product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.annual })];
+  const state   = resolveAccountState(user, rows, PRODUCTS.rigwork);
+  assert.equal(state.isPro,     true);
+  assert.equal(state.isTrial,   false);
+  assert.equal(state.daysLeft,  null);
+  assert.equal(state.tierLabel, 'Pro (annual)');
+  assert.equal(state.midiCap,   null);
+  assert.equal(state.songCap,   null);
+});
+
+test('resolveAccountState - trialing license', () => {
+  const now   = 1_700_000_000_000;
+  const user  = { id: 'u1', email: 'heath@gp.com' };
+  const trial = createTrial(PRODUCTS.riffwork, now);
+  const state = resolveAccountState(user, [trial], PRODUCTS.riffwork, now);
+  assert.equal(state.isPro,    true);
+  assert.equal(state.isTrial,  true);
+  assert.equal(state.daysLeft, 14);
+  assert.equal(state.midiCap,  null);
+});
+
+test('resolveAccountState - 7 days into trial', () => {
+  const start = 1_700_000_000_000;
+  const now   = start + 7 * 24 * 60 * 60 * 1000;
+  const user  = { id: 'u1', email: 'heath@gp.com' };
+  const trial = createTrial(PRODUCTS.rigwork, start);
+  const state = resolveAccountState(user, [trial], PRODUCTS.rigwork, now);
+  assert.equal(state.daysLeft, 7);
+});
+
+test('resolveAccountState - ignores other-product licenses', () => {
+  const user     = { id: 'u1', email: 'heath@gp.com' };
+  const riffLic  = createLicense({ product: PRODUCTS.riffwork, status: STATUS.active, tier: TIERS.monthly });
+  const state    = resolveAccountState(user, [riffLic], PRODUCTS.rigwork);
+  assert.equal(state.isPro,   false);
+  assert.equal(state.license, null);
+});
+
+test('resolveAccountState - perpetual license sets tierLabel', () => {
+  const user  = { id: 'u1', email: 'heath@gp.com' };
+  const lic   = createLicense({ product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.perpetual_v1 });
+  const state = resolveAccountState(user, [lic], PRODUCTS.rigwork);
+  assert.equal(state.tierLabel, 'Pro (lifetime)');
+  assert.equal(state.isPro,     true);
 });
