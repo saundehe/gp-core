@@ -1,3 +1,5 @@
+import { STATUS, TIERS, TRIAL_DURATION_DAYS } from './license.js';
+
 let _c = 0;
 function uid() { return (++_c).toString(36) + Math.random().toString(36).slice(2, 6); }
 
@@ -15,8 +17,24 @@ export function createLicense(props = {}) {
     status: 'active',
     current_period_end: null,
     major_version_owned: null,
+    trial_ends_at: null,
     ...props,
   };
+}
+
+/**
+ * Create an app-managed trial license (no card, 14-day window per product).
+ * Apps store this in Supabase `licenses` or localStorage; check `trialDaysRemaining` on load.
+ * @param {string} product - from PRODUCTS ('riffwork' | 'rigwork')
+ * @param {number} [nowMs]  - injectable for testing; defaults to Date.now()
+ */
+export function createTrial(product, nowMs = Date.now()) {
+  return createLicense({
+    product,
+    tier: TIERS.monthly,
+    status: STATUS.trialing,
+    trial_ends_at: nowMs + TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000,
+  });
 }
 
 /** Idempotent upgrade for legacy license rows that predate _v. */
