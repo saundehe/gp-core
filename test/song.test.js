@@ -4,6 +4,7 @@ import {
   SONG_KINDS, createSong, normalizeSong,
   SECTION_KINDS, createSection, normalizeSection,
   createRigAutomation, createRigCue, normalizeRigCue, createRigTrack,
+  interpolateRigTrack, upsertCue, removeCue, encodeRigTrack, decodeRigTrack,
 } from '../src/song/index.js';
 
 // ── Song ──────────────────────────────────────────────────────────────────────
@@ -234,4 +235,134 @@ test('createSong embeds sections and rig_track', () => {
   assert.equal(song.rig_track.length, 3);
   assert.equal(song.rig_track[0].bar, 1);
   assert.equal(song.rig_track[1].preset_id, 'drive');
+});
+
+// ── interpolateRigTrack ───────────────────────────────────────────────────────
+
+test('interpolateRigTrack - empty track returns []', () => {
+  assert.deepEqual(interpolateRigTrack([], 1), []);
+});
+
+test('interpolateRigTrack - instant CC at or before bar', () => {
+  const track = createRigTrack([
+    createRigCue({ bar: 1, automations: [createRigAutomation({ cc: 74, value: 0 })] }),
+  ]);
+  const state = interpolateRigTrack(track, 1);
+  assert.equal(state.length, 1);
+  assert.equal(state[0].cc, 74);
+  assert.equal(state[0].value, 0);
+  assert.equal(state[0].deviceId, null);
+});
+
+test('interpolateRigTrack - cue after bar not included', () => {
+  const track = createRigTrack([
+    createRigCue({ bar: 9, automations: [createRigAutomation({ cc: 74, value: 127 })] }),
+  ]);
+  assert.deepEqual(interpolateRigTrack(track, 8), []);
+});
+
+test('interpolateRigTrack - later cue overrides earlier same CC', () => {
+  const track = createRigTrack([
+    createRigCue({ bar: 1, automations: [createRigAutomation({ cc: 74, value: 0 })] }),
+    createRigCue({ bar: 9, automations: [createRigAutomation({ cc: 74, value: 127 })] }),
+  ]);
+  const state = interpolateRigTrack(track, 9);
+  assert.equal(state.length, 1);
+  assert.equal(state[0].value, 127);
+});
+
+test('interpolateRigTrack - ramp midpoint interpolates linearly', () => {
+  const track = createRigTrack([
+    createRigCue({ bar: 1, automations: [createRigAutomation({ cc: 11, value: 0 })] }),
+    createRigCue({ bar: 9, automations: [createRigAutomation({ cc: 11, value: 127, rampBars: 4 })] }),
+  ]);
+  // at bar 11: t = (11-9)/4 = 0.5 → value = round(0 + 127*0.5) = 64
+  const state = interpolateRigTrack(track, 11);
+  const entry = state.find(e => e.cc === 11);
+  assert.equal(entry.value, 64);
+});
+
+test('interpolateRigTrack - ramp completed gives target value', () => {
+  const track = createRigTrack([
+    createRigCue({ bar: 1, automations: [createRigAutomation({ cc: 11, value: 0 })] }),
+    createRigCue({ bar: 9, automations: [createRigAutomation({ cc: 11, value: 127, rampBars: 4 })] }),
+  ]);
+  // bar 13 = rampEndBar; bar 15 > rampEndBar → settled at 127
+  assert.equal(interpolateRigTrack(track, 13).find(e => e.cc === 11).value, 127);
+  assert.equal(interpolateRigTrack(track, 15).find(e => e.cc === 11).value, 127);
+});
+
+test('interpolateRigTrack - deviceId is passed through', () => {
+  const track = createRigTrack([
+    createRigCue({ bar: 1, automations: [createRigAutomation({ cc: 19, value: 80, deviceId: 'mercury7' })] }),
+  ]);
+  const state = interpolateRigTrack(track, 1);
+  assert.equal(state[0].deviceId, 'mercury7');
+});
+
+test('interpolateRigTrack - multiple CCs on same cue', () => {
+  const track = createRigTrack([
+    createRigCue({ bar: 1, automations: [
+      createRigAutomation({ cc: 14, value: 0 }),
+      createRigAutomation({ cc: 19, value: 127 }),
+      createRigAutomation({ cc: 20, value: 80  }),
+    ]}),
+  ]);
+  const state = interpolateRigTrack(track, 1);
+  assert.equal(state.length, 3);
+  const byCC = Object.fromEntries(state.map(e => [e.cc, e.value]));
+  assert.equal(byCC[14],  0);
+  assert.equal(byCC[19], 127);
+  assert.equal(byCC[20],  80);
+});
+
+// ── upsertCue + removeCue ─────────────────────────────────────────────────────
+
+test('upsertCue - inserts new cue and keeps sort order', () => {
+  const track = createRigTrack([createRigCue({ bar: 1 }), createRigCue({ bar: 17 })]);
+  const updated = upsertCue(track, createRigCue({ bar: 9, presetId: 'chorus' }));
+  assert.equal(updated.length, 3);
+  assert.equal(updated[1].bar, 9);
+  assert.equal(updated[1].preset_id, 'chorus');
+});
+
+test('upsertCue - replaces existing cue at same bar', () => {
+  const track = createRigTrack([createRigCue({ bar: 9, presetId: 'old' })]);
+  const updated = upsertCue(track, createRigCue({ bar: 9, presetId: 'new' }));
+  assert.equal(updated.length, 1);
+  assert.equal(updated[0].preset_id, 'new');
+});
+
+test('removeCue - removes cue at given bar', () => {
+  const track = createRigTrack([createRigCue({ bar: 1 }), createRigCue({ bar: 9 }), createRigCue({ bar: 17 })]);
+  const updated = removeCue(track, 9);
+  assert.equal(updated.length, 2);
+  assert.ok(updated.every(c => c.bar !== 9));
+});
+
+test('removeCue - no-op when bar not found', () => {
+  const track = createRigTrack([createRigCue({ bar: 1 })]);
+  assert.equal(removeCue(track, 99).length, 1);
+});
+
+// ── encodeRigTrack / decodeRigTrack ───────────────────────────────────────────
+
+test('encodeRigTrack + decodeRigTrack round-trip', () => {
+  const track = createRigTrack([
+    createRigCue({ bar: 1,  presetId: 'clean',  automations: [createRigAutomation({ cc: 14, value: 0 })] }),
+    createRigCue({ bar: 9,  presetId: 'drive',  automations: [createRigAutomation({ cc: 14, value: 127, rampBars: 4 })] }),
+    createRigCue({ bar: 17, presetId: 'chorus' }),
+  ]);
+  const encoded = encodeRigTrack(track);
+  assert.equal(typeof encoded, 'string');
+  assert.ok(!encoded.includes('='), 'no padding chars');
+  const decoded = decodeRigTrack(encoded);
+  assert.equal(decoded.length, 3);
+  assert.equal(decoded[0].preset_id, 'clean');
+  assert.equal(decoded[1].automations[0].ramp_bars, 4);
+  assert.equal(decoded[2].bar, 17);
+});
+
+test('decodeRigTrack - returns [] on garbage input', () => {
+  assert.deepEqual(decodeRigTrack('not-valid-base64!!!'), []);
 });
