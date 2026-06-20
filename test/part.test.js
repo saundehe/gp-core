@@ -6,6 +6,8 @@ import {
   PART_KINDS, SCALE_NAMES, SCALE_NAME_MAP,
   createPart, normalizePart,
   createPartSet, normalizePartSet, conjureJamToPartSet,
+  DRUM_VOICES,
+  encodePart, decodePart,
 } from '../src/part/index.js';
 
 // ── Note ──────────────────────────────────────────────────────────────────────
@@ -222,4 +224,51 @@ test('conjureJamToPartSet produces a PartSet', () => {
   assert.ok(bassP);
   assert.equal(bassP.notes[0].pitch, 43);
   assert.equal(bassP.key, 'G');
+});
+
+// ── DRUM_VOICES ───────────────────────────────────────────────────────────────
+
+test('DRUM_VOICES has GM-standard pitches', () => {
+  assert.equal(DRUM_VOICES.kick.midi, 36);
+  assert.equal(DRUM_VOICES.snare.midi, 38);
+  assert.equal(DRUM_VOICES.hat_closed.midi, 42);
+  assert.equal(DRUM_VOICES.hat_open.midi, 46);
+  assert.ok(typeof DRUM_VOICES.kick.label === 'string');
+  assert.ok(Object.keys(DRUM_VOICES).length >= 10);
+});
+
+// ── Codec ─────────────────────────────────────────────────────────────────────
+
+test('encodePart / decodePart round-trips a Part', () => {
+  const part = createPart({
+    key: 'E', scale: SCALE_NAMES.natural_minor, tempo: 85, bars: 4,
+    kind: PART_KINDS.bass,
+    notes: [
+      createNote({ pitch: 40, onset: 0, dur: 4 }),
+      createNote({ pitch: 43, onset: 4, dur: 4, vel: 95 }),
+    ],
+  });
+
+  const encoded = encodePart(part);
+  assert.ok(typeof encoded === 'string' && encoded.length > 0);
+  assert.ok(!/[+/=]/.test(encoded), 'should be base64url (no +, /, =)');
+
+  const decoded = decodePart(encoded);
+  assert.equal(decoded.key, 'E');
+  assert.equal(decoded.tempo, 85);
+  assert.equal(decoded.notes.length, 2);
+  assert.equal(decoded.notes[0].pitch, 40);
+  assert.equal(decoded.notes[1].onset, 4);
+  assert.equal(decoded.notes[1].vel, 95);
+});
+
+test('encodePart handles unicode in name', () => {
+  const part = createPart({ name: 'Grey Pilgrim - Intro' });
+  const decoded = decodePart(encodePart(part));
+  assert.equal(decoded.name, 'Grey Pilgrim - Intro');
+});
+
+test('decodePart returns null on garbage input', () => {
+  assert.equal(decodePart('not!!valid'), null);
+  assert.equal(decodePart(''), null);
 });
