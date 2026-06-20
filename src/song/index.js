@@ -7,3 +7,8 @@ export {
   upsertCue, removeCue,
   encodeRigTrack, decodeRigTrack,
 } from './rig-track.js';
+export {
+  createSetlistEntry, normalizeSetlistEntry,
+  createSetlist, normalizeSetlist,
+  upsertSetlistEntry, removeSetlistEntry, moveSetlistEntry,
+} from './setlist.js';

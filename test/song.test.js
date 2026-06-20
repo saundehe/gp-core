@@ -5,6 +5,9 @@ import {
   SECTION_KINDS, createSection, normalizeSection,
   createRigAutomation, createRigCue, normalizeRigCue, createRigTrack,
   interpolateRigTrack, upsertCue, removeCue, encodeRigTrack, decodeRigTrack,
+  createSetlistEntry, normalizeSetlistEntry,
+  createSetlist, normalizeSetlist,
+  upsertSetlistEntry, removeSetlistEntry, moveSetlistEntry,
 } from '../src/song/index.js';
 
 // ── Song ──────────────────────────────────────────────────────────────────────
@@ -404,4 +407,152 @@ test('createSong preserves unknown fields after adding clock_track', () => {
   const s = createSong({ title: 'Test', liveNotes: 'check tuning' });
   assert.equal(s.liveNotes, 'check tuning');
   assert.deepEqual(s.clock_track, []);
+});
+
+// ── SetlistEntry ──────────────────────────────────────────────────────────────
+
+test('createSetlistEntry defaults', () => {
+  const e = createSetlistEntry();
+  assert.equal(e._v,       1);
+  assert.equal(e.song_id,  null);
+  assert.equal(e.song_title, '');
+  assert.equal(e.key,      null);
+  assert.equal(e.transpose, 0);
+  assert.equal(e.tempo_mult, 1.0);
+  assert.equal(e.notes,    '');
+});
+
+test('createSetlistEntry with props', () => {
+  const e = createSetlistEntry({ songId: 'abc', songTitle: 'Doom Riff', key: 'Eb', transpose: -1, tempoMult: 0.95, notes: 'drop D' });
+  assert.equal(e.song_id,    'abc');
+  assert.equal(e.song_title, 'Doom Riff');
+  assert.equal(e.key,        'Eb');
+  assert.equal(e.transpose,  -1);
+  assert.equal(e.tempo_mult, 0.95);
+  assert.equal(e.notes,      'drop D');
+});
+
+test('createSetlistEntry preserves unknown fields', () => {
+  const e = createSetlistEntry({ songId: 'x', color: '#e8a020' });
+  assert.equal(e.color, '#e8a020');
+});
+
+test('normalizeSetlistEntry - already _v:1 passes through', () => {
+  const e = createSetlistEntry({ songId: 'x' });
+  assert.strictEqual(normalizeSetlistEntry(e), e);
+});
+
+test('normalizeSetlistEntry - null returns null', () => {
+  assert.equal(normalizeSetlistEntry(null), null);
+});
+
+test('normalizeSetlistEntry - snake_case source fields', () => {
+  const raw = { song_id: 'abc', song_title: 'Riff', tempo_mult: 0.9, transpose: 2 };
+  const e = normalizeSetlistEntry(raw);
+  assert.equal(e._v,        1);
+  assert.equal(e.song_id,   'abc');
+  assert.equal(e.tempo_mult, 0.9);
+  assert.equal(e.transpose,  2);
+});
+
+// ── Setlist ───────────────────────────────────────────────────────────────────
+
+test('createSetlist defaults', () => {
+  const sl = createSetlist();
+  assert.equal(sl._v,    1);
+  assert.equal(sl.id,    '');
+  assert.equal(sl.name,  'Main Set');
+  assert.deepEqual(sl.entries, []);
+  assert.equal(sl.notes, '');
+});
+
+test('createSetlist with entries (raw)', () => {
+  const sl = createSetlist({
+    id: 'sl-1',
+    name: 'Night 1',
+    entries: [
+      { songId: 'a', songTitle: 'Intro Doom' },
+      { songId: 'b', songTitle: 'Verse Crush' },
+    ],
+  });
+  assert.equal(sl.entries.length,         2);
+  assert.equal(sl.entries[0]._v,          1);
+  assert.equal(sl.entries[0].song_title,  'Intro Doom');
+  assert.equal(sl.entries[1].song_id,     'b');
+});
+
+test('createSetlist preserves already-normalized entries', () => {
+  const e = createSetlistEntry({ songId: 'x' });
+  const sl = createSetlist({ entries: [e] });
+  assert.strictEqual(sl.entries[0], e);
+});
+
+test('createSetlist preserves unknown fields', () => {
+  const sl = createSetlist({ name: 'Test', venue: 'The Smell' });
+  assert.equal(sl.venue, 'The Smell');
+});
+
+test('normalizeSetlist - already _v:1 passes through', () => {
+  const sl = createSetlist({ name: 'Encore' });
+  assert.strictEqual(normalizeSetlist(sl), sl);
+});
+
+test('normalizeSetlist - null returns null', () => {
+  assert.equal(normalizeSetlist(null), null);
+});
+
+test('normalizeSetlist - raw object without _v gets upgraded', () => {
+  const raw = { name: 'Main Set', entries: [{ song_id: 'z', song_title: 'Closer' }] };
+  const sl = normalizeSetlist(raw);
+  assert.equal(sl._v,              1);
+  assert.equal(sl.name,            'Main Set');
+  assert.equal(sl.entries[0]._v,   1);
+  assert.equal(sl.entries[0].song_id, 'z');
+});
+
+// ── upsertSetlistEntry / removeSetlistEntry / moveSetlistEntry ────────────────
+
+test('upsertSetlistEntry - appends when idx < 0', () => {
+  const entries = [createSetlistEntry({ songId: 'a' }), createSetlistEntry({ songId: 'b' })];
+  const updated = upsertSetlistEntry(entries, createSetlistEntry({ songId: 'c' }), -1);
+  assert.equal(updated.length,        3);
+  assert.equal(updated[2].song_id,    'c');
+});
+
+test('upsertSetlistEntry - replaces at specific index', () => {
+  const entries = [createSetlistEntry({ songId: 'a' }), createSetlistEntry({ songId: 'b' })];
+  const updated = upsertSetlistEntry(entries, createSetlistEntry({ songId: 'z' }), 0);
+  assert.equal(updated.length,     2);
+  assert.equal(updated[0].song_id, 'z');
+  assert.equal(updated[1].song_id, 'b');
+});
+
+test('removeSetlistEntry - removes at given index', () => {
+  const entries = [
+    createSetlistEntry({ songId: 'a' }),
+    createSetlistEntry({ songId: 'b' }),
+    createSetlistEntry({ songId: 'c' }),
+  ];
+  const updated = removeSetlistEntry(entries, 1);
+  assert.equal(updated.length,     2);
+  assert.equal(updated[0].song_id, 'a');
+  assert.equal(updated[1].song_id, 'c');
+});
+
+test('moveSetlistEntry - moves entry forward', () => {
+  const entries = ['a', 'b', 'c', 'd'].map(id => createSetlistEntry({ songId: id }));
+  const updated = moveSetlistEntry(entries, 0, 2);
+  assert.deepEqual(updated.map(e => e.song_id), ['b', 'c', 'a', 'd']);
+});
+
+test('moveSetlistEntry - moves entry backward', () => {
+  const entries = ['a', 'b', 'c', 'd'].map(id => createSetlistEntry({ songId: id }));
+  const updated = moveSetlistEntry(entries, 3, 1);
+  assert.deepEqual(updated.map(e => e.song_id), ['a', 'd', 'b', 'c']);
+});
+
+test('moveSetlistEntry - no-op when same index', () => {
+  const entries = ['a', 'b'].map(id => createSetlistEntry({ songId: id }));
+  const updated = moveSetlistEntry(entries, 0, 0);
+  assert.deepEqual(updated.map(e => e.song_id), ['a', 'b']);
 });
