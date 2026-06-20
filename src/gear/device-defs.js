@@ -502,6 +502,40 @@ export const deviceDefs = {
     ],
   },
 
+  strymon_mobius: {
+    label: 'Strymon Mobius', type: 'Modulation',
+    // VERIFIED against Strymon Mobius User Manual Rev F, pg 24 (MIDI Implementation).
+    // 12 machines selectable via CC19: 0=Chorus 1=Vibrato 2=Rotary 3=Flanger 4=Phaser 5=Quadrature
+    //   6=Filter 7=Formant 8=VintageTrem 9=PatternTrem 10=Autoswell 11=Destroyer
+    // CCs 24-68: machine-specific parameters (vary by machine selected).
+    // 200 presets in 100 banks x 2 (A/B); sysex preset data is 650 bytes, name at bytes 632-647.
+    note: 'CC24-68 vary by machine. Param 1/2 (CC9/16) are assignable knobs — defaults are Wave and Mix.',
+    params: [
+      { cc: 17,  label: 'Speed',              def: 64  },
+      { cc: 18,  label: 'Depth',              def: 64  },
+      { cc: 19,  label: 'Machine (0-11)',     def: 0   },
+      { cc: 15,  label: 'Level',              def: 100 },
+      { cc: 9,   label: 'Param 1 (Wave)',     def: 64  },
+      { cc: 16,  label: 'Param 2 (Mix)',      def: 64  },
+      { cc: 21,  label: 'Tap Division (0-6)', def: 3   },
+      { cc: 22,  label: 'Pre/Post (0/1)',     def: 0   },
+      { cc: 81,  label: 'Tap (0/127)',        def: 0   },
+      { cc: 93,  label: 'Remote Tap',         def: 0   },
+      { cc: 100, label: 'Expression',         def: 0   },
+      { cc: 102, label: 'Bypass (0/127)',     def: 127 },
+    ],
+    starterPresets: [
+      { name: 'Chorus',       recallPC: -1, ccValues: { 102:127, 19:0,  17:50, 18:70,  9:64, 16:64 } },
+      { name: 'Vibrato',      recallPC: -1, ccValues: { 102:127, 19:1,  17:40, 18:80,  9:64, 16:64 } },
+      { name: 'Rotary',       recallPC: -1, ccValues: { 102:127, 19:2,  17:40, 18:64,  9:64, 16:64 } },
+      { name: 'Flanger',      recallPC: -1, ccValues: { 102:127, 19:3,  17:50, 18:64,  9:64, 16:64 } },
+      { name: 'Phaser',       recallPC: -1, ccValues: { 102:127, 19:4,  17:50, 18:64,  9:64, 16:64 } },
+      { name: 'Vintage Trem', recallPC: -1, ccValues: { 102:127, 19:8,  17:64, 18:80,  9:64, 16:64 } },
+      { name: 'Autoswell',    recallPC: -1, ccValues: { 102:127, 19:10, 17:64, 18:100, 9:64, 16:64 } },
+    ],
+    strymonSysex: { model: 0x02 },
+  },
+
   // ── Software / standalone plugins (MIDI-learn; no fixed factory CC map) ──
   // `starter` becomes customParams on the device at creation.
 
