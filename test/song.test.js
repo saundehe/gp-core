@@ -25,9 +25,10 @@ test('createSong defaults', () => {
   assert.equal(s.tempo,    120);
   assert.equal(s.time_sig, '4/4');
   assert.equal(s.bars,     0);
-  assert.deepEqual(s.sections,  []);
-  assert.deepEqual(s.parts,     []);
-  assert.deepEqual(s.rig_track, []);
+  assert.deepEqual(s.sections,    []);
+  assert.deepEqual(s.parts,       []);
+  assert.deepEqual(s.rig_track,   []);
+  assert.deepEqual(s.clock_track, []);
 });
 
 test('createSong with props', () => {
@@ -365,4 +366,42 @@ test('encodeRigTrack + decodeRigTrack round-trip', () => {
 
 test('decodeRigTrack - returns [] on garbage input', () => {
   assert.deepEqual(decodeRigTrack('not-valid-base64!!!'), []);
+});
+
+// ── createSong with clock_track ───────────────────────────────────────────────
+
+test('createSong accepts clockTrack and stores as clock_track', () => {
+  const clockCue = { bar: 9, osc_messages: [], note: 'chorus drop' };
+  const s = createSong({ title: 'Doom', clockTrack: [clockCue] });
+  assert.equal(s.clock_track.length, 1);
+  assert.equal(s.clock_track[0].bar, 9);
+});
+
+test('createSong with both rig_track and clock_track', () => {
+  const song = createSong({
+    title: 'Grey Pilgrim',
+    key: 'E',
+    tempo: 80,
+    bars: 32,
+    rigTrack: createRigTrack([
+      createRigCue({ bar: 1, presetId: 'intro-clean' }),
+      createRigCue({ bar: 9, presetId: 'verse-drive' }),
+    ]),
+    clockTrack: [
+      { bar: 1,  note: 'count-in',    osc_messages: [{ address: '/notch/scene/intro', args: [] }] },
+      { bar: 9,  note: 'verse',       osc_messages: [{ address: '/notch/scene/verse', args: [] }] },
+    ],
+  });
+  assert.equal(song._v, 1);
+  assert.equal(song.rig_track.length,   2);
+  assert.equal(song.clock_track.length, 2);
+  assert.equal(song.rig_track[0].preset_id,        'intro-clean');
+  assert.equal(song.clock_track[0].osc_messages[0].address, '/notch/scene/intro');
+  assert.equal(song.clock_track[1].bar,             9);
+});
+
+test('createSong preserves unknown fields after adding clock_track', () => {
+  const s = createSong({ title: 'Test', liveNotes: 'check tuning' });
+  assert.equal(s.liveNotes, 'check tuning');
+  assert.deepEqual(s.clock_track, []);
 });

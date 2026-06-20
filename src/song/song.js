@@ -16,6 +16,7 @@ export function createSong({
   sections = [],
   parts = [],
   rigTrack = [],
+  clockTrack = [],
   ...rest
 } = {}) {
   return {
@@ -26,11 +27,12 @@ export function createSong({
     key,
     scale,
     tempo,
-    time_sig: timeSignature,
+    time_sig:    timeSignature,
     bars,
     sections,
     parts,
-    rig_track: rigTrack,
+    rig_track:   rigTrack,
+    clock_track: clockTrack,
     ...rest,
   };
 }
