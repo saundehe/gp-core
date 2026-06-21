@@ -655,6 +655,40 @@ export const deviceDefs = {
     ],
   },
 
+  korg_monologue: {
+    label: 'Korg Monologue', type: 'Synth',
+    // VERIFY against Korg Monologue MIDI Implementation Chart (PDF on Korg site, 2016).
+    // Single shared EG: CC18 Attack + CC19 Decay/Release drive both Amp and Filter EGs simultaneously.
+    // CC20 EG Int sets filter EG depth (signed: 64=zero, 0=full neg, 127=full pos).
+    // Sync/Ring (CC80/81): Korg reversed convention — 0–63=On, 64–127=Off.
+    note: 'Mono analog. Shared EG: CC18 Attack + CC19 D/R control both Amp and Filter simultaneously. CC20 EG Int sets filter depth (64=neutral). Sync/Ring (CC80/81) reversed: 0–63=On, 64–127=Off.',
+    params: [
+      { cc: 56,  label: 'Cutoff',                     def: 80  },
+      { cc: 57,  label: 'Resonance',                  def: 0   },
+      { cc: 58,  label: 'Drive',                      def: 0   },
+      { cc: 20,  label: 'EG Int (filter depth)',       def: 64  },
+      { cc: 23,  label: 'EG Target (0/43/86)',         def: 0   },
+      { cc: 18,  label: 'EG Attack',                  def: 10  },
+      { cc: 19,  label: 'EG Decay/Release',           def: 40  },
+      { cc: 24,  label: 'LFO Rate',                   def: 64  },
+      { cc: 25,  label: 'LFO Int',                    def: 0   },
+      { cc: 26,  label: 'LFO Target (0/43/86)',        def: 0   },
+      { cc: 31,  label: 'LFO Wave (0/21/43/64/85)',    def: 0   },
+      { cc: 49,  label: 'VCO 1 Level',                def: 100 },
+      { cc: 50,  label: 'VCO 2 Level',                def: 0   },
+      { cc: 48,  label: 'Noise Level',                def: 0   },
+      { cc: 80,  label: 'Sync (0–63=On)',              def: 64  },
+      { cc: 81,  label: 'Ring Mod (0–63=On)',          def: 64  },
+      { cc: 5,   label: 'Portamento',                 def: 0   },
+    ],
+    starterPresets: [
+      { name: 'Init Patch', recallPC: -1, ccValues: { 56:80, 57:0,  49:100, 50:0,  18:5,  19:40, 20:64, 80:64, 81:64 } },
+      { name: 'Lead',       recallPC: -1, ccValues: { 56:90, 57:50, 49:100, 50:0,  18:5,  19:30, 20:90  } },
+      { name: 'Bass',       recallPC: -1, ccValues: { 56:45, 57:40, 49:100, 50:60, 18:2,  19:50, 20:64  } },
+      { name: 'Drone',      recallPC: -1, ccValues: { 56:40, 57:15, 49:80,  50:80, 18:70, 19:90, 20:100 } },
+    ],
+  },
+
   elektron_analog_four_mkii: {
     label: 'Elektron Analog Four MKII', type: 'Synth',
     // VERIFIED against Elektron Analog Four MKII manual, Appendix C (MIDI implementation).

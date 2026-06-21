@@ -108,6 +108,7 @@ export const pedalLib = {
   "Moog Matriarch":                 { v:12, ma:1000, cat:"Synthesizer" },
   "Moog Sub Phatty":                { v:12, ma:500,  cat:"Synthesizer" },
   "Moog Minimoog Voyager":          { v:12, ma:1000, cat:"Synthesizer" },
+  "Korg Monologue":                 { v:1,  ma:300,  cat:"Synthesizer" },
   "Korg Minilogue XD":              { v:9,  ma:800,  cat:"Synthesizer" },
   "Korg Minilogue":                 { v:9,  ma:500,  cat:"Synthesizer" },
   "Korg Prologue":                  { v:12, ma:1500, cat:"Synthesizer" },
