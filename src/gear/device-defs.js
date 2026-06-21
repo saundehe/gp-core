@@ -689,6 +689,113 @@ export const deviceDefs = {
     ],
   },
 
+  korg_microkorg: {
+    label: 'Korg MicroKorg', type: 'Synth',
+    // VERIFY against Korg MicroKorg MIDI Implementation Chart (Korg site PDF, 2002).
+    // Most synthesis params are SysEx (Korg exclusive) — CC access is limited.
+    // Knob A/B on panel send CC26/27; function depends on Edit Select switch position.
+    // Vocoder mode: audio source on Ch 2; synth voice count: 4 voices poly in synth mode.
+    note: 'Most synth params are SysEx-only — limited live CC access. Knob A/B send CC26/27 (context-dependent on Edit Select). Use Tweak → Learn to discover CCs from physical knobs.',
+    params: [
+      { cc: 7,   label: 'Volume',              def: 100 },
+      { cc: 1,   label: 'Mod Wheel',           def: 0   },
+      { cc: 5,   label: 'Portamento',          def: 0   },
+      { cc: 74,  label: 'Cutoff (verify CC)',  def: 80  },
+      { cc: 71,  label: 'Resonance (verify CC)', def: 0 },
+      { cc: 26,  label: 'Knob A (ctx-dep.)',   def: 64  },
+      { cc: 27,  label: 'Knob B (ctx-dep.)',   def: 64  },
+    ],
+    starterPresets: [
+      { name: 'Init Patch',  recallPC: 0,  ccValues: { 7:100, 74:80,  71:0  } },
+      { name: 'Bright Lead', recallPC: -1, ccValues: { 74:110, 71:50 } },
+      { name: 'Dark Bass',   recallPC: -1, ccValues: { 74:40,  71:30 } },
+    ],
+  },
+
+  korg_minilogue: {
+    label: 'Korg Minilogue', type: 'Synth',
+    // VERIFY against Korg Minilogue MIDI Implementation Chart (2016, Korg site PDF).
+    // 4-voice poly; separate Filter EG (CC20–23) and Amp EG (CC16–19) unlike Monologue's shared EG.
+    // CC map assumed to match Minilogue XD for shared logue-platform params — verify before relying on EG/LFO/VCO CCs.
+    // Sync/Ring (CC80/81): reversed — 0–63=On, 64–127=Off. Built-in delay CCs unconfirmed; use Tweak→Learn.
+    note: '4-voice poly. Separate Filter EG (CC20–23) and Amp EG (CC16–19). Built-in delay (CC unconfirmed — use Learn). No Multi Engine or Reverb/Mod FX. Sync/Ring (CC80/81) reversed: 0–63=On, 64–127=Off.',
+    params: [
+      { cc: 43,  label: 'Cutoff',                     def: 80  },
+      { cc: 44,  label: 'Resonance',                  def: 0   },
+      { cc: 20,  label: 'EG Attack',                  def: 20  },
+      { cc: 21,  label: 'EG Decay',                   def: 50  },
+      { cc: 22,  label: 'EG Int',                     def: 64  },
+      { cc: 23,  label: 'EG Target (0/43/86)',         def: 0   },
+      { cc: 16,  label: 'Amp EG Attack',              def: 5   },
+      { cc: 17,  label: 'Amp EG Decay',               def: 40  },
+      { cc: 18,  label: 'Amp EG Sustain',             def: 100 },
+      { cc: 19,  label: 'Amp EG Release',             def: 30  },
+      { cc: 24,  label: 'LFO Rate',                   def: 64  },
+      { cc: 26,  label: 'LFO Int',                    def: 0   },
+      { cc: 56,  label: 'LFO Target (0/43/86)',        def: 0   },
+      { cc: 57,  label: 'LFO Wave (0/43/86)',          def: 43  },
+      { cc: 34,  label: 'VCO 1 Pitch',                def: 64  },
+      { cc: 35,  label: 'VCO 2 Pitch',                def: 64  },
+      { cc: 50,  label: 'VCO 1 Wave (0/43/86)',        def: 86  },
+      { cc: 51,  label: 'VCO 2 Wave (0/43/86)',        def: 86  },
+      { cc: 39,  label: 'VCO 1 Level',                def: 100 },
+      { cc: 40,  label: 'VCO 2 Level',                def: 80  },
+      { cc: 80,  label: 'Sync (0–63=On)',              def: 64  },
+      { cc: 81,  label: 'Ring Mod (0–63=On)',          def: 64  },
+      { cc: 5,   label: 'Portamento',                 def: 0   },
+    ],
+    starterPresets: [
+      { name: 'Init Patch', recallPC: -1, ccValues: { 43:80, 44:0,  39:100, 40:80, 16:5,  18:100, 80:64, 81:64 } },
+      { name: 'Lead',       recallPC: -1, ccValues: { 43:90, 44:60, 39:100, 40:0,  20:5,  21:40              } },
+      { name: 'Pad',        recallPC: -1, ccValues: { 43:60, 44:10, 39:80,  40:80, 16:40, 18:80              } },
+      { name: 'Bass',       recallPC: -1, ccValues: { 43:50, 44:40, 39:100, 40:0,  17:60, 18:80              } },
+    ],
+  },
+
+  korg_prologue: {
+    label: 'Korg Prologue', type: 'Synth',
+    // VERIFY against Korg Prologue MIDI Implementation Chart (2018, Korg site PDF).
+    // 8 or 16-voice poly (model-dependent); logue-platform CC map mirrors Minilogue XD closely.
+    // Multi Engine slot (VCO 3): CC53 selects type (Noise/VPM/User).
+    // Sync/Ring (CC80/81): reversed — 0–63=On, 64–127=Off. Effects on/off: CC92/93/94.
+    note: '8/16-voice poly. Multi Engine CC53: 0–42=Noise, 43–85=VPM, 86+=User slot. Sync/Ring (CC80/81) reversed: 0–63=On. Effects: CC92=Mod FX, CC93=Delay, CC94=Reverb (64+=On).',
+    params: [
+      { cc: 43,  label: 'Cutoff',                     def: 80  },
+      { cc: 44,  label: 'Resonance',                  def: 0   },
+      { cc: 20,  label: 'EG Attack',                  def: 20  },
+      { cc: 21,  label: 'EG Decay',                   def: 50  },
+      { cc: 22,  label: 'EG Int',                     def: 64  },
+      { cc: 23,  label: 'EG Target (0/43/86)',         def: 0   },
+      { cc: 16,  label: 'Amp EG Attack',              def: 5   },
+      { cc: 17,  label: 'Amp EG Decay',               def: 40  },
+      { cc: 18,  label: 'Amp EG Sustain',             def: 100 },
+      { cc: 19,  label: 'Amp EG Release',             def: 30  },
+      { cc: 24,  label: 'LFO Rate',                   def: 64  },
+      { cc: 26,  label: 'LFO Int',                    def: 0   },
+      { cc: 56,  label: 'LFO Target (0/43/86)',        def: 0   },
+      { cc: 57,  label: 'LFO Wave (0/43/86)',          def: 43  },
+      { cc: 34,  label: 'VCO 1 Pitch',                def: 64  },
+      { cc: 35,  label: 'VCO 2 Pitch',                def: 64  },
+      { cc: 50,  label: 'VCO 1 Wave (0/43/86)',        def: 86  },
+      { cc: 51,  label: 'VCO 2 Wave (0/43/86)',        def: 86  },
+      { cc: 39,  label: 'VCO 1 Level',                def: 100 },
+      { cc: 40,  label: 'VCO 2 Level',                def: 80  },
+      { cc: 53,  label: 'Multi Engine Type (0/43/86)', def: 0   },
+      { cc: 80,  label: 'Sync (0–63=On)',              def: 64  },
+      { cc: 81,  label: 'Ring Mod (0–63=On)',          def: 64  },
+      { cc: 5,   label: 'Portamento',                 def: 0   },
+      { cc: 92,  label: 'Mod FX On (64+=On)',          def: 0   },
+      { cc: 93,  label: 'Delay On (64+=On)',           def: 0   },
+      { cc: 94,  label: 'Reverb On (64+=On)',          def: 0   },
+    ],
+    starterPresets: [
+      { name: 'Init Patch', recallPC: -1, ccValues: { 43:80, 44:0,  39:100, 40:80, 16:5,  18:100 } },
+      { name: 'Lead',       recallPC: -1, ccValues: { 43:90, 44:60, 39:100, 40:0,  20:5,  21:40  } },
+      { name: 'Pad',        recallPC: -1, ccValues: { 43:60, 44:10, 39:80,  40:80, 16:40, 18:80, 94:64 } },
+      { name: 'Bass',       recallPC: -1, ccValues: { 43:50, 44:40, 39:100, 40:0,  17:60, 18:80  } },
+    ],
+  },
+
   elektron_analog_four_mkii: {
     label: 'Elektron Analog Four MKII', type: 'Synth',
     // VERIFIED against Elektron Analog Four MKII manual, Appendix C (MIDI implementation).
