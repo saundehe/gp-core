@@ -3,9 +3,14 @@
 // and rig/src/pedals.js (PEDAL_LIB). Tools version is the superset (has jack layout).
 // Dims in inches. Jack sides: top/bottom/left/right.
 // Optional inJAt/outJAt/pwrJAt (0.0–1.0): precise jack position along the side.
-//   left/right sides: 0=top edge, 1=bottom edge. top/bottom sides: 0=left, 1=right.
-//   When absent, tools use a geometry heuristic: portrait (d>w) → 0.15, landscape (w>d) → 0.5.
+//   left/right sides: 0=top edge (back of board), 1=bottom edge (front of board).
+//   top/bottom sides: 0=left, 1=right.
+//   When absent, tools use a geometry heuristic: portrait (d>w×1.1) → 0.15, landscape → 0.5.
 //   Add measured values when you have the physical pedal in hand.
+// hasFxLoop: true → pedal has an effects send/return loop.
+// Optional sendJ/returnJ (side) + sendJAt/returnJAt (0.0–1.0): physical positions of FX loop jacks.
+//   When sendJ/returnJ absent, tools default to outJ/inJ side respectively.
+//   When sendJAt/returnJAt absent, tools use 0.65 (toward front of board) as placeholder.
 // Community-grown via the suggest-gear form. Specs approximate — verify your own.
 
 export const pedalLib = {
@@ -26,9 +31,9 @@ export const pedalLib = {
   "Digitech Whammy V":         { v:9, ma:200, w:5.0,  d:5.5,  cat:"Pitch / Octave",inJ:"right", outJ:"left", pwrJ:"top" },
   "Strymon El Capistan":       { v:9, ma:250, w:4.0,  d:4.5,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top" },
   "Strymon BigSky":            { v:9, ma:300, w:6.75, d:5.1,  cat:"Reverb",        inJ:"left",  outJ:"right",pwrJ:"top", inJAt:0.20, outJAt:0.20 },
-  "Strymon Timeline":          { v:9, ma:300, w:6.75, d:5.1,  cat:"Delay",         inJ:"left",  outJ:"right",pwrJ:"top", inJAt:0.20, outJAt:0.20 },
+  "Strymon Timeline":          { v:9, ma:300, w:6.75, d:5.1,  cat:"Delay",         inJ:"left",  outJ:"right",pwrJ:"top", inJAt:0.20, outJAt:0.20, hasFxLoop:true },
   "Eventide H9":               { v:9, ma:400, w:4.9,  d:4.6,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
-  "Line 6 HX Stomp":          { v:9, ma:500, w:4.7,  d:3.1,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Line 6 HX Stomp":          { v:9, ma:500, w:4.7,  d:3.1,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true },
   "Dunlop Cry Baby Wah":       { v:9, ma:5,   w:4.0,  d:10.0, cat:"Wah / Filter",  inJ:"right", outJ:"left", pwrJ:"top" },
 
   // ── Meris ──
@@ -47,7 +52,7 @@ export const pedalLib = {
   "Boss TU-3":                 { v:9, ma:85,  w:2.9,  d:5.1,  cat:"Tuner",          inJ:"right", outJ:"left", pwrJ:"top" },
   "Boss CE-2W":                { v:9, ma:55,  w:2.9,  d:5.1,  cat:"Modulation",     inJ:"right", outJ:"left", pwrJ:"top" },
   "Boss PS-6 Harmonist":       { v:9, ma:55,  w:2.9,  d:5.1,  cat:"Pitch / Octave", inJ:"right", outJ:"left", pwrJ:"top" },
-  "Boss MS-3":                 { v:9, ma:500, w:4.2,  d:5.5,  cat:"Other",          inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss MS-3":                 { v:9, ma:500, w:4.2,  d:5.5,  cat:"Other",          inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true },
 
   // ── EarthQuaker Devices ──
   "EQD Zoar":                  { v:9, ma:35,  w:4.7,  d:2.6,  cat:"Distortion",     inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
@@ -60,7 +65,7 @@ export const pedalLib = {
   "EQD Dispatch Master":       { v:9, ma:25,  w:4.7,  d:2.6,  cat:"Delay",          inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
 
   // ── Electro-Harmonix ──
-  "EHX Silencer":              { v:9, ma:75,  w:2.75, d:3.6,  cat:"Noise Gate",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "EHX Silencer":              { v:9, ma:75,  w:2.75, d:3.6,  cat:"Noise Gate",     inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true, sendJ:"right", sendJAt:0.60, returnJ:"left", returnJAt:0.60 },
   "EHX Pitchfork":             { v:9, ma:175, w:2.75, d:4.5,  cat:"Pitch / Octave", inJ:"right", outJ:"left", pwrJ:"top" },
   "EHX FreqOut":               { v:9, ma:107, w:2.75, d:4.5,  cat:"Other",          inJ:"right", outJ:"left", pwrJ:"top" },
   "EHX Oceans 11":             { v:9, ma:100, w:4.75, d:3.75, cat:"Reverb",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
@@ -85,7 +90,7 @@ export const pedalLib = {
   "Alexander Pedals Syntax Error":  { v:9, ma:150, w:4.65, d:2.6,  cat:"Other",     inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
 
   // ── Fowl Sounds ──
-  "Fowl Sounds Lifer":         { v:9, ma:100, w:5.5,  d:2.6,  cat:"Fuzz",           inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Fowl Sounds Lifer":         { v:9, ma:100, w:5.5,  d:2.6,  cat:"Fuzz",           inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40, hasFxLoop:true, sendJ:"right", sendJAt:0.65, returnJ:"left", returnJAt:0.65 },
 
   // ── Blackhawk Amplifiers — Portland doom/sludge builder ──
   // Dims: 1590B single / 1590BB dual enclosures (standard). mA estimated by circuit type (9V neg-tip). Verify your own.
