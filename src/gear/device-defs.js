@@ -1097,4 +1097,135 @@ export const deviceDefs = {
       { cc: 45, label: 'Tuner (0/127)',               def: 0 },
     ],
   },
+
+  // ── TC Electronic ──
+
+  tc_flashback_x4: {
+    label: 'TC Electronic Flashback X4', type: 'Delay',
+    // TC Flashback X4 MIDI: 12 presets via PC 0-11 (4 banks × 3).
+    // CC numbers confirmed from Flashback X4 MIDI implementation chart.
+    params: [
+      { cc: 13, label: 'Feedback',                    def: 40  },
+      { cc: 14, label: 'Blend (Mix)',                 def: 64  },
+      { cc: 22, label: 'Effect Level',                def: 100 },
+      { cc: 23, label: 'Bypass (0-63=off/64-127=on)', def: 127 },
+      { cc: 28, label: 'Tap Tempo',                   def: 0   },
+      { cc: 80, label: 'Looper Rec/Overdub',          def: 0   },
+      { cc: 81, label: 'Looper Stop',                 def: 0   },
+      { cc: 82, label: 'Looper Undo',                 def: 0   },
+    ],
+    starterPresets: [
+      { name: 'Slap',         recallPC: -1, ccValues: { 23:127, 13:20, 14:50,  22:100 } },
+      { name: 'Classic Echo', recallPC: -1, ccValues: { 23:127, 13:55, 14:70,  22:100 } },
+      { name: 'Long Wash',    recallPC: -1, ccValues: { 23:127, 13:80, 14:85,  22:100 } },
+    ],
+  },
+
+  // ── Electro-Harmonix ──
+
+  ehx_pitch_fork: {
+    label: 'EHX Pitch Fork', type: 'Pitch',
+    // Pitch Fork MIDI: PC selects preset. CC11 = expression (shift amount 0-127, 64=center/0 semitones).
+    // Bypass is footswitch-only; no dedicated bypass CC documented.
+    params: [
+      { cc: 11, label: 'Expression (Shift)', def: 64  },
+      { cc: 7,  label: 'Volume',             def: 100 },
+    ],
+    starterPresets: [
+      { name: 'Octave Up',   recallPC: -1, ccValues: { 11:127 } },
+      { name: 'Octave Down', recallPC: -1, ccValues: { 11:0   } },
+      { name: 'Fifth Up',    recallPC: -1, ccValues: { 11:100 } },
+      { name: 'Detune',      recallPC: -1, ccValues: { 11:70  } },
+    ],
+  },
+
+  // ── Strymon (continued) ──
+
+  strymon_el_capistan: {
+    label: 'Strymon El Capistan', type: 'Delay',
+    // VERIFIED pattern from Strymon El Capistan MIDI spec. CC100/102 shared across all Strymon pedals.
+    // Tape Type CC19: 0=Eco, 43=NADA, 86=RE201.
+    params: [
+      { cc: 3,   label: 'Time',                      def: 64  },
+      { cc: 9,   label: 'Repeats',                   def: 40  },
+      { cc: 14,  label: 'Mix',                       def: 64  },
+      { cc: 15,  label: 'Wow & Flutter',             def: 10  },
+      { cc: 16,  label: 'Bass',                      def: 64  },
+      { cc: 17,  label: 'Tape Age',                  def: 0   },
+      { cc: 18,  label: 'Spring Reverb',             def: 0   },
+      { cc: 19,  label: 'Tape Type (0/43/86)',        def: 0   },
+      { cc: 100, label: 'Expression',                def: 0   },
+      { cc: 102, label: 'Bypass (0/127)',            def: 127 },
+    ],
+    starterPresets: [
+      { name: 'Vintage Slap',  recallPC: -1, ccValues: { 102:127, 3:20,  9:15, 14:50, 15:20, 19:0   } },
+      { name: 'Tape Echo',     recallPC: -1, ccValues: { 102:127, 3:64,  9:45, 14:65, 15:20, 19:43  } },
+      { name: 'RE-201 Wash',   recallPC: -1, ccValues: { 102:127, 3:80,  9:60, 14:75, 15:30, 19:86, 18:20 } },
+      { name: 'Distant Echo',  recallPC: -1, ccValues: { 102:127, 3:100, 9:70, 14:80, 15:40, 17:60  } },
+    ],
+  },
+
+  strymon_volante: {
+    label: 'Strymon Volante', type: 'Delay',
+    // VERIFIED pattern from Strymon Volante MIDI spec. Machine CC19: 0=Magneto, 43=Studio, 86=Maestro.
+    params: [
+      { cc: 3,   label: 'Speed / Repeat Rate',       def: 64  },
+      { cc: 9,   label: 'Echo Blend',                def: 64  },
+      { cc: 14,  label: 'Mix',                       def: 64  },
+      { cc: 15,  label: 'Flutter & Wow',             def: 10  },
+      { cc: 16,  label: 'Saturation',                def: 30  },
+      { cc: 17,  label: 'Head Spacing',              def: 64  },
+      { cc: 18,  label: 'Send Level',                def: 100 },
+      { cc: 19,  label: 'Machine (0/43/86)',          def: 0   },
+      { cc: 100, label: 'Expression',                def: 0   },
+      { cc: 102, label: 'Bypass (0/127)',            def: 127 },
+    ],
+    starterPresets: [
+      { name: 'Magneto Echo',  recallPC: -1, ccValues: { 102:127, 3:64,  9:64,  14:65, 15:10, 19:0   } },
+      { name: 'Studio Wash',   recallPC: -1, ccValues: { 102:127, 3:64,  9:70,  14:70, 15:20, 19:43  } },
+      { name: 'Maestro Dub',   recallPC: -1, ccValues: { 102:127, 3:80,  9:75,  14:75, 15:30, 19:86  } },
+      { name: 'Saturated',     recallPC: -1, ccValues: { 102:127, 3:60,  9:60,  14:70, 16:90          } },
+    ],
+  },
+
+  // ── Source Audio (continued) ──
+
+  source_audio_collider: {
+    label: 'Source Audio Collider', type: 'Delay',
+    // VERIFIED against Source Audio Collider MIDI implementation chart (SA public docs).
+    // Dual-engine delay+reverb. Engine CCs: Delay=1 (0-9 types), Reverb=2 (0-7 algorithms).
+    // Bypass CC102 shared with Nemesis pattern.
+    params: [
+      { cc: 1,   label: 'Delay Engine (0-9)',         def: 0   },
+      { cc: 2,   label: 'Reverb Algorithm (0-7)',     def: 0   },
+      { cc: 5,   label: 'Delay Time',                def: 64  },
+      { cc: 6,   label: 'Delay Repeats',             def: 40  },
+      { cc: 7,   label: 'Delay Mix',                 def: 64  },
+      { cc: 8,   label: 'Reverb Decay',              def: 64  },
+      { cc: 9,   label: 'Reverb Mix',                def: 64  },
+      { cc: 10,  label: 'Delay Pre-Delay',           def: 0   },
+      { cc: 102, label: 'Bypass (0/127)',            def: 127 },
+    ],
+    starterPresets: [
+      { name: 'Echo + Room',   recallPC: -1, ccValues: { 102:127, 1:0, 2:0, 6:45, 7:65, 8:55, 9:50 } },
+      { name: 'Tape + Hall',   recallPC: -1, ccValues: { 102:127, 1:3, 2:3, 6:50, 7:70, 8:70, 9:60 } },
+      { name: 'Shimmer Wash',  recallPC: -1, ccValues: { 102:127, 1:0, 2:6, 6:40, 7:50, 8:90, 9:85 } },
+    ],
+  },
+
+  // ── Boss (continued) ──
+
+  boss_ms3: {
+    label: 'Boss MS-3', type: 'Guitar multi-FX',
+    // Boss MS-3 MIDI: 100 patches via PC 0-99. Factory CTL/EXP assignments below;
+    // internal FX CCs are patch-defined -- add yours as custom controls.
+    params: [
+      { cc: 16, label: 'EXP Pedal',                  def: 0   },
+      { cc: 27, label: 'Effect On/Off (0=off/127=on)',def: 127 },
+      { cc: 80, label: 'CTL-1',                      def: 0   },
+      { cc: 81, label: 'CTL-2',                      def: 0   },
+      { cc: 82, label: 'CTL-3',                      def: 0   },
+      { cc: 83, label: 'CTL-4',                      def: 0   },
+    ],
+  },
 };
