@@ -2,6 +2,10 @@
 // This is the canonical source — replaces gpdoom-tools/pedals.js (window.GP_PEDALS)
 // and rig/src/pedals.js (PEDAL_LIB). Tools version is the superset (has jack layout).
 // Dims in inches. Jack sides: top/bottom/left/right.
+// Optional inJAt/outJAt/pwrJAt (0.0–1.0): precise jack position along the side.
+//   left/right sides: 0=top edge, 1=bottom edge. top/bottom sides: 0=left, 1=right.
+//   When absent, tools use a geometry heuristic: portrait (d>w) → 0.15, landscape (w>d) → 0.5.
+//   Add measured values when you have the physical pedal in hand.
 // Community-grown via the suggest-gear form. Specs approximate — verify your own.
 
 export const pedalLib = {
