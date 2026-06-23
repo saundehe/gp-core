@@ -64,13 +64,16 @@ export const pedalLib = {
   "EHX Nano POG":              { v:9, ma:55,  w:2.75, d:4.5,  cat:"Pitch / Octave", inJ:"right", outJ:"left", pwrJ:"top" },
   "EHX Super Ego+":            { v:9, ma:100, w:4.75, d:3.75, cat:"Other",          inJ:"right", outJ:"left", pwrJ:"top" },
   "EHX Crayon":                { v:9, ma:26,  w:2.75, d:3.6,  cat:"Overdrive",      inJ:"right", outJ:"left", pwrJ:"top" },
+  "EHX MEL9":                  { v:9, ma:100, w:4.5,  d:3.4,  cat:"Synthesis",      inJ:"right", outJ:"left", pwrJ:"top" },
 
   // ── TC Electronic ──
   "TC Flashback 4":            { v:9, ma:160, w:2.85, d:4.8,  cat:"Delay",          inJ:"right", outJ:"left", pwrJ:"top" },
+  "TC Flashback X4":           { v:9, ma:160, w:2.85, d:4.8,  cat:"Delay",          inJ:"right", outJ:"left", pwrJ:"top" },
   "TC Hall of Fame 2":         { v:9, ma:100, w:2.85, d:4.8,  cat:"Reverb",         inJ:"right", outJ:"left", pwrJ:"top" },
   "TC Sentry Noise Gate":      { v:9, ma:30,  w:2.75, d:3.5,  cat:"Noise Gate",     inJ:"right", outJ:"left", pwrJ:"top" },
   "TC Sub'n'Up":               { v:9, ma:100, w:2.75, d:3.5,  cat:"Pitch / Octave", inJ:"right", outJ:"left", pwrJ:"top" },
   "TC Ditto+ Looper":          { v:9, ma:65,  w:2.75, d:3.5,  cat:"Other",          inJ:"right", outJ:"left", pwrJ:"top" },
+  "TC Ditto X2":               { v:9, ma:100, w:4.57, d:2.75, cat:"Looper",         inJ:"right", outJ:"left", pwrJ:"top" },
 
   // ── Alexander Pedals ──
   "Alexander Pedals Wavelength":    { v:9, ma:200, w:4.65, d:2.6,  cat:"Reverb",    inJ:"right", outJ:"left", pwrJ:"top" },
@@ -97,6 +100,40 @@ export const pedalLib = {
   "Blackhawk Morgul Boost":        { v:9, ma:8,   w:2.6,  d:4.4,  cat:"Overdrive",    inJ:"right", outJ:"left", pwrJ:"top" },
   "Blackhawk Odin (Preamp/Drv)":   { v:9, ma:18,  w:2.6,  d:4.4,  cat:"Overdrive",    inJ:"right", outJ:"left", pwrJ:"top" },
   "Blackhawk Valknut (Wah/OD)":    { v:9, ma:12,  w:2.6,  d:4.4,  cat:"Wah / Filter", inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Fuzzrocious ── (Portland doom/experimental builder; 1590BB-format enclosures; low-current silicon)
+  "Fuzzrocious Bongripper":        { v:9, ma:10,  w:4.67, d:3.68, cat:"Fuzz",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Fuzzrocious 420":               { v:9, ma:10,  w:4.67, d:3.68, cat:"Fuzz",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Fuzzrocious Rat Tail":          { v:9, ma:12,  w:2.6,  d:4.4,  cat:"Distortion",   inJ:"right", outJ:"left", pwrJ:"top" },
+  "Fuzzrocious Demon King":        { v:9, ma:10,  w:4.67, d:3.68, cat:"Fuzz",         inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Black Arts Toneworks ──
+  "Black Arts Quantum Mystic":     { v:9, ma:20,  w:4.67, d:3.68, cat:"Fuzz",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Black Arts Pharaoh":            { v:9, ma:20,  w:2.6,  d:4.4,  cat:"Fuzz",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Black Arts Ritual":             { v:9, ma:10,  w:2.6,  d:4.4,  cat:"Fuzz",         inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Stone Deaf FX ──
+  "Stone Deaf Trashy Blonde":      { v:9, ma:20,  w:4.72, d:2.38, cat:"Distortion",   inJ:"right", outJ:"left", pwrJ:"top" },
+  "Stone Deaf PDF-1x":             { v:9, ma:20,  w:4.72, d:2.38, cat:"Distortion",   inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── JHS Pedals ──
+  "JHS Legends Fuzz":              { v:9, ma:20,  w:4.67, d:3.68, cat:"Fuzz",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "JHS Muffuletta":                { v:9, ma:30,  w:4.67, d:3.68, cat:"Fuzz",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "JHS Angry Charlie":             { v:9, ma:30,  w:2.6,  d:4.4,  cat:"Distortion",   inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Aguilar ──
+  "Aguilar Octamizer":             { v:9, ma:15,  w:4.45, d:2.35, cat:"Pitch / Octave", inJ:"right", outJ:"left", pwrJ:"top" },
+  "Aguilar TLC Compressor":        { v:9, ma:45,  w:4.45, d:2.35, cat:"Compressor",   inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Saturnworks ──
+  "Saturnworks Looper":            { v:9, ma:30,  w:3.68, d:1.46, cat:"Looper",        inJ:"right", outJ:"left", pwrJ:"top" },
+  "Saturnworks Micro Switch":      { v:9, ma:15,  w:2.5,  d:1.5,  cat:"Utility",       inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Behringer (pedals) ──
+  "Behringer SF300":               { v:9, ma:20,  w:2.76, d:4.57, cat:"Fuzz",          inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Laney ──
+  "Laney Ironheart IRT-Pulse":     { v:9, ma:500, w:4.7,  d:2.6,  cat:"Preamp",        inJ:"right", outJ:"left", pwrJ:"top" },
 
   // ── Synthesizers ──
   "Sequential Prophet Rev2":        { v:12, ma:1000, cat:"Synthesizer" },
@@ -162,4 +199,28 @@ export const pedalLib = {
   "Countryman Type 85":             { v:0, ma:0, cat:"DI box" },
   "Whirlwind IMP 2":                { v:0, ma:0, cat:"DI box" },
   "BSS AR-133":                     { v:0, ma:0, cat:"DI box" },
+  "Behringer Ultra-DI Pro DI800":   { v:0, ma:0, cat:"DI box" },
+
+  // ── Audio interfaces / converters (AC or bus powered; no pedal dims) ──
+  "RME Babyface Pro":               { v:5,  ma:900,  cat:"Audio interface" },
+  "RME Babyface":                   { v:5,  ma:900,  cat:"Audio interface" },
+  "RME Hammerfall DSP Digiface":    { v:0,  ma:0,    cat:"Audio interface" },
+  "TASCAM US-20x20":                { v:0,  ma:0,    cat:"Audio interface" },
+  "MOTU 2408 mkI":                  { v:0,  ma:0,    cat:"Audio interface" },
+  "Behringer ADA8200":              { v:12, ma:250,  cat:"Audio interface" },
+
+  // ── Amps / cabs (AC-powered; dims intentionally omitted — use kind defaults in layout) ──
+  "Orange CR120H":                  { v:0, ma:0, cat:"Amp" },
+  "Orange Crush Mini":              { v:9, ma:1000, cat:"Amp" },
+  "Sunn Beta Lead":                 { v:0, ma:0, cat:"Amp" },
+  "Laney Ironheart IRT120H":        { v:0, ma:0, cat:"Amp" },
+  "Darkglass Element":              { v:0, ma:0, cat:"Amp" },
+  "Positive Grid Spark 40":         { v:0, ma:0, cat:"Amp" },
+  "Roland SR-70":                   { v:0, ma:0, cat:"Amp" },
+  "Peavey XR mixer-amp":            { v:0, ma:0, cat:"Amp" },
+  "Darkglass Microtubes 900":       { v:0, ma:0, cat:"Amp" },
+  "SWR Henry 8x8":                  { v:0, ma:0, cat:"Cab" },
+  "Randall R412JT":                 { v:0, ma:0, cat:"Cab" },
+  "Acoustic G412A":                 { v:0, ma:0, cat:"Cab" },
+  "Ampeg V412":                     { v:0, ma:0, cat:"Cab" },
 };

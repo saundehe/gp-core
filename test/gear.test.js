@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { pedalLib, deviceDefs, createGearItem, createBoard, normalizeGearItem, normalizeBoard } from '../src/gear/index.js';
 
 // Categories without a pedalboard footprint — skip physical dimension checks for these.
-const NON_PEDALBOARD_CATS = new Set(['Synthesizer', 'Drum machine', 'Outboard', 'DI box']);
+// Amps, cabs, audio interfaces, and DI boxes get their layout dims from KIND_DIMS in the app.
+const NON_PEDALBOARD_CATS = new Set(['Synthesizer', 'Drum machine', 'Outboard', 'DI box', 'Amp', 'Cab', 'Audio interface']);
 
 test('pedalLib has entries with required fields', () => {
   assert.ok(Object.keys(pedalLib).length > 60, 'should have 60+ pedals');
