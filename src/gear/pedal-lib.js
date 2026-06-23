@@ -138,6 +138,131 @@ export const pedalLib = {
   "Saturnworks Looper":            { v:9, ma:30,  w:3.68, d:1.46, cat:"Looper",        inJ:"right", outJ:"left", pwrJ:"top" },
   "Saturnworks Micro Switch":      { v:9, ma:15,  w:2.5,  d:1.5,  cat:"Utility",       inJ:"right", outJ:"left", pwrJ:"top" },
 
+  // ── MXR / Dunlop pedals ──
+  "MXR Phase 90":                  { v:9, ma:3,   w:2.5,  d:4.5,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "MXR Phase 100":                 { v:9, ma:5,   w:2.5,  d:4.5,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "MXR Dyna Comp":                 { v:9, ma:3,   w:2.5,  d:4.5,  cat:"Compressor",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "MXR EVH 5150 Overdrive":        { v:9, ma:50,  w:2.5,  d:4.5,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "MXR Bass Octave Deluxe":        { v:9, ma:18,  w:2.5,  d:4.5,  cat:"Pitch / Octave",inJ:"right", outJ:"left", pwrJ:"top" },
+  "MXR Micro Amp":                 { v:9, ma:2,   w:2.5,  d:4.5,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "MXR Zakk Wylde OD":            { v:9, ma:25,  w:2.5,  d:4.5,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "MXR Smart Gate":                { v:9, ma:25,  w:2.5,  d:4.5,  cat:"Noise Gate",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "MXR 10-Band EQ":                { v:9, ma:5,   w:2.5,  d:4.5,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "MXR Reverb":                    { v:9, ma:100, w:4.5,  d:2.5,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Keeley ──
+  "Keeley Compressor Plus":        { v:9, ma:50,  w:2.35, d:4.37, cat:"Compressor",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "Keeley D&M Drive":              { v:9, ma:100, w:4.7,  d:3.5,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Keeley Filaments":              { v:9, ma:40,  w:2.35, d:4.37, cat:"Distortion",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "Keeley Luna Reverb":            { v:9, ma:100, w:4.7,  d:3.5,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Keeley Halo Delay":             { v:9, ma:150, w:4.7,  d:3.5,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Keeley Hydra":                  { v:9, ma:150, w:4.7,  d:3.5,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Way Huge ──
+  "Way Huge Swollen Pickle":       { v:9, ma:10,  w:4.5,  d:2.5,  cat:"Fuzz",          inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Way Huge Pork Loin":            { v:9, ma:7,   w:2.4,  d:4.5,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Way Huge Aqua-Puss":            { v:9, ma:35,  w:2.4,  d:4.5,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Way Huge Green Rhino":          { v:9, ma:8,   w:2.4,  d:4.5,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Way Huge Purple Platypus":      { v:9, ma:20,  w:4.5,  d:2.5,  cat:"Pitch / Octave",inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Walrus Audio ──
+  "Walrus Audio ACS1":             { v:9, ma:170, w:4.75, d:3.0,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Walrus Audio Julia":            { v:9, ma:100, w:4.75, d:2.9,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Walrus Audio Ages":             { v:9, ma:60,  w:4.75, d:2.9,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Walrus Audio Kangra":           { v:9, ma:130, w:4.75, d:2.9,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Walrus Audio Fathom":           { v:9, ma:100, w:4.75, d:2.9,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Walrus Audio Eddy":             { v:9, ma:100, w:4.75, d:2.9,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Walrus Audio EB-10":            { v:9, ma:100, w:4.75, d:3.0,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Empress Effects ──
+  "Empress Reverb":                { v:9, ma:250, w:4.8,  d:3.65, cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Empress Compressor MKII":       { v:9, ma:170, w:4.3,  d:2.8,  cat:"Compressor",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Empress ParaEQ MKII":           { v:9, ma:80,  w:4.3,  d:2.8,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Empress Echosystem":            { v:9, ma:250, w:4.8,  d:3.65, cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Fulltone ──
+  "Fulltone OCD":                  { v:9, ma:3,   w:2.36, d:4.4,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Fulltone Full-Drive 2":         { v:9, ma:3,   w:2.36, d:4.4,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Boss compact classics ──
+  "Boss SD-1 Super Overdrive":     { v:9, ma:8,   w:2.9,  d:5.1,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss BD-2 Blues Driver":        { v:9, ma:8,   w:2.9,  d:5.1,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss MT-2 Metal Zone":          { v:9, ma:8,   w:2.9,  d:5.1,  cat:"Distortion",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss BF-3 Flanger":             { v:9, ma:8,   w:2.9,  d:5.1,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss NS-2 Noise Suppressor":    { v:9, ma:7,   w:2.9,  d:5.1,  cat:"Noise Gate",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss GE-7 EQ":                  { v:9, ma:16,  w:2.9,  d:5.1,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss CS-3 Compression":         { v:9, ma:9,   w:2.9,  d:5.1,  cat:"Compressor",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss OC-5 Octave":              { v:9, ma:30,  w:2.9,  d:5.1,  cat:"Pitch / Octave",inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss TR-2 Tremolo":             { v:9, ma:6,   w:2.9,  d:5.1,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss PH-3 Phase Shifter":       { v:9, ma:12,  w:2.9,  d:5.1,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss LS-2 Line Selector":       { v:9, ma:5,   w:2.9,  d:5.1,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss RE-20 Space Echo":         { v:9, ma:120, w:5.5,  d:5.0,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Ibanez ──
+  "Ibanez TS808":                  { v:9, ma:8,   w:2.87, d:5.11, cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Ibanez TS Mini":                { v:9, ma:6,   w:2.0,  d:3.2,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Ibanez PD-7 Phat Hed":          { v:9, ma:10,  w:2.87, d:5.11, cat:"Distortion",    inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Chase Bliss Audio ──
+  "CBA Blooper":                   { v:9, ma:200, w:4.5,  d:2.6,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "CBA Mood":                      { v:9, ma:200, w:4.5,  d:2.6,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "CBA Dark World":                { v:9, ma:200, w:4.5,  d:2.6,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "CBA Brothers":                  { v:9, ma:200, w:4.5,  d:2.6,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "CBA Thermae":                   { v:9, ma:200, w:4.5,  d:2.6,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "CBA Automatone Preamp MKII":    { v:9, ma:300, w:4.5,  d:2.6,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Source Audio ──
+  "Source Audio Collider":         { v:9, ma:250, w:4.5,  d:3.0,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Source Audio EQ2":              { v:9, ma:100, w:3.5,  d:2.6,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Wampler ──
+  "Wampler Plexi-Drive":           { v:9, ma:30,  w:2.25, d:4.5,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Wampler Pinnacle":              { v:9, ma:25,  w:2.25, d:4.5,  cat:"Distortion",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "Wampler Latitude Tremolo":      { v:9, ma:70,  w:4.4,  d:2.35, cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Wampler Terraform":             { v:9, ma:200, w:4.4,  d:2.35, cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Wampler Faux Spring Reverb":    { v:9, ma:50,  w:4.4,  d:2.35, cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Xotic ──
+  "Xotic EP Booster":              { v:9, ma:5,   w:1.8,  d:3.7,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Xotic RC Booster":              { v:9, ma:5,   w:2.5,  d:4.5,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Xotic BB Preamp":               { v:9, ma:8,   w:2.5,  d:4.5,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Xotic SL Drive":                { v:9, ma:10,  w:2.5,  d:4.5,  cat:"Distortion",    inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Voodoo Lab ──
+  "Voodoo Lab Sparkle Drive Mod":  { v:9, ma:6,   w:2.5,  d:4.5,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Voodoo Lab Giggity":            { v:9, ma:36,  w:2.5,  d:4.5,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top" },
+  "Voodoo Lab Proctavia":          { v:9, ma:3,   w:2.5,  d:4.5,  cat:"Fuzz",          inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Digitech ──
+  "Digitech Drop":                 { v:9, ma:135, w:3.1,  d:5.4,  cat:"Pitch / Octave",inJ:"right", outJ:"left", pwrJ:"top" },
+  "Digitech FreqOut":              { v:9, ma:180, w:2.5,  d:4.5,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Caroline Guitar Company ──
+  "Caroline Meteore":              { v:9, ma:100, w:4.7,  d:2.6,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Caroline Kilobyte":             { v:9, ma:70,  w:4.7,  d:2.6,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Caroline Wave Cannon":          { v:9, ma:20,  w:4.7,  d:2.6,  cat:"Distortion",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Old Blood Noise Endeavors ──
+  "OBNE Rever":                    { v:9, ma:100, w:4.7,  d:2.6,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "OBNE Excess":                   { v:9, ma:100, w:4.7,  d:2.6,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "OBNE Procession":               { v:9, ma:100, w:4.7,  d:2.6,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "OBNE Dweller":                  { v:9, ma:100, w:4.7,  d:2.6,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Pigtronix ──
+  "Pigtronix Infinity Looper":     { v:9, ma:300, w:6.5,  d:3.7,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Pigtronix Space Raver":         { v:9, ma:100, w:4.7,  d:2.6,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Catalinbread ──
+  "Catalinbread Belle Epoch":      { v:9, ma:100, w:4.7,  d:2.6,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Catalinbread Echorec":          { v:9, ma:130, w:4.7,  d:2.6,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Catalinbread Montavillian":     { v:9, ma:100, w:4.7,  d:2.6,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Catalinbread Dreamcoat":        { v:9, ma:30,  w:4.7,  d:2.6,  cat:"Overdrive",     inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Death By Audio ──
+  "Death By Audio Apocalypse":     { v:9, ma:15,  w:4.7,  d:2.6,  cat:"Fuzz",          inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Death By Audio Echo Dream":     { v:9, ma:100, w:4.7,  d:2.6,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Death By Audio Supersonic Fuzz": { v:9, ma:15, w:4.7,  d:2.6,  cat:"Fuzz",          inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
   // ── Behringer (pedals) ──
   "Behringer SF300":               { v:9, ma:20,  w:2.76, d:4.57, cat:"Fuzz",          inJ:"right", outJ:"left", pwrJ:"top" },
 
