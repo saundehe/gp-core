@@ -550,6 +550,18 @@ export const deviceDefs = {
     strymonSysex: { model: 0x02 },
   },
 
+  eventide_h9: {
+    label: 'Eventide H9', type: 'Multi-FX',
+    // H9 Core / Standard / Max all share the same firmware and MIDI implementation.
+    // Presets load via PC 0-98 (PC 0 = Preset 1 … PC 98 = Preset 99). No bank select needed.
+    // HotKnob (expression ribbon) CC and Bypass CC are user-assigned in H9 Control app:
+    //   System Settings → MIDI → RCV.CTL → EXP (for HotKnob) and TAP/Bypass.
+    //   Or use MIDI Learn — press footswitch while sending the CC to auto-assign.
+    // No fixed default CC map. Add your learned CCs as custom controls on the device.
+    note: 'H9 Core/Standard/Max: presets via PC 0-98. All CC assignments (HotKnob, Bypass, Tap) are user-defined in H9 Control → MIDI settings. Use Tweak → Learn to auto-assign CCs after configuring in H9 Control.',
+    params: [],
+  },
+
   // ── Synthesizers ──
 
   sequential_prophet_rev2: {
@@ -671,23 +683,24 @@ export const deviceDefs = {
 
   korg_monologue: {
     label: 'Korg Monologue', type: 'Synth',
-    // VERIFY against Korg Monologue MIDI Implementation Chart (PDF on Korg site, 2016).
+    // VERIFIED against Korg Monologue MIDI Implementation Chart (Korg site, 2016) + midi.guide.
+    // CC43=Cutoff, CC44=Resonance (confirmed). CC56=LFO Target, CC58=LFO Wave (confirmed, midi.guide).
+    // Drive has no documented CC (panel-only control); CC57 function unconfirmed — omitted.
     // Single shared EG: CC18 Attack + CC19 Decay/Release drive both Amp and Filter EGs simultaneously.
     // CC20 EG Int sets filter EG depth (signed: 64=zero, 0=full neg, 127=full pos).
     // Sync/Ring (CC80/81): Korg reversed convention — 0–63=On, 64–127=Off.
-    note: 'Mono analog. Shared EG: CC18 Attack + CC19 D/R control both Amp and Filter simultaneously. CC20 EG Int sets filter depth (64=neutral). Sync/Ring (CC80/81) reversed: 0–63=On, 64–127=Off.',
+    note: 'Mono analog. Shared EG: CC18 Attack + CC19 D/R control both Amp and Filter simultaneously. CC20 EG Int sets filter depth (64=neutral). LFO Target (CC56) + Wave (CC58): 0/43/86 range. Sync/Ring (CC80/81) reversed: 0–63=On, 64–127=Off.',
     params: [
-      { cc: 56,  label: 'Cutoff',                     def: 80  },
-      { cc: 57,  label: 'Resonance',                  def: 0   },
-      { cc: 58,  label: 'Drive',                      def: 0   },
+      { cc: 43,  label: 'Cutoff',                     def: 80  },
+      { cc: 44,  label: 'Resonance',                  def: 0   },
       { cc: 20,  label: 'EG Int (filter depth)',       def: 64  },
       { cc: 23,  label: 'EG Target (0/43/86)',         def: 0   },
       { cc: 18,  label: 'EG Attack',                  def: 10  },
       { cc: 19,  label: 'EG Decay/Release',           def: 40  },
       { cc: 24,  label: 'LFO Rate',                   def: 64  },
-      { cc: 25,  label: 'LFO Int',                    def: 0   },
-      { cc: 26,  label: 'LFO Target (0/43/86)',        def: 0   },
-      { cc: 31,  label: 'LFO Wave (0/21/43/64/85)',    def: 0   },
+      { cc: 25,  label: 'LFO Int (verify CC)',         def: 0   },
+      { cc: 56,  label: 'LFO Target (0/43/86)',        def: 0   },
+      { cc: 58,  label: 'LFO Wave (0/21/43/64/85)',    def: 0   },
       { cc: 49,  label: 'VCO 1 Level',                def: 100 },
       { cc: 50,  label: 'VCO 2 Level',                def: 0   },
       { cc: 48,  label: 'Noise Level',                def: 0   },
@@ -696,38 +709,38 @@ export const deviceDefs = {
       { cc: 5,   label: 'Portamento',                 def: 0   },
     ],
     // Factory programs recalled via PC 0-36. ccValues are approximate for UI display;
-    // the unit's stored patch is the authoritative state. VERIFY PC numbers against Monologue manual.
+    // the unit's stored patch is the authoritative state. Preset names per Monologue manual pg 55.
     starterPresets: [
-      { name: 'Init',        recallPC: 0,  ccValues: { 56:80,  57:0,  49:100, 50:0,  18:0,  19:40, 20:64, 80:64, 81:64 } },
-      { name: 'Saw Lead',    recallPC: 1,  ccValues: { 56:100, 57:0,  49:100, 50:0,  18:10, 19:30, 20:80              } },
-      { name: 'Square Lead', recallPC: 2,  ccValues: { 56:90,  57:20, 49:0,   50:100,18:5,  19:30, 20:70              } },
-      { name: 'Soft Lead',   recallPC: 3,  ccValues: { 56:80,  57:0,  49:80,  50:40, 18:20, 19:50, 20:60              } },
-      { name: 'Saw Bass',    recallPC: 5,  ccValues: { 56:50,  57:30, 49:100, 50:0,  18:2,  19:60, 20:64              } },
-      { name: 'Sub Bass',    recallPC: 7,  ccValues: { 56:40,  57:20, 49:100, 50:80, 18:2,  19:70, 20:64              } },
-      { name: 'Wobble Bass', recallPC: 8,  ccValues: { 56:60,  57:40, 49:100, 50:60, 18:5,  19:50, 20:100, 24:80, 25:70 } },
-      { name: 'Sync Lead',   recallPC: 9,  ccValues: { 56:90,  57:30, 49:100, 50:60, 18:5,  19:30, 80:0               } },
-      { name: 'Drone',       recallPC: 11, ccValues: { 56:40,  57:15, 49:80,  50:80, 18:70, 19:90, 20:100             } },
-      // CC-only extras (no PC recall) for quick setups not matching factory programs:
-      { name: 'Dark Bass',   recallPC: -1, ccValues: { 56:30,  57:50, 49:100, 50:80, 18:2,  19:80, 20:64              } },
-      { name: 'Ring Drone',  recallPC: -1, ccValues: { 56:50,  57:10, 49:70,  50:70, 18:60, 19:90, 81:0               } },
+      { name: 'Init',        recallPC: 0,  ccValues: { 43:80,  44:0,  49:100, 50:0,  18:0,  19:40, 20:64, 80:64, 81:64 } },
+      { name: 'Saw Lead',    recallPC: 1,  ccValues: { 43:100, 44:0,  49:100, 50:0,  18:10, 19:30, 20:80              } },
+      { name: 'Square Lead', recallPC: 2,  ccValues: { 43:90,  44:20, 49:0,   50:100,18:5,  19:30, 20:70              } },
+      { name: 'Soft Lead',   recallPC: 3,  ccValues: { 43:80,  44:0,  49:80,  50:40, 18:20, 19:50, 20:60              } },
+      { name: 'Saw Bass',    recallPC: 5,  ccValues: { 43:50,  44:30, 49:100, 50:0,  18:2,  19:60, 20:64              } },
+      { name: 'Sub Bass',    recallPC: 7,  ccValues: { 43:40,  44:20, 49:100, 50:80, 18:2,  19:70, 20:64              } },
+      { name: 'Wobble Bass', recallPC: 8,  ccValues: { 43:60,  44:40, 49:100, 50:60, 18:5,  19:50, 20:100, 24:80     } },
+      { name: 'Sync Lead',   recallPC: 9,  ccValues: { 43:90,  44:30, 49:100, 50:60, 18:5,  19:30, 80:0              } },
+      { name: 'Drone',       recallPC: 11, ccValues: { 43:40,  44:15, 49:80,  50:80, 18:70, 19:90, 20:100            } },
+      { name: 'Dark Bass',   recallPC: -1, ccValues: { 43:30,  44:50, 49:100, 50:80, 18:2,  19:80, 20:64             } },
+      { name: 'Ring Drone',  recallPC: -1, ccValues: { 43:50,  44:10, 49:70,  50:70, 18:60, 19:90, 81:0              } },
     ],
   },
 
   korg_microkorg: {
     label: 'Korg MicroKorg', type: 'Synth',
-    // VERIFY against Korg MicroKorg MIDI Implementation Chart (Korg site PDF, 2002).
-    // Most synthesis params are SysEx (Korg exclusive) — CC access is limited.
+    // VERIFIED against official Korg MicroKorg MIDI Implementation Chart (2002 PDF).
+    // CC74 (Filter Cutoff) and CC71 (Resonance) confirmed. Most other synthesis params
+    // are SysEx-only (Korg exclusive) — CC access is limited beyond the basics.
     // Knob A/B on panel send CC26/27; function depends on Edit Select switch position.
-    // Vocoder mode: audio source on Ch 2; synth voice count: 4 voices poly in synth mode.
+    // Vocoder mode: audio source on Ch 2; 4 voices poly in synth mode.
     note: 'Most synth params are SysEx-only — limited live CC access. Knob A/B send CC26/27 (context-dependent on Edit Select). Use Tweak → Learn to discover CCs from physical knobs.',
     params: [
-      { cc: 7,   label: 'Volume',              def: 100 },
-      { cc: 1,   label: 'Mod Wheel',           def: 0   },
-      { cc: 5,   label: 'Portamento',          def: 0   },
-      { cc: 74,  label: 'Cutoff (verify CC)',  def: 80  },
-      { cc: 71,  label: 'Resonance (verify CC)', def: 0 },
-      { cc: 26,  label: 'Knob A (ctx-dep.)',   def: 64  },
-      { cc: 27,  label: 'Knob B (ctx-dep.)',   def: 64  },
+      { cc: 7,   label: 'Volume',      def: 100 },
+      { cc: 1,   label: 'Mod Wheel',   def: 0   },
+      { cc: 5,   label: 'Portamento',  def: 0   },
+      { cc: 74,  label: 'Cutoff',      def: 80  },
+      { cc: 71,  label: 'Resonance',   def: 0   },
+      { cc: 26,  label: 'Knob A (ctx-dep.)', def: 64 },
+      { cc: 27,  label: 'Knob B (ctx-dep.)', def: 64 },
     ],
     starterPresets: [
       { name: 'Init Patch',  recallPC: 0,  ccValues: { 7:100, 74:80,  71:0  } },
