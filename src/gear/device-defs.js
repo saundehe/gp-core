@@ -1369,6 +1369,88 @@ export const deviceDefs = {
 
   // ── Strymon NightSky ──
 
+  empress_zoia: {
+    label: 'Empress ZOIA', type: 'Multi-FX',
+    note: 'ZOIA is a modular patchboard: MIDI CCs are user-defined per patch via the MIDI module. CC defaults below reflect the factory template patch; custom patches will differ. Add a MIDI In module with the CV/Gate or CC type, then assign destinations on device. Presets via PC 0-63 (64 slots).',
+    params: [
+      { cc: 1, label: 'Mod Wheel (patch-defined)' },
+      { cc: 7, label: 'Volume (patch-defined)' },
+      { cc: 64, label: 'Sustain / Hold (patch-defined)' },
+    ],
+    starterPresets: [
+      { pc: 0, name: 'Init' },
+      { pc: 1, name: 'Slot 2' },
+      { pc: 2, name: 'Slot 3' },
+    ],
+  },
+
+  tc_hof2: {
+    label: 'TC Electronic Hall of Fame 2', type: 'Reverb',
+    note: 'HOF2: MIDI via TRS (Type A). Single momentary/latching bypass CC. Toneprint presets are per-slot (3 slots) — select via footswitch, not MIDI. No on-device MIDI learn; add a TRS-to-5-pin adapter for standard MIDI.',
+    params: [
+      { cc: 0, label: 'Bank Select (+ PC for preset)' },
+      { cc: 13, label: 'Decay / Room Size' },
+      { cc: 15, label: 'Pre-Delay' },
+      { cc: 16, label: 'Tone' },
+      { cc: 21, label: 'Mix' },
+      { cc: 64, label: 'Bypass Toggle (0-63=off, 64+=on)' },
+      { cc: 80, label: 'Shimmer Level' },
+      { cc: 93, label: 'Reverb On/Off' },
+    ],
+    starterPresets: [
+      { pc: 0, name: 'Slot A' },
+      { pc: 1, name: 'Slot B' },
+      { pc: 2, name: 'Slot C' },
+    ],
+  },
+
+  line6_m9: {
+    label: 'Line 6 M9', type: 'Multi-FX',
+    note: 'M9: 3 simultaneous effects (Scene 1-3 per bank). PC selects scene (0-47 = banks A1–F3). Per-block bypass CCs are user-assigned in MIDI settings (hold SAVE + tap a stomp to assign). Tap tempo via CC 64.',
+    params: [
+      { cc: 1, label: 'Expression / Wah (jack or assign)' },
+      { cc: 11, label: 'Expression 2 (assign)' },
+      { cc: 25, label: 'FX Block 1 Bypass Toggle' },
+      { cc: 26, label: 'FX Block 2 Bypass Toggle' },
+      { cc: 27, label: 'FX Block 3 Bypass Toggle' },
+      { cc: 64, label: 'Tap Tempo' },
+      { cc: 69, label: 'Scene A Bypass All' },
+      { cc: 70, label: 'Scene B Bypass All' },
+      { cc: 71, label: 'Scene C Bypass All' },
+    ],
+    starterPresets: [
+      { pc: 0, name: 'Bank A Scene 1' },
+      { pc: 1, name: 'Bank A Scene 2' },
+      { pc: 2, name: 'Bank A Scene 3' },
+    ],
+  },
+
+  hologram_microcosm: {
+    label: 'Hologram Microcosm', type: 'Granular/Looper',
+    note: 'Microcosm: MIDI via TRS-B (convert to 5-pin with Type B adapter). 11 loop/granular algorithms, 4 blend levels (per knob). Presets via PC 0-99 (100 slots). Bypassed = PC 100.',
+    params: [
+      { cc: 1, label: 'Filter' },
+      { cc: 7, label: 'Output Level' },
+      { cc: 11, label: 'Expression (assign via MIDI Learn)' },
+      { cc: 12, label: 'Blend 1' },
+      { cc: 13, label: 'Blend 2' },
+      { cc: 14, label: 'Blend 3' },
+      { cc: 15, label: 'Blend 4' },
+      { cc: 16, label: 'Pitch' },
+      { cc: 17, label: 'Interval' },
+      { cc: 18, label: 'Repeats' },
+      { cc: 19, label: 'Reverb' },
+      { cc: 64, label: 'Bypass (0-63=off, 64+=on)' },
+      { cc: 80, label: 'Algorithm Select' },
+      { cc: 93, label: 'Drone Hold' },
+    ],
+    starterPresets: [
+      { pc: 0, name: 'P01' },
+      { pc: 1, name: 'P02' },
+      { pc: 100, name: 'Bypass' },
+    ],
+  },
+
   strymon_nightsky: {
     label: 'Strymon NightSky', type: 'Reverb',
     // MIDI CC reference from Strymon NightSky MIDI Chart (nightsky-midi-chart.pdf).
