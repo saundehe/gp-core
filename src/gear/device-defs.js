@@ -561,8 +561,9 @@ export const deviceDefs = {
     //   System Settings → MIDI → RCV.CTL → EXP (for HotKnob) and TAP/Bypass.
     //   Or use MIDI Learn — press footswitch while sending the CC to auto-assign.
     // No fixed default CC map. Add your learned CCs as custom controls on the device.
-    note: 'H9 Core/Standard/Max: presets via PC 0-98. All CC assignments (HotKnob, Bypass, Tap) are user-defined in H9 Control → MIDI settings. Use Tweak → Learn to auto-assign CCs after configuring in H9 Control.',
+    note: 'H9 Core/Standard/Max: presets via PC 0-98. All CC assignments (HotKnob, Bypass, Tap) are user-defined in H9 Control → MIDI settings. Use Tweak → Learn to auto-assign CCs after configuring in H9 Control. Sysex: enable in H9 Control → Settings → Bluetooth MIDI → Enable MIDI.',
     params: [],
+    h9Sysex: { model: 0x01 },
   },
 
   // ── Synthesizers ──
