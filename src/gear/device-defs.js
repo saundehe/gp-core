@@ -1228,4 +1228,168 @@ export const deviceDefs = {
       { cc: 83, label: 'CTL-4',                      def: 0   },
     ],
   },
+
+  // ── Eventide Factor Series ──
+  // All four Factor pedals share the same CC architecture: 100 presets via PC 0-99,
+  // CC22 bypass, CC28 tap, CC9 Hot Switch, CC10-17 = 8 physical D-Knobs.
+  // D-Knob assignments vary by algorithm — labels below show the most common defaults.
+
+  eventide_space: {
+    label: 'Eventide Space', type: 'Reverb',
+    // D-Knobs CC10-17 are algorithm-specific. Decay (CC12) and Mix (CC13) are
+    // consistent across most Space algorithms. CC22: 0-63=bypass, 64-127=active.
+    params: [
+      { cc: 10, label: 'D-Knob 1 (algo-specific)',  def: 64  },
+      { cc: 11, label: 'D-Knob 2 (Size/Shape)',     def: 64  },
+      { cc: 12, label: 'D-Knob 3 (Decay)',          def: 64  },
+      { cc: 13, label: 'D-Knob 4 (Mix)',            def: 64  },
+      { cc: 14, label: 'D-Knob 5 (algo-specific)',  def: 64  },
+      { cc: 15, label: 'D-Knob 6 (algo-specific)',  def: 64  },
+      { cc: 16, label: 'D-Knob 7 (HiCut)',         def: 64  },
+      { cc: 17, label: 'D-Knob 8 (Level)',          def: 100 },
+      { cc: 9,  label: 'Hot Switch',                def: 0   },
+      { cc: 27, label: 'Freeze (64-127=freeze)',    def: 0   },
+      { cc: 28, label: 'Tap Tempo',                 def: 0   },
+      { cc: 30, label: 'KillDry (64-127=on)',       def: 0   },
+      { cc: 22, label: 'Bypass (0-63=off/64+=on)', def: 64  },
+    ],
+    starterPresets: [
+      { name: 'Hall',    recallPC: -1, ccValues: { 22:64, 12:80, 13:65, 17:100 } },
+      { name: 'Shimmer', recallPC: -1, ccValues: { 22:64, 12:100, 13:70, 17:100 } },
+      { name: 'Dark',    recallPC: -1, ccValues: { 22:64, 12:90, 13:55, 16:30, 17:100 } },
+      { name: 'Freeze',  recallPC: -1, ccValues: { 22:64, 27:127, 13:80 } },
+    ],
+  },
+
+  eventide_timefactor: {
+    label: 'Eventide TimeFactor', type: 'Delay',
+    // 10 delay algorithms (Digital, Tape Echo, Vintage, Mod Delay, Filter Pong,
+    // Band Delay, Ducked, Reverse, Ice, Looper). 100 presets via PC 0-99.
+    // D-Knobs vary per algo; Feedback (CC12) and Mix (CC13) are most consistent.
+    params: [
+      { cc: 10, label: 'D-Knob 1 (Delay Time A)',  def: 64  },
+      { cc: 11, label: 'D-Knob 2 (Delay Time B)',  def: 64  },
+      { cc: 12, label: 'D-Knob 3 (Feedback)',      def: 40  },
+      { cc: 13, label: 'D-Knob 4 (Mix)',           def: 64  },
+      { cc: 14, label: 'D-Knob 5 (algo-specific)', def: 64  },
+      { cc: 15, label: 'D-Knob 6 (algo-specific)', def: 64  },
+      { cc: 16, label: 'D-Knob 7 (algo-specific)', def: 64  },
+      { cc: 17, label: 'D-Knob 8 (Level)',         def: 100 },
+      { cc: 9,  label: 'Hot Switch',               def: 0   },
+      { cc: 27, label: 'Loop/Freeze (64-127=on)',  def: 0   },
+      { cc: 28, label: 'Tap Tempo',                def: 0   },
+      { cc: 30, label: 'KillDry (64-127=on)',      def: 0   },
+      { cc: 22, label: 'Bypass (0-63=off/64+=on)', def: 64  },
+    ],
+    starterPresets: [
+      { name: 'Slap',        recallPC: -1, ccValues: { 22:64, 10:20, 12:15, 13:50, 17:100 } },
+      { name: 'Echo',        recallPC: -1, ccValues: { 22:64, 10:64, 12:45, 13:65, 17:100 } },
+      { name: 'Long Repeat', recallPC: -1, ccValues: { 22:64, 10:100, 12:70, 13:60, 17:100 } },
+      { name: 'Mod Delay',   recallPC: -1, ccValues: { 22:64, 10:64, 12:40, 13:60, 14:60, 17:100 } },
+    ],
+  },
+
+  eventide_modfactor: {
+    label: 'Eventide ModFactor', type: 'Modulation',
+    // 10 modulation algorithms (Chorus, Phaser, Flanger, Q-Wah, Rotary, TremoloPan,
+    // Vibrato, Undulator, RingMod, ModFilter). 100 presets via PC 0-99.
+    // D-Knob CC assignments vary per algorithm — add your algorithm's custom controls.
+    note: 'D-Knob CC10-17 vary by algorithm. Speed and Depth are the most common params; exact CCs depend on selected algorithm. Use MIDI Learn (footswitch + CC send) to auto-assign.',
+    params: [
+      { cc: 10, label: 'D-Knob 1 (Speed/Rate)',    def: 64  },
+      { cc: 11, label: 'D-Knob 2 (algo-specific)', def: 64  },
+      { cc: 12, label: 'D-Knob 3 (Depth)',         def: 64  },
+      { cc: 13, label: 'D-Knob 4 (Mix)',           def: 64  },
+      { cc: 14, label: 'D-Knob 5 (algo-specific)', def: 64  },
+      { cc: 15, label: 'D-Knob 6 (algo-specific)', def: 64  },
+      { cc: 16, label: 'D-Knob 7 (algo-specific)', def: 64  },
+      { cc: 17, label: 'D-Knob 8 (Level)',         def: 100 },
+      { cc: 9,  label: 'Hot Switch',               def: 0   },
+      { cc: 28, label: 'Tap Tempo',                def: 0   },
+      { cc: 30, label: 'KillDry (64-127=on)',      def: 0   },
+      { cc: 22, label: 'Bypass (0-63=off/64+=on)', def: 64  },
+    ],
+    starterPresets: [
+      { name: 'Chorus',  recallPC: -1, ccValues: { 22:64, 10:50, 12:70,  13:70, 17:100 } },
+      { name: 'Phaser',  recallPC: -1, ccValues: { 22:64, 10:40, 12:80,  13:65, 17:100 } },
+      { name: 'Flanger', recallPC: -1, ccValues: { 22:64, 10:45, 12:90,  13:65, 17:100 } },
+      { name: 'Trem',    recallPC: -1, ccValues: { 22:64, 10:64, 12:100, 13:75, 17:100 } },
+    ],
+  },
+
+  eventide_pitchfactor: {
+    label: 'Eventide PitchFactor', type: 'Pitch',
+    // 10 pitch algorithms (Diatonic, Quadravox, H910/H949, Crystals, HarModulator,
+    // MicroPitch, Octaver, Synthonizer, PitchFlex, Whammy). 100 presets via PC 0-99.
+    note: 'D-Knob CC10-17 vary by algorithm — interval, voice, and pitch assignments depend on the selected algorithm.',
+    params: [
+      { cc: 10, label: 'D-Knob 1 (Pitch A / Interval)', def: 64  },
+      { cc: 11, label: 'D-Knob 2 (Pitch B)',            def: 64  },
+      { cc: 12, label: 'D-Knob 3 (algo-specific)',      def: 64  },
+      { cc: 13, label: 'D-Knob 4 (Mix)',                def: 64  },
+      { cc: 14, label: 'D-Knob 5 (algo-specific)',      def: 64  },
+      { cc: 15, label: 'D-Knob 6 (algo-specific)',      def: 64  },
+      { cc: 16, label: 'D-Knob 7 (algo-specific)',      def: 64  },
+      { cc: 17, label: 'D-Knob 8 (Level)',              def: 100 },
+      { cc: 9,  label: 'Hot Switch',                    def: 0   },
+      { cc: 27, label: 'Hold (64-127=on)',              def: 0   },
+      { cc: 28, label: 'Tap Tempo',                     def: 0   },
+      { cc: 30, label: 'KillDry (64-127=on)',           def: 0   },
+      { cc: 22, label: 'Bypass (0-63=off/64+=on)',      def: 64  },
+    ],
+    starterPresets: [
+      { name: 'Octave Up',    recallPC: -1, ccValues: { 22:64, 13:65, 17:100 } },
+      { name: 'Whammy',       recallPC: -1, ccValues: { 22:64, 10:64, 13:60, 17:100 } },
+      { name: 'Micro-Pitch',  recallPC: -1, ccValues: { 22:64, 10:70, 13:55, 17:100 } },
+      { name: 'Diatonic 3rd', recallPC: -1, ccValues: { 22:64, 13:60, 17:100 } },
+    ],
+  },
+
+  // ── Boss GT-1000 ──
+
+  boss_gt1000: {
+    label: 'Boss GT-1000', type: 'Guitar multi-FX',
+    // 200 patches via bank select (CC0) + PC 0-9 (20 banks × 10 patches).
+    // CTL footswitch assignments and internal FX block CCs are patch-defined.
+    // Below are the fixed system-level CCs available on all patches.
+    params: [
+      { cc: 7,  label: 'Volume',   def: 100 },
+      { cc: 11, label: 'EXP 1',   def: 0   },
+      { cc: 16, label: 'EXP 2',   def: 0   },
+      { cc: 80, label: 'CTL-1',   def: 0   },
+      { cc: 81, label: 'CTL-2',   def: 0   },
+      { cc: 82, label: 'CTL-3',   def: 0   },
+      { cc: 83, label: 'CTL-4',   def: 0   },
+      { cc: 84, label: 'CTL-5',   def: 0   },
+      { cc: 85, label: 'CTL-6',   def: 0   },
+      { cc: 86, label: 'CTL-7',   def: 0   },
+      { cc: 87, label: 'CTL-8',   def: 0   },
+    ],
+  },
+
+  // ── Strymon NightSky ──
+
+  strymon_nightsky: {
+    label: 'Strymon NightSky', type: 'Reverb',
+    // MIDI CC reference from Strymon NightSky MIDI Chart (nightsky-midi-chart.pdf).
+    // 300 presets via PC 0-299. CC100=expression, CC102=bypass (standard Strymon pattern).
+    params: [
+      { cc: 17,  label: 'Pitch (64=center)',  def: 64  },
+      { cc: 18,  label: 'Time (Pre-Delay)',   def: 0   },
+      { cc: 19,  label: 'Decay',              def: 64  },
+      { cc: 20,  label: 'Reflect',            def: 64  },
+      { cc: 21,  label: 'Mix',                def: 64  },
+      { cc: 22,  label: 'Warp',              def: 0   },
+      { cc: 23,  label: 'Shimmer',            def: 0   },
+      { cc: 15,  label: 'Filter (Tone)',      def: 64  },
+      { cc: 100, label: 'Expression',         def: 0   },
+      { cc: 102, label: 'Bypass (0/127)',     def: 127 },
+    ],
+    starterPresets: [
+      { name: 'Ambient Wash', recallPC: -1, ccValues: { 102:127, 19:100, 21:70, 20:80  } },
+      { name: 'Shimmer',      recallPC: -1, ccValues: { 102:127, 19:90,  21:65, 23:90  } },
+      { name: 'Dark Pitch',   recallPC: -1, ccValues: { 102:127, 19:80,  21:60, 17:40, 15:30 } },
+      { name: 'Subtle Room',  recallPC: -1, ccValues: { 102:127, 19:40,  21:40, 20:30  } },
+    ],
+  },
 };
