@@ -180,6 +180,7 @@ export const deviceDefs = {
       { name: 'Sequenced Crush', recallPC: -1, ccValues: { 14:127, 16:80,  17:64, 18:60, 20:100, 21:64, 22:30, 23:90, 24:50, 25:110, 29:0 } },
       { name: 'Glitch Stutter',  recallPC: -1, ccValues: { 14:127, 16:60,  17:64, 18:50, 19:100, 31:127 } },
     ],
+    merisSysex: { model: 0x00 },
   },
 
   // ── Meris flagship X-series (modular workstations — large MIDI maps) ──
@@ -492,6 +493,7 @@ export const deviceDefs = {
       { cc: 100, label: 'Expression',     def: 64  },
       { cc: 102, label: 'Bypass (0/127)', def: 127 },
     ],
+    strymonSysex: { model: 0x01 },
   },
 
   strymon_bigsky: {
@@ -509,6 +511,7 @@ export const deviceDefs = {
       { cc: 100, label: 'Expression',     def: 64  },
       { cc: 102, label: 'Bypass (0/127)', def: 127 },
     ],
+    strymonSysex: { model: 0x03 },
   },
 
   strymon_mobius: {
@@ -1157,6 +1160,7 @@ export const deviceDefs = {
       { cc: 100, label: 'Expression',                def: 0   },
       { cc: 102, label: 'Bypass (0/127)',            def: 127 },
     ],
+    strymonSysex: { model: 0x04 },
     starterPresets: [
       { name: 'Vintage Slap',  recallPC: -1, ccValues: { 102:127, 3:20,  9:15, 14:50, 15:20, 19:0   } },
       { name: 'Tape Echo',     recallPC: -1, ccValues: { 102:127, 3:64,  9:45, 14:65, 15:20, 19:43  } },
@@ -1180,6 +1184,7 @@ export const deviceDefs = {
       { cc: 100, label: 'Expression',                def: 0   },
       { cc: 102, label: 'Bypass (0/127)',            def: 127 },
     ],
+    strymonSysex: { model: 0x05 },
     starterPresets: [
       { name: 'Magneto Echo',  recallPC: -1, ccValues: { 102:127, 3:64,  9:64,  14:65, 15:10, 19:0   } },
       { name: 'Studio Wash',   recallPC: -1, ccValues: { 102:127, 3:64,  9:70,  14:70, 15:20, 19:43  } },
@@ -1473,5 +1478,6 @@ export const deviceDefs = {
       { name: 'Dark Pitch',   recallPC: -1, ccValues: { 102:127, 19:80,  21:60, 17:40, 15:30 } },
       { name: 'Subtle Room',  recallPC: -1, ccValues: { 102:127, 19:40,  21:40, 20:30  } },
     ],
+    strymonSysex: { model: 0x06 },
   },
 };
