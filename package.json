@@ -1,6 +1,6 @@
 {
   "name": "@gp/core",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "type": "module",
   "description": "GP product family shared spine — gear library, MIDI device defs, shared schemas.",
   "exports": {
