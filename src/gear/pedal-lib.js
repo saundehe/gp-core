@@ -269,6 +269,12 @@ export const pedalLib = {
   // ── Laney ──
   "Laney Ironheart IRT-Pulse":     { v:9, ma:500, w:4.7,  d:2.6,  cat:"Preamp",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
 
+  // ── HeadRush (amp modeler / multi-FX floor units; 12V proprietary supply; all support 4CM FX loop) ──
+  "HeadRush Pedalboard":           { v:12, ma:2000, w:21.9, d:11.7, cat:"Multi-FX", inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true, sendJ:"top", sendJAt:0.65, returnJ:"top", returnJAt:0.75 },
+  "HeadRush MX5":                  { v:12, ma:1500, w:18.5, d:9.2,  cat:"Multi-FX", inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true, sendJ:"top", sendJAt:0.65, returnJ:"top", returnJAt:0.75 },
+  "HeadRush Gigboard":             { v:12, ma:1000, w:14.2, d:8.0,  cat:"Multi-FX", inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true, sendJ:"top", sendJAt:0.65, returnJ:"top", returnJAt:0.75 },
+  "HeadRush Prime":                { v:12, ma:2000, w:24.0, d:11.5, cat:"Multi-FX", inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true, sendJ:"top", sendJAt:0.65, returnJ:"top", returnJAt:0.75 },
+
   // ── Synthesizers ──
   "Sequential Prophet Rev2":        { v:12, ma:1000, cat:"Synthesizer" },
   "Sequential OB-6":                { v:12, ma:1000, cat:"Synthesizer" },

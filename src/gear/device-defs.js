@@ -1481,4 +1481,101 @@ export const deviceDefs = {
     ],
     strymonSysex: { model: 0x06 },
   },
+
+  // ── HeadRush ──
+  // All HeadRush floor units share the same MIDI implementation.
+  // Bank Select: CC 0 (MSB=0) + CC 32 (LSB=bank 0-25, banks A-Z).
+  // PC 0-127 selects preset within the active bank (4 slots per bank = A/B/C/D footswitches).
+  // Looper CCs 50-57 are per HeadRush published MIDI spec — verify from MIDI appendix in your unit's manual.
+  headrush_pedalboard: {
+    label: 'HeadRush Pedalboard', type: 'Amp Modeler / Multi-FX',
+    note: '9 footswitches, 7" touchscreen, 2x built-in exp pedals. PC 0-127/bank, bank via CC 0+CC 32. Supports 4-cable method (FX loop). See shared note above re: bank select.',
+    params: [
+      { cc: 4,  label: 'Expression 1 / Wah',         def: 0   },
+      { cc: 7,  label: 'Volume',                     def: 100 },
+      { cc: 11, label: 'Expression 2',               def: 0   },
+      { cc: 50, label: 'Looper Record',              def: 0   },
+      { cc: 51, label: 'Looper Play/Stop',           def: 0   },
+      { cc: 52, label: 'Looper Undo',                def: 0   },
+      { cc: 53, label: 'Looper Redo',                def: 0   },
+      { cc: 54, label: 'Looper One Shot',            def: 0   },
+      { cc: 55, label: 'Looper Reverse',             def: 0   },
+      { cc: 56, label: 'Looper Half/Full Speed',     def: 0   },
+      { cc: 64, label: 'Tap Tempo (trigger >64)',    def: 0   },
+    ],
+    starterPresets: [
+      { recallPC: 0, name: 'Bank A-1', ccValues: {} },
+      { recallPC: 1, name: 'Bank A-2', ccValues: {} },
+      { recallPC: 2, name: 'Bank A-3', ccValues: {} },
+      { recallPC: 3, name: 'Bank A-4', ccValues: {} },
+    ],
+  },
+  headrush_mx5: {
+    label: 'HeadRush MX5', type: 'Amp Modeler / Multi-FX',
+    note: '5 footswitches, 5" touchscreen, 1x built-in exp pedal (CC 4), 1x exp jack (CC 11). PC 0-127/bank, bank via CC 0+CC 32. Same MIDI implementation as Pedalboard.',
+    params: [
+      { cc: 4,  label: 'Expression / Wah',           def: 0   },
+      { cc: 7,  label: 'Volume',                     def: 100 },
+      { cc: 11, label: 'Expression 2 (jack)',         def: 0   },
+      { cc: 50, label: 'Looper Record',              def: 0   },
+      { cc: 51, label: 'Looper Play/Stop',           def: 0   },
+      { cc: 52, label: 'Looper Undo',                def: 0   },
+      { cc: 53, label: 'Looper Redo',                def: 0   },
+      { cc: 54, label: 'Looper One Shot',            def: 0   },
+      { cc: 55, label: 'Looper Reverse',             def: 0   },
+      { cc: 56, label: 'Looper Half/Full Speed',     def: 0   },
+      { cc: 64, label: 'Tap Tempo (trigger >64)',    def: 0   },
+    ],
+    starterPresets: [
+      { recallPC: 0, name: 'Bank A-1', ccValues: {} },
+      { recallPC: 1, name: 'Bank A-2', ccValues: {} },
+      { recallPC: 2, name: 'Bank A-3', ccValues: {} },
+      { recallPC: 3, name: 'Bank A-4', ccValues: {} },
+    ],
+  },
+  headrush_gigboard: {
+    label: 'HeadRush Gigboard', type: 'Amp Modeler / Multi-FX',
+    note: '4 footswitches, small LCD strip (no touchscreen), 1x exp jack (CC 11, no built-in wah pedal). PC 0-127/bank, bank via CC 0+CC 32. Same MIDI implementation as Pedalboard.',
+    params: [
+      { cc: 7,  label: 'Volume',                     def: 100 },
+      { cc: 11, label: 'Expression (jack)',           def: 0   },
+      { cc: 50, label: 'Looper Record',              def: 0   },
+      { cc: 51, label: 'Looper Play/Stop',           def: 0   },
+      { cc: 52, label: 'Looper Undo',                def: 0   },
+      { cc: 53, label: 'Looper Redo',                def: 0   },
+      { cc: 54, label: 'Looper One Shot',            def: 0   },
+      { cc: 55, label: 'Looper Reverse',             def: 0   },
+      { cc: 56, label: 'Looper Half/Full Speed',     def: 0   },
+      { cc: 64, label: 'Tap Tempo (trigger >64)',    def: 0   },
+    ],
+    starterPresets: [
+      { recallPC: 0, name: 'Bank A-1', ccValues: {} },
+      { recallPC: 1, name: 'Bank A-2', ccValues: {} },
+      { recallPC: 2, name: 'Bank A-3', ccValues: {} },
+      { recallPC: 3, name: 'Bank A-4', ccValues: {} },
+    ],
+  },
+  headrush_prime: {
+    label: 'HeadRush Prime', type: 'Amp Modeler / Multi-FX',
+    note: 'Flagship (2022). 12 footswitches, 10" touchscreen, 2x built-in exp pedals (CC 4 + CC 11). PC 0-127/bank, bank via CC 0+CC 32. Same MIDI implementation as Pedalboard.',
+    params: [
+      { cc: 4,  label: 'Expression 1 / Wah',         def: 0   },
+      { cc: 7,  label: 'Volume',                     def: 100 },
+      { cc: 11, label: 'Expression 2',               def: 0   },
+      { cc: 50, label: 'Looper Record',              def: 0   },
+      { cc: 51, label: 'Looper Play/Stop',           def: 0   },
+      { cc: 52, label: 'Looper Undo',                def: 0   },
+      { cc: 53, label: 'Looper Redo',                def: 0   },
+      { cc: 54, label: 'Looper One Shot',            def: 0   },
+      { cc: 55, label: 'Looper Reverse',             def: 0   },
+      { cc: 56, label: 'Looper Half/Full Speed',     def: 0   },
+      { cc: 64, label: 'Tap Tempo (trigger >64)',    def: 0   },
+    ],
+    starterPresets: [
+      { recallPC: 0, name: 'Bank A-1', ccValues: {} },
+      { recallPC: 1, name: 'Bank A-2', ccValues: {} },
+      { recallPC: 2, name: 'Bank A-3', ccValues: {} },
+      { recallPC: 3, name: 'Bank A-4', ccValues: {} },
+    ],
+  },
 };
