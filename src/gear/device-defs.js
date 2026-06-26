@@ -182,12 +182,25 @@ export const deviceDefs = {
       { cc: 4,  label: 'Expression',                        def: 0   },
       { cc: 14, label: 'Bypass (0/127)',                    def: 127 },
     ],
-    // Sample patches adapted from the Enzo manual — synth mode CC29: 0-31=dry 32-63=mono 64-95=arp 96-127=poly.
+    // CC values from the official Meris Enzo Factory Preset Diagram (2019).
+    // Heel position (expression toe-up / no expression pedal). CC29 bands: 0-31=dry 32-63=mono 64-95=arp 96-127=poly.
     starterPresets: [
-      { name: 'Mono Lead',    recallPC: -1, ccValues: { 14:127, 29:32, 17:100, 30:0,   18:90, 19:80        } },
-      { name: 'Poly Synth',   recallPC: -1, ccValues: { 14:127, 29:96, 17:80,  30:64,  18:75, 20:40        } },
-      { name: 'Arp Sequence', recallPC: -1, ccValues: { 14:127, 29:64, 17:100, 30:0,   18:85, 19:90        } },
-      { name: 'Bass Tracker', recallPC: -1, ccValues: { 14:127, 29:32, 17:60,  30:0,   18:90, 19:90, 20:60 } },
+      { name: 'PolySwell',   recallPC: -1, ccValues: { 14:127, 9:0,   15:127, 29:112, 30:0,   16:0,   17:127, 18:127, 19:20,  20:122, 21:55,  22:0,   23:70,  24:127, 25:0,   26:111, 27:0   } },
+      { name: 'PolyRing',    recallPC: -1, ccValues: { 14:127, 9:0,   15:127, 29:112, 30:0,   16:64,  17:0,   18:120, 19:55,  20:0,   21:6,   22:0,   23:48,  24:0,   25:69,  26:53,  27:0   } },
+      { name: 'SparkArp',    recallPC: -1, ccValues: { 14:127, 9:0,   15:8,   29:80,  30:127, 16:64,  17:95,  18:97,  19:96,  20:61,  21:0,   22:0,   23:0,   24:127, 25:0,   26:75,  27:0   } },
+      { name: 'MonoEcho',    recallPC: -1, ccValues: { 14:127, 9:0,   15:63,  29:48,  30:127, 16:64,  17:87,  18:61,  19:0,   20:30,  21:53,  22:0,   23:72,  24:127, 25:0,   26:96,  27:106 } },
+      { name: 'PolyGlide',   recallPC: -1, ccValues: { 14:127, 9:0,   15:127, 29:112, 30:0,   16:5,   17:111, 18:127, 19:99,  20:74,  21:0,   22:103, 23:0,   24:99,  25:0,   26:8,   27:0   } },
+      { name: 'DarkArp',     recallPC: -1, ccValues: { 14:127, 9:0,   15:33,  29:80,  30:127, 16:0,   17:34,  18:127, 19:127, 20:38,  21:127, 22:0,   23:0,   24:127, 25:0,   26:52,  27:0   } },
+      { name: 'Mono Tyrell', recallPC: -1, ccValues: { 14:127, 9:127, 15:63,  29:48,  30:0,   16:63,  17:127, 18:127, 19:127, 20:61,  21:127, 22:0,   23:70,  24:99,  25:35,  26:7,   27:94  } },
+      { name: 'ShiftTrem',   recallPC: -1, ccValues: { 14:127, 9:0,   15:92,  29:48,  30:0,   16:89,  17:127, 18:31,  19:18,  20:0,   21:28,  22:0,   23:0,   24:119, 25:0,   26:0,   27:63  } },
+      { name: 'BellLab',     recallPC: -1, ccValues: { 14:127, 9:0,   15:42,  29:112, 30:0,   16:102, 17:0,   18:127, 19:109, 20:0,   21:98,  22:0,   23:57,  24:127, 25:117, 26:98,  27:15  } },
+      { name: 'Woodwind',    recallPC: -1, ccValues: { 14:127, 9:0,   15:63,  29:48,  30:0,   16:122, 17:45,  18:127, 19:127, 20:67,  21:54,  22:0,   23:0,   24:101, 25:0,   26:0,   27:103 } },
+      { name: 'RileyCurve',  recallPC: -1, ccValues: { 14:127, 9:0,   15:8,   29:112, 30:0,   16:64,  17:107, 18:127, 19:127, 20:60,  21:0,   22:0,   23:71,  24:51,  25:0,   26:0,   27:0   } },
+      { name: 'PondBase',    recallPC: -1, ccValues: { 14:127, 9:0,   15:12,  29:48,  30:0,   16:4,   17:127, 18:98,  19:117, 20:127, 21:127, 22:35,  23:71,  24:127, 25:0,   26:99,  27:83  } },
+      { name: 'StarLand',    recallPC: -1, ccValues: { 14:127, 9:0,   15:53,  29:80,  30:127, 16:64,  17:127, 18:127, 19:127, 20:126, 21:48,  22:107, 23:71,  24:127, 25:122, 26:107, 27:0   } },
+      { name: 'FormantRing', recallPC: -1, ccValues: { 14:127, 9:0,   15:109, 29:112, 30:0,   16:28,  17:25,  18:127, 19:127, 20:0,   21:0,   22:0,   23:53,  24:22,  25:127, 26:127, 27:20  } },
+      { name: 'LinkArp',     recallPC: -1, ccValues: { 14:127, 9:0,   15:25,  29:80,  30:127, 16:122, 17:127, 18:127, 19:127, 20:74,  21:0,   22:0,   23:53,  24:54,  25:0,   26:36,  27:0   } },
+      { name: 'ExpSweep',    recallPC: -1, ccValues: { 14:127, 9:127, 15:34,  29:112, 30:0,   16:89,  17:127, 18:91,  19:0,   20:98,  21:0,   22:0,   23:71,  24:87,  25:0,   26:0,   27:60  } },
     ],
     merisSysex: { model: 0x03 },
   },
@@ -813,6 +826,47 @@ export const deviceDefs = {
     ],
   },
 
+  walrus_mako_m1: {
+    label: 'Walrus Mako M1', type: 'Modulation',
+    // Verified via Morningstar forum threads + Walrus Audio confirmation (fw 1.19+).
+    // CC104 (Mix) added in firmware 1.19 — not in printed manual. CC31=Bypass confirmed.
+    // CC18 program select: 0=Chorus, 1=Phaser, 2=Tremolo, 3=Vibe, 4=Rotary, 5=Filter.
+    // Full knob CC table is in official image-PDF manual (not OCR-able remotely).
+    note: 'Firmware 1.19+ required for CC104 (Mix). CC18 selects program: 0=Chorus, 1=Phaser, 2=Tremolo, 3=Vibe, 4=Rotary, 5=Filter.',
+    params: [
+      { cc: 3,   label: 'Rate',                                             def: 64  },
+      { cc: 17,  label: 'Type (sub-variation within program)',              def: 0   },
+      { cc: 18,  label: 'Program (0=Chorus, 1=Phaser, 2=Trem, 3=Vibe, 4=Rotary, 5=Filter)', def: 0 },
+      { cc: 31,  label: 'Bypass (0=bypass, 127=engage)',                   def: 127 },
+      { cc: 104, label: 'Dry/Wet Mix (fw 1.19+)',                          def: 64  },
+    ],
+  },
+
+  walrus_mako_d1: {
+    label: 'Walrus Mako D1', type: 'Delay',
+    // Bypass CC29 verified via Morningstar forum (MC6 multi-pedal thread, most reliable source).
+    // Tweak params CC21/22/23 confirmed in MC3 thread. Full knob CC table in image-PDF manual only.
+    // Full manual: https://cdn.shopify.com/s/files/1/0906/8480/files/07_2022_D1_v2_manual_web.pdf
+    note: 'Full CC map in official image-PDF manual. CC21-23 are per-program Tweak params. Download manual for complete knob CCs.',
+    params: [
+      { cc: 21,  label: 'Mod (Tweak param 1)',        def: 64  },
+      { cc: 22,  label: 'Tone (Tweak param 2)',       def: 64  },
+      { cc: 23,  label: 'Age / Bit Crusher (Digital)', def: 0  },
+      { cc: 29,  label: 'Bypass (0=bypass, 127=engage)', def: 127 },
+    ],
+  },
+
+  walrus_mako_r1: {
+    label: 'Walrus Mako R1', type: 'Reverb',
+    // Only bypass CC confirmed via Morningstar forum (chained D1+R1 thread: D1=CC29, R1=CC30).
+    // Full knob CC table in official image-PDF manual (not OCR-able remotely).
+    // Full manual: https://cdn.shopify.com/s/files/1/0906/8480/files/R1_MKII_Digital_Manual_a1735587-a113-4074-a83c-1b77d7632bb8.pdf
+    note: 'Full CC map in official image-PDF manual. Add knob CCs from manual as custom controls.',
+    params: [
+      { cc: 30,  label: 'Bypass (0=bypass, 127=engage)', def: 127 },
+    ],
+  },
+
   source_audio_nemesis: {
     label: 'Source Audio Nemesis', type: 'Delay',
     // VERIFIED against official Source Audio Nemesis MIDI Implementation doc (front-panel subset).
@@ -827,6 +881,77 @@ export const deviceDefs = {
       { cc: 9,   label: 'Intensity',    def: 64  },
       { cc: 10,  label: 'Output Level', def: 100 },
       { cc: 102, label: 'Bypass (0/127)', def: 127 },
+    ],
+  },
+
+  source_audio_c4: {
+    label: 'Source Audio C4 Synth', type: 'Synth',
+    // VERIFIED from official SA249 C4 Synth User Guide, page 42.
+    // Only 6 hard-wired CCs. All other params must be assigned via Neuro Desktop Editor MIDI Map.
+    note: 'Only CC 93/100/102-105 are fixed. All other params require Neuro Editor MIDI mapping per-unit.',
+    params: [
+      { cc: 93,  label: 'Tap Tempo (external)',                 def: 0   },
+      { cc: 100, label: 'Expression (assign targets in Neuro)', def: 64  },
+      { cc: 102, label: 'Engage/Bypass (0-64=bypass, 65-127=engage)', def: 127 },
+      { cc: 103, label: 'Recall Preset (bypassed state)',       def: 0   },
+      { cc: 104, label: 'Recall Preset (engaged state)',        def: 0   },
+      { cc: 105, label: 'Toggle Bypass (any value)',            def: 0   },
+    ],
+  },
+
+  source_audio_ventris: {
+    label: 'Source Audio Ventris', type: 'Reverb',
+    // VERIFIED from official Source Audio MIDI Implementation PDF (dual-reverb engine A+B).
+    // Engine A: CC 1-20, Engine B: CC 25-44. CC 15-20 / 39-44 are engine-dependent — meaning
+    // changes with engine selection. Mix 50/50 is ~value 95 (not 64).
+    note: 'Dual engine: A uses CC 1-20, B uses CC 25-44. CC 15-20 (A) and CC 39-44 (B) change meaning per engine. Mix 50/50 = approx value 95.',
+    params: [
+      { cc: 1,   label: 'Engine A (0=Room, 1=Hall, 2=E-Dome, 3=Spring, 4=Plate, 5=Lo-Fi, 6=Modverb, 7=Shimmer, 8=Echoverb, 9=Swell, 10=Offspring, 11=Reverse, 12=Out Spring, 13=Metal Box)', def: 0   },
+      { cc: 2,   label: 'Time A',                def: 64  },
+      { cc: 3,   label: 'Mix A',                 def: 95  },
+      { cc: 4,   label: 'Pre-Delay A',           def: 0   },
+      { cc: 5,   label: 'Treble A',              def: 64  },
+      { cc: 6,   label: 'Output A',              def: 100 },
+      { cc: 7,   label: 'Bass A',                def: 64  },
+      { cc: 8,   label: 'Diffusion A',           def: 64  },
+      { cc: 9,   label: 'Mod Depth A',           def: 0   },
+      { cc: 10,  label: 'Mod Rate A',            def: 64  },
+      { cc: 11,  label: 'Pre-Delay Feedback A',  def: 0   },
+      { cc: 13,  label: 'Size A',                def: 0   },
+      { cc: 15,  label: 'Engine Param 1 A (engine-dependent)', def: 64  },
+      { cc: 16,  label: 'Engine Param 2 A (engine-dependent)', def: 64  },
+      { cc: 17,  label: 'Engine Param 3 A (engine-dependent)', def: 64  },
+      { cc: 18,  label: 'Engine Param 4 A (engine-dependent)', def: 64  },
+      { cc: 19,  label: 'Engine Param 5 A (engine-dependent)', def: 64  },
+      { cc: 25,  label: 'Engine B (0=Room, 1=Hall, 2=E-Dome, 3=Spring, 4=Plate, 5=Lo-Fi, 6=Modverb, 7=Shimmer, 8=Echoverb, 9=Swell, 10=Offspring, 11=Reverse, 12=Out Spring, 13=Metal Box)', def: 0   },
+      { cc: 26,  label: 'Time B',                def: 64  },
+      { cc: 27,  label: 'Mix B',                 def: 95  },
+      { cc: 28,  label: 'Pre-Delay B',           def: 0   },
+      { cc: 29,  label: 'Treble B',              def: 64  },
+      { cc: 30,  label: 'Output B',              def: 100 },
+      { cc: 31,  label: 'Bass B',                def: 64  },
+      { cc: 32,  label: 'Diffusion B',           def: 64  },
+      { cc: 33,  label: 'Mod Depth B',           def: 0   },
+      { cc: 34,  label: 'Mod Rate B',            def: 64  },
+      { cc: 35,  label: 'Pre-Delay Feedback B',  def: 0   },
+      { cc: 37,  label: 'Size B',                def: 0   },
+      { cc: 39,  label: 'Engine Param 1 B (engine-dependent)', def: 64  },
+      { cc: 40,  label: 'Engine Param 2 B (engine-dependent)', def: 64  },
+      { cc: 41,  label: 'Engine Param 3 B (engine-dependent)', def: 64  },
+      { cc: 42,  label: 'Engine Param 4 B (engine-dependent)', def: 64  },
+      { cc: 43,  label: 'Engine Param 5 B (engine-dependent)', def: 64  },
+      { cc: 50,  label: 'Dual/Single Mode (0=A only, 1=B only, 2=Parallel, 3=Cascade)', def: 2   },
+      { cc: 54,  label: 'Reverb Send',           def: 100 },
+      { cc: 55,  label: 'A/B Crossfade',         def: 64  },
+      { cc: 80,  label: 'Preset Decrement',      def: 0   },
+      { cc: 82,  label: 'Preset Increment',      def: 0   },
+      { cc: 93,  label: 'Tap Tempo',             def: 0   },
+      { cc: 97,  label: 'Hold (sustain trail)',   def: 0   },
+      { cc: 100, label: 'Expression',            def: 64  },
+      { cc: 101, label: 'Bypass (0-64=bypass, 65-127=engage)', def: 127 },
+      { cc: 102, label: 'Toggle Bypass',         def: 0   },
+      { cc: 103, label: 'Recall Preset (bypassed)', def: 0 },
+      { cc: 104, label: 'Recall Preset (engaged)',  def: 0 },
     ],
   },
 
@@ -952,14 +1077,25 @@ export const deviceDefs = {
 
   eventide_h9: {
     label: 'Eventide H9', type: 'Multi-FX',
-    // H9 Core / Standard / Max all share the same firmware and MIDI implementation.
-    // Presets load via PC 0-98 (PC 0 = Preset 1 … PC 98 = Preset 99). No bank select needed.
-    // HotKnob (expression ribbon) CC and Bypass CC are user-assigned in H9 Control app:
-    //   System Settings → MIDI → RCV.CTL → EXP (for HotKnob) and TAP/Bypass.
-    //   Or use MIDI Learn — press footswitch while sending the CC to auto-assign.
-    // No fixed default CC map. Add your learned CCs as custom controls on the device.
-    note: 'H9 Core/Standard/Max: presets via PC 0-98. All CC assignments (HotKnob, Bypass, Tap) are user-defined in H9 Control → MIDI settings. Use Tweak → Learn to auto-assign CCs after configuring in H9 Control. Sysex: enable in H9 Control → Settings → Bluetooth MIDI → Enable MIDI.',
-    params: [],
+    // H9 Core/Standard/Max. Verified factory defaults: PSW (bypass)=CC0, PROGRAM-=CC2,
+    // PROGRAM+=CC3, KB0-KB9=CC22-CC31. Expression defaults to PitchBend (not CC).
+    // All assignments user-configurable in H9 Control app. PC 0-127 selects presets.
+    note: 'KB0-KB9 (CC22-CC31) are algorithm-dependent — meaning changes per effect. CC0=bypass toggle (≥64=active). Expression=PitchBend by default (reassign in H9 Control).',
+    params: [
+      { cc: 0,   label: 'Bypass/PSW (≥64=active, <64=bypass)',          def: 127 },
+      { cc: 2,   label: 'Preset Down',                                    def: 0   },
+      { cc: 3,   label: 'Preset Up',                                      def: 0   },
+      { cc: 22,  label: 'KB0 (algo param 1, often Mix)',                  def: 64  },
+      { cc: 23,  label: 'KB1 (algo param 2)',                             def: 64  },
+      { cc: 24,  label: 'KB2 (algo param 3)',                             def: 64  },
+      { cc: 25,  label: 'KB3 (algo param 4)',                             def: 64  },
+      { cc: 26,  label: 'KB4 (algo param 5)',                             def: 64  },
+      { cc: 27,  label: 'KB5 (algo param 6)',                             def: 64  },
+      { cc: 28,  label: 'KB6 (algo param 7)',                             def: 64  },
+      { cc: 29,  label: 'KB7 (algo param 8)',                             def: 64  },
+      { cc: 30,  label: 'KB8 (algo param 9)',                             def: 64  },
+      { cc: 31,  label: 'KB9 (algo param 10)',                            def: 64  },
+    ],
     h9Sysex: { model: 0x01 },
   },
 
@@ -1846,22 +1982,42 @@ export const deviceDefs = {
 
   hologram_microcosm: {
     label: 'Hologram Microcosm', type: 'Granular/Looper',
-    note: 'Microcosm: MIDI via TRS-B (convert to 5-pin with Type B adapter). 11 loop/granular algorithms, 4 blend levels (per knob). Presets via PC 0-99 (100 slots). Bypassed = PC 100.',
+    // Verified via midi.guide/d/hologram/microcosm/ (cross-ref Hologram manual).
+    // TRS-B MIDI in (use Type B adapter for 5-pin DIN). 100 presets via PC 0-99; PC 100=bypass.
+    note: 'MIDI via TRS-B jack (Type B adapter for 5-pin). PC 0-99 = presets, PC 100 = bypass. Looper transport CCs (CC28-CC35) send any value to trigger.',
     params: [
-      { cc: 1,  label: 'Filter',                        def: 64  },
-      { cc: 7,  label: 'Output Level',                  def: 100 },
-      { cc: 11, label: 'Expression (assign via MIDI Learn)', def: 0 },
-      { cc: 12, label: 'Blend 1',                       def: 64  },
-      { cc: 13, label: 'Blend 2',                       def: 64  },
-      { cc: 14, label: 'Blend 3',                       def: 64  },
-      { cc: 15, label: 'Blend 4',                       def: 64  },
-      { cc: 16, label: 'Pitch',                         def: 64  },
-      { cc: 17, label: 'Interval',                      def: 64  },
-      { cc: 18, label: 'Repeats',                       def: 40  },
-      { cc: 19, label: 'Reverb',                        def: 0   },
-      { cc: 64, label: 'Bypass (0-63=off, 64+=on)',     def: 64  },
-      { cc: 80, label: 'Algorithm Select',              def: 0   },
-      { cc: 93, label: 'Drone Hold',                    def: 0   },
+      { cc: 5,  label: 'Subdivision (0=1/4, 32=1/2, 64=TAP, 96=2x, 112=4x, 127=8x)', def: 64  },
+      { cc: 6,  label: 'Activity',                                                      def: 64  },
+      { cc: 7,  label: 'Shape (0-31=Square, 32-63=Ramp, 64-95=Tri, 96-127=Saw)',      def: 64  },
+      { cc: 8,  label: 'Cutoff',                                                        def: 64  },
+      { cc: 9,  label: 'Mix',                                                           def: 64  },
+      { cc: 10, label: 'Time',                                                          def: 64  },
+      { cc: 11, label: 'Repeats',                                                       def: 40  },
+      { cc: 12, label: 'Space',                                                         def: 0   },
+      { cc: 13, label: 'Loop Level',                                                    def: 64  },
+      { cc: 14, label: 'Frequency',                                                     def: 64  },
+      { cc: 15, label: 'Resonance',                                                     def: 0   },
+      { cc: 16, label: 'Volume',                                                        def: 100 },
+      { cc: 17, label: 'Looper Playback Speed (continuous)',                            def: 64  },
+      { cc: 19, label: 'Depth',                                                         def: 64  },
+      { cc: 20, label: 'Reverb Time (0-31=Room, 32-63=Dark, 64-95=Hall, 96-127=Ambient)', def: 0 },
+      { cc: 21, label: 'Fade Time',                                                     def: 64  },
+      { cc: 22, label: 'Looper On/Off (0-63=off, 64-127=on)',                          def: 0   },
+      { cc: 23, label: 'Playback Direction (0-63=forward, 64-127=reverse)',             def: 0   },
+      { cc: 24, label: 'Routing (0-63=post-FX, 64-127=pre-FX)',                        def: 0   },
+      { cc: 25, label: 'Only (0-63=looper+FX, 64-127=looper only)',                    def: 0   },
+      { cc: 26, label: 'Burst (0-63=default, 64-127=burst)',                           def: 0   },
+      { cc: 27, label: 'Quantized (0-63=free, 64-127=quantize)',                       def: 0   },
+      { cc: 28, label: 'Record (trigger)',                                              def: 0   },
+      { cc: 29, label: 'Play (trigger)',                                                def: 0   },
+      { cc: 30, label: 'Overdub (trigger)',                                             def: 0   },
+      { cc: 31, label: 'Stop (trigger)',                                                def: 0   },
+      { cc: 34, label: 'Erase (trigger)',                                               def: 0   },
+      { cc: 35, label: 'Undo (trigger)',                                                def: 0   },
+      { cc: 47, label: 'Reverse Effect (trigger)',                                      def: 0   },
+      { cc: 48, label: 'Hold Sampler (0-63=off, 64-127=on)',                           def: 0   },
+      { cc: 93, label: 'Tap Tempo (trigger)',                                           def: 0   },
+      { cc: 102, label: 'Bypass (0-63=bypass, 64-127=engage)',                         def: 127 },
     ],
     starterPresets: [
       { recallPC: 0,   name: 'P01',    ccValues: {} },
