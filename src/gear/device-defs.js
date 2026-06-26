@@ -35,13 +35,26 @@ export const deviceDefs = {
       { cc: 4,  label: 'Expression',          def: 0   },
       { cc: 14, label: 'Bypass (0/127)',      def: 127 },
     ],
-    // CC values confirmed via Meris Mercury7 manual v4 (Preset 1 = Ultraplate factory default).
+    // CC values estimated from the official Meris Mercury7 Factory Preset Diagram (2019).
+    // Algorithm (CC29) and Swell (CC28) are exact; knob values are visual approximations.
+    // Use "Read from pedal" in RigWork for exact values from your hardware.
     starterPresets: [
-      { name: 'Ultraplate',  recallPC: -1, ccValues: { 14:127, 16:80,  17:12, 18:77, 19:127, 20:0,   21:127, 22:0,  23:21, 24:0,  25:127, 26:63, 28:0, 29:0   } },
-      { name: 'Cathedra',    recallPC: -1, ccValues: { 14:127, 16:110, 17:20, 18:85, 19:127, 20:0,   21:90,  22:10, 23:30, 25:127, 26:50, 28:0, 29:127 } },
-      { name: 'Shimmer',     recallPC: -1, ccValues: { 14:127, 16:90,  17:30, 18:75, 19:127, 20:100, 21:100, 22:0,  23:50, 24:90, 25:127, 28:0, 29:0   } },
-      { name: 'Swell Bloom', recallPC: -1, ccValues: { 14:127, 16:95,  17:15, 18:90, 19:127, 20:0,   21:127, 22:0,  23:30, 28:127,           29:0   } },
-      { name: 'Dark Hall',   recallPC: -1, ccValues: { 14:127, 16:100, 17:5,  18:70, 19:127, 20:0,   21:30,  22:20, 23:15, 25:80,            29:127 } },
+      { name: 'Ultraplate',      recallPC: -1, ccValues: { 14:127, 16:80,  17:12, 18:77, 19:127, 20:0,   21:127, 22:0,  23:21, 24:0,  25:127, 26:63, 28:0,   29:0   } },
+      { name: 'OctaveUp',        recallPC: -1, ccValues: { 14:127, 16:65,  17:30, 18:65, 19:127, 20:115, 21:127, 22:0,  23:50, 24:80, 25:80,  26:40, 28:0,   29:0   } },
+      { name: 'DownShift',       recallPC: -1, ccValues: { 14:127, 16:100, 17:15, 18:70, 19:127, 20:8,   21:100, 22:0,  23:30, 24:0,  25:100, 26:40, 28:0,   29:127 } },
+      { name: 'BloomVibe',       recallPC: -1, ccValues: { 14:127, 16:95,  17:65, 18:75, 19:100, 20:70,  21:100, 22:0,  23:50, 24:0,  25:100, 26:90, 28:0,   29:127 } },
+      { name: 'ExpSustain',      recallPC: -1, ccValues: { 14:127, 16:120, 17:5,  18:85, 19:127, 20:42,  21:127, 22:0,  23:20, 24:0,  25:127, 26:63, 28:0,   29:0   } },
+      { name: 'Drift',           recallPC: -1, ccValues: { 14:127, 16:80,  17:50, 18:65, 19:127, 20:55,  21:110, 22:0,  23:25, 24:0,  25:90,  26:40, 28:0,   29:127 } },
+      { name: 'Uplift',          recallPC: -1, ccValues: { 14:127, 16:85,  17:30, 18:75, 19:100, 20:85,  21:120, 22:0,  23:40, 24:70, 25:90,  26:40, 28:0,   29:0   } },
+      { name: 'PitchSwell',      recallPC: -1, ccValues: { 14:127, 16:85,  17:20, 18:85, 19:127, 20:95,  21:127, 22:0,  23:30, 24:80, 25:100, 26:50, 28:127, 29:0   } },
+      { name: 'SubTerra',        recallPC: -1, ccValues: { 14:127, 16:115, 17:10, 18:75, 19:127, 20:8,   21:40,  22:0,  23:15, 24:0,  25:110, 26:80, 28:127, 29:127 } },
+      { name: 'ResoVerb',        recallPC: -1, ccValues: { 14:127, 16:95,  17:25, 18:80, 19:110, 20:42,  21:75,  22:10, 23:35, 24:0,  25:80,  26:50, 28:127, 29:127 } },
+      { name: 'ParasiticDecay',  recallPC: -1, ccValues: { 14:127, 16:85,  17:55, 18:65, 19:80,  20:20,  21:70,  22:5,  23:45, 24:0,  25:60,  26:30, 28:0,   29:127 } },
+      { name: 'GlassRegen',      recallPC: -1, ccValues: { 14:127, 16:90,  17:35, 18:75, 19:55,  20:70,  21:90,  22:5,  23:30, 24:0,  25:70,  26:40, 28:0,   29:127 } },
+      { name: 'SmallHall',       recallPC: -1, ccValues: { 14:127, 16:45,  17:5,  18:55, 19:100, 20:42,  21:100, 22:0,  23:15, 24:0,  25:80,  26:40, 28:0,   29:0   } },
+      { name: 'SpatialSustain',  recallPC: -1, ccValues: { 14:127, 16:105, 17:15, 18:80, 19:127, 20:42,  21:127, 22:0,  23:20, 24:0,  25:120, 26:50, 28:0,   29:0   } },
+      { name: 'PianoBass',       recallPC: -1, ccValues: { 14:127, 16:55,  17:5,  18:65, 19:127, 20:10,  21:40,  22:0,  23:10, 24:0,  25:90,  26:60, 28:0,   29:127 } },
+      { name: 'FadedOctave',     recallPC: -1, ccValues: { 14:127, 16:90,  17:40, 18:80, 19:100, 20:100, 21:90,  22:0,  23:35, 24:70, 25:90,  26:45, 28:127, 29:127 } },
     ],
     merisSysex: { model: 0x01 },
   },
