@@ -445,9 +445,10 @@ export const deviceDefs = {
       { cc: 22, label: 'Booster Pre-Lvl (default)',    def: 64  },
       { cc: 23, label: 'Booster Post-Lvl (default)',   def: 64  },
       { cc: 27, label: 'Effect On/Off (0=off/127=on)', def: 127 },
+      { cc: 28, label: 'Memory / Tap',                 def: 0   },
       { cc: 80, label: 'CTL-1',                        def: 0   },
       { cc: 81, label: 'CTL-2',                        def: 0   },
-      { cc: 82, label: 'Boost On/Off (0=off/127=on)',  def: 0   },
+      { cc: 83, label: 'Boost On/Off (0=off/127=on)',  def: 0   },
     ],
   },
 
@@ -499,6 +500,88 @@ export const deviceDefs = {
       { cc: 82, label: 'Down',                          def: 0   },
       { cc: 83, label: 'Up',                            def: 0   },
       { cc: 84, label: 'Solo (0=off/127=on)',           def: 0   },
+    ],
+  },
+
+  boss_sy200: {
+    label: 'Boss SY-200', type: 'Synth',
+    // Boss 200-series factory default CC assignments. CC16 hardwired; CC17-22 user-reassignable.
+    params: [
+      { cc: 16, label: 'Expression (EXP, hardwired)',  def: 64  },
+      { cc: 17, label: 'Type (default assign)',          def: 0   },
+      { cc: 18, label: 'Ensemble (default assign)',      def: 64  },
+      { cc: 19, label: 'Attack (default assign)',        def: 64  },
+      { cc: 20, label: 'Level (default assign)',         def: 80  },
+      { cc: 21, label: 'Param 1 (default assign)',       def: 64  },
+      { cc: 22, label: 'Param 2 (default assign)',       def: 64  },
+      { cc: 27, label: 'Effect On/Off (0=off/127=on)',  def: 127 },
+      { cc: 28, label: 'Memory',                         def: 0   },
+      { cc: 80, label: 'CTL-1',                          def: 0   },
+      { cc: 81, label: 'CTL-2',                          def: 0   },
+    ],
+  },
+
+  boss_eq200: {
+    label: 'Boss EQ-200', type: 'EQ',
+    // Boss 200-series factory default CC assignments. CC16 hardwired; CC17-22 user-reassignable.
+    params: [
+      { cc: 16, label: 'Expression (EXP, hardwired)',  def: 64  },
+      { cc: 17, label: 'Low (default assign)',           def: 64  },
+      { cc: 18, label: 'Low-Mid (default assign)',       def: 64  },
+      { cc: 19, label: 'Mid (default assign)',           def: 64  },
+      { cc: 20, label: 'High-Mid (default assign)',      def: 64  },
+      { cc: 21, label: 'High (default assign)',          def: 64  },
+      { cc: 22, label: 'Level (default assign)',         def: 80  },
+      { cc: 27, label: 'Effect On/Off (0=off/127=on)',  def: 127 },
+      { cc: 28, label: 'Memory',                         def: 0   },
+      { cc: 80, label: 'CTL-1',                          def: 0   },
+      { cc: 81, label: 'CTL-2',                          def: 0   },
+    ],
+  },
+
+  boss_dd500: {
+    label: 'Boss DD-500', type: 'Delay',
+    // Boss 500-series: CC27/80/81 are fixed; CC17-22 are user-assignable via the ASSIGN menu on the pedal.
+    // Add custom controls for any knobs you've assigned in the pedal's ASSIGN settings.
+    note: 'Knob CCs (17-22) are user-assigned on the pedal. Add custom controls to match your ASSIGN config.',
+    params: [
+      { cc: 27, label: 'Effect On/Off (0=off/127=on)', def: 127 },
+      { cc: 28, label: 'Tap',                           def: 0   },
+      { cc: 80, label: 'CTL-1',                         def: 0   },
+      { cc: 81, label: 'CTL-2',                         def: 0   },
+    ],
+  },
+
+  boss_rv500: {
+    label: 'Boss RV-500', type: 'Reverb',
+    // Boss 500-series: CC27/80/81 are fixed; knob CCs are user-assignable via ASSIGN menu.
+    note: 'Knob CCs are user-assigned on the pedal. Add custom controls to match your ASSIGN config.',
+    params: [
+      { cc: 27, label: 'Effect On/Off (0=off/127=on)', def: 127 },
+      { cc: 80, label: 'CTL-1',                         def: 0   },
+      { cc: 81, label: 'CTL-2',                         def: 0   },
+    ],
+  },
+
+  boss_md500: {
+    label: 'Boss MD-500', type: 'Modulation',
+    // Boss 500-series: CC27/80/81 are fixed; knob CCs are user-assignable via ASSIGN menu.
+    note: 'Knob CCs are user-assigned on the pedal. Add custom controls to match your ASSIGN config.',
+    params: [
+      { cc: 27, label: 'Effect On/Off (0=off/127=on)', def: 127 },
+      { cc: 80, label: 'CTL-1',                         def: 0   },
+      { cc: 81, label: 'CTL-2',                         def: 0   },
+    ],
+  },
+
+  boss_rc500: {
+    label: 'Boss RC-500', type: 'Looper',
+    // All looper function CCs are user-defined via ASSIGN. CC27/80/81 are the fixed anchors.
+    note: 'All looper function CCs (play, stop, record, etc.) are user-assigned on the pedal.',
+    params: [
+      { cc: 27, label: 'Effect On/Off (0=off/127=on)', def: 127 },
+      { cc: 80, label: 'CTL-1',                         def: 0   },
+      { cc: 81, label: 'CTL-2',                         def: 0   },
     ],
   },
 
