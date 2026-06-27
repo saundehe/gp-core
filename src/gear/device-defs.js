@@ -169,12 +169,12 @@ export const deviceDefs = {
       { cc: 19, label: 'Sustain',                            def: 64  },
       { cc: 20, label: 'Filter Envelope',                    def: 64  },
       { cc: 21, label: 'Modulation',                         def: 0   },
-      { cc: 22, label: 'Portamento (alt)',                   def: 0   },
-      { cc: 23, label: 'Filter Type (alt)',                  def: 0   },
-      { cc: 24, label: 'Delay Level (alt)',                  def: 0   },
-      { cc: 25, label: 'Ring Modulation (alt)',              def: 0   },
-      { cc: 26, label: 'Filter Bandwidth (alt)',             def: 64  },
-      { cc: 27, label: 'Delay Feedback (alt)',               def: 0   },
+      { cc: 22, label: 'Pitch (alt)',                         def: 0   },
+      { cc: 23, label: 'Filter (alt)',                       def: 0   },
+      { cc: 24, label: 'Mix (alt)',                          def: 0   },
+      { cc: 25, label: 'Sustain (alt)',                      def: 0   },
+      { cc: 26, label: 'Filter Envelope (alt)',              def: 64  },
+      { cc: 27, label: 'Modulation (alt)',                   def: 0   },
       { cc: 9,  label: 'Envelope Type (0=trig/127=follow)', def: 0   },
       { cc: 15, label: 'Tempo (10ms steps)',                 def: 0   },
       { cc: 28, label: 'Tap',                               def: 0   },
@@ -183,7 +183,7 @@ export const deviceDefs = {
       { cc: 4,  label: 'Expression',                        def: 0   },
       { cc: 14, label: 'Bypass (0/127)',                    def: 127 },
     ],
-    // CC values from the official Meris Enzo Factory Preset Diagram (2019).
+    // CC values verified against the official Meris ENZO Factory Preset Diagram PDF.
     // Heel position (expression toe-up / no expression pedal). CC29 bands: 0-31=dry 32-63=mono 64-95=arp 96-127=poly.
     starterPresets: [
       { name: 'PolySwell',   recallPC: -1, ccValues: { 14:127, 9:0,   15:127, 29:112, 30:0,   16:0,   17:127, 18:127, 19:20,  20:122, 21:55,  22:0,   23:70,  24:127, 25:0,   26:111, 27:0   } },
