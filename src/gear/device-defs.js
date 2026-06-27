@@ -155,6 +155,7 @@ export const deviceDefs = {
       { name: 'BumbleTrail',       recallPC: -1, ccValues: { 14:127, 16:0, 17:64, 18:80, 19:105, 20:95,  21:84,  22:0,  23:64,  24:48, 25:32, 26:64, 27:96, 29:0,   30:0,   31:0 } },
       { name: 'FoldingIntervals',  recallPC: -1, ccValues: { 14:127, 16:0, 17:64, 18:80, 19:84,  20:116, 21:32,  22:0,  23:80,  24:48, 25:64, 26:64, 27:64, 29:0,   30:127, 31:0 } },
     ],
+    merisSysex: { model: 0x04 },
   },
 
   meris_enzo: {
