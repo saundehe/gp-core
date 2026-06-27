@@ -754,6 +754,51 @@ export const deviceDefs = {
     ],
     starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
+  cba_brothers: {
+    label: 'CBA Brothers', type: 'Dual Channel Overdrive/Distortion/Fuzz',
+    // Verified via midi.guide/d/chase-bliss/brothers/
+    // Toggle CCs (21-23): 1=left, 2=center, 3=right. Default MIDI ch 2.
+    // CC103 bypass: 0=bypass both, 45=engage B bypass A, 85=engage A bypass B, 127=engage both.
+    params: [
+      { cc: 14,  label: 'Gain A',                                                         def: 64  },
+      { cc: 15,  label: 'Master',                                                         def: 100 },
+      { cc: 16,  label: 'Gain B',                                                         def: 64  },
+      { cc: 17,  label: 'Tone A',                                                         def: 64  },
+      { cc: 18,  label: 'Mix / Stack',                                                    def: 64  },
+      { cc: 19,  label: 'Tone B',                                                         def: 64  },
+      { cc: 21,  label: 'Toggle: Channel A Effect (1=Boost, 2=Drive, 3=Fuzz)',            def: 2   },
+      { cc: 22,  label: 'Toggle: Routing (1=Parallel, 2=A>>B, 3=B>>A)',                  def: 2   },
+      { cc: 23,  label: 'Toggle: Channel B Effect (1=Fuzz, 2=Drive, 3=Boost)',            def: 2   },
+      { cc: 100, label: 'Expression',                                                     def: 64  },
+      { cc: 102, label: 'Engage Last Saved Channels (0=bypass both, 127=engage)',         def: 127 },
+      { cc: 103, label: 'Bypass Engagement (0=bypass both, 45=B only, 85=A only, 127=both engage)', def: 127 },
+    ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
+  },
+
+  cba_automatone_preamp_mkii: {
+    label: 'CBA Automatone Preamp MKII', type: 'Preamp / Overdrive / Fuzz',
+    // Verified via midi.guide/d/chase-bliss/preamp-mkii/
+    // Toggle CCs (22-26): 1=left, 2=center, 3=right. CC27: preset slot 0-29. Default MIDI ch 2.
+    // CC102 bypass: 0=bypass, 1-127=engage.
+    params: [
+      { cc: 14,  label: 'Volume',                                         def: 80  },
+      { cc: 15,  label: 'Treble',                                         def: 64  },
+      { cc: 16,  label: 'Mids',                                           def: 64  },
+      { cc: 17,  label: 'Frequency',                                      def: 64  },
+      { cc: 18,  label: 'Bass',                                           def: 64  },
+      { cc: 19,  label: 'Gain',                                           def: 64  },
+      { cc: 22,  label: 'Toggle: Jump (1=Off, 2=0, 3=5)',                def: 1   },
+      { cc: 23,  label: 'Toggle: Mids Mode (1=Off, 2=Pre, 3=Post)',      def: 1   },
+      { cc: 24,  label: 'Toggle: Q (1=Low, 2=Mid, 3=High)',              def: 2   },
+      { cc: 25,  label: 'Toggle: Diode (1=Off, 2=Silicon, 3=Germanium)', def: 1   },
+      { cc: 26,  label: 'Toggle: Fuzz (1=Off, 2=Open, 3=Gated)',         def: 1   },
+      { cc: 27,  label: 'Preset Save/Recall (0-29)',                      def: 0   },
+      { cc: 100, label: 'Expression',                                     def: 64  },
+      { cc: 102, label: 'Bypass (0=bypass, 1-127=engage)',                def: 127 },
+    ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
+  },
 
   empress_reverb: {
     label: 'Empress Reverb', type: 'Reverb',
