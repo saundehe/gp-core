@@ -352,7 +352,7 @@ export const pedalLib = {
 
   // ── Amps / cabs (AC-powered; dims intentionally omitted — use kind defaults in layout) ──
   "Orange CR120H":                  { v:0, ma:0, cat:"Amp" },
-  "Orange Crush Mini":              { v:9, ma:1000, cat:"Amp" },
+  "Orange Crush Mini":              { v:0, ma:0, cat:"Amp" },
   "Sunn Beta Lead":                 { v:0, ma:0, cat:"Amp" },
   "Laney Ironheart IRT120H":        { v:0, ma:0, cat:"Amp" },
   "Darkglass Element":              { v:0, ma:0, cat:"Amp" },
@@ -436,5 +436,5 @@ export const pedalLib = {
 
   // ── Software / plugins (no physical dims) ──
   "Neural DSP plugin (Archetype/standalone)": { v:0, ma:0, cat:"Amp sim" },
-  "EastWest Opus / Play":          { v:0, ma:0, cat:"Outboard" },
+  "EastWest Opus / Play":          { v:0, ma:0, cat:"Amp sim" },
 };

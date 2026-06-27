@@ -290,6 +290,7 @@ export const deviceDefs = {
       { cc: 117, label: 'Tuner Toggle',    def: 0   },
       { cc: 118, label: 'Hold Modifier',   def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   meris_lvx: {
@@ -325,6 +326,7 @@ export const deviceDefs = {
       { cc: 120, label: 'Delay Damping',     def: 0   },
       { cc: 121, label: 'MIDI Clock',        def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   meris_enzox: {
@@ -358,6 +360,7 @@ export const deviceDefs = {
       { cc: 99,  label: 'Tap Tempo',          def: 0   },
       { cc: 117, label: 'Tuner Toggle',       def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   meris_ottobitx: {
@@ -393,6 +396,7 @@ export const deviceDefs = {
       { cc: 99,  label: 'Tap Tempo',               def: 0   },
       { cc: 117, label: 'Tuner Toggle',            def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   darkglass_anagram: {
@@ -417,6 +421,7 @@ export const deviceDefs = {
       { cc: 25,  label: 'Binding Knob 6',                    def: 0  },
       { cc: 89,  label: 'Expression Pedal',                  def: 0  },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   darkglass_ao900: {
@@ -443,6 +448,7 @@ export const deviceDefs = {
       { cc: 81, label: 'CTL-2',                         def: 0   },
       { cc: 82, label: 'Memory Switch',                 def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   boss_od200: {
@@ -463,6 +469,7 @@ export const deviceDefs = {
       { cc: 81, label: 'CTL-2',                        def: 0   },
       { cc: 83, label: 'Boost On/Off (0=off/127=on)',  def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   boss_rv200: {
@@ -480,6 +487,7 @@ export const deviceDefs = {
       { cc: 80, label: 'CTL-1',                           def: 0   },
       { cc: 81, label: 'CTL-2',                           def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   boss_md200: {
@@ -498,6 +506,7 @@ export const deviceDefs = {
       { cc: 80, label: 'CTL-1',                           def: 0   },
       { cc: 81, label: 'CTL-2',                           def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   boss_ir200: {
@@ -514,6 +523,7 @@ export const deviceDefs = {
       { cc: 83, label: 'Up',                            def: 0   },
       { cc: 84, label: 'Solo (0=off/127=on)',           def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   boss_sy200: {
@@ -532,6 +542,7 @@ export const deviceDefs = {
       { cc: 80, label: 'CTL-1',                          def: 0   },
       { cc: 81, label: 'CTL-2',                          def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   boss_eq200: {
@@ -550,6 +561,7 @@ export const deviceDefs = {
       { cc: 80, label: 'CTL-1',                          def: 0   },
       { cc: 81, label: 'CTL-2',                          def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   boss_dd500: {
@@ -563,6 +575,7 @@ export const deviceDefs = {
       { cc: 80, label: 'CTL-1',                         def: 0   },
       { cc: 81, label: 'CTL-2',                         def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   boss_rv500: {
@@ -574,6 +587,7 @@ export const deviceDefs = {
       { cc: 80, label: 'CTL-1',                         def: 0   },
       { cc: 81, label: 'CTL-2',                         def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   boss_md500: {
@@ -585,6 +599,7 @@ export const deviceDefs = {
       { cc: 80, label: 'CTL-1',                         def: 0   },
       { cc: 81, label: 'CTL-2',                         def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   boss_rc500: {
@@ -596,6 +611,7 @@ export const deviceDefs = {
       { cc: 80, label: 'CTL-1',                         def: 0   },
       { cc: 81, label: 'CTL-2',                         def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   chase_bliss_thermae: {
@@ -621,6 +637,7 @@ export const deviceDefs = {
       { cc: 100, label: 'Expression over MIDI',             def: 64  },
       { cc: 102, label: 'Bypass (0-63=bypass, 64-127=engage)', def: 127 },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   chase_bliss_mood: {
@@ -677,6 +694,7 @@ export const deviceDefs = {
       { cc: 107, label: 'Tap Tempo (MKII)',                    def: 0   },
       { cc: 110, label: 'MIDI reset',                          def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   chase_bliss_blooper: {
@@ -711,6 +729,7 @@ export const deviceDefs = {
       { cc: 52, label: 'Ramping on/off',        def: 0   },
       { cc: 100, label: 'Expression over MIDI', def: 64  },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   chase_bliss_dark_world: {
@@ -733,6 +752,7 @@ export const deviceDefs = {
       { cc: 102, label: 'Engage saved channels (0=bypass, 127=engage)',      def: 127 },
       { cc: 103, label: 'Routing (0=both bypass, 45=dark, 85=world, 127=both)', def: 127 },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   empress_reverb: {
@@ -761,6 +781,7 @@ export const deviceDefs = {
       { cc: 51, label: 'MIDI Clock',                   def: 0   },
       { cc: 60, label: 'Bypass (0=bypass, 127=engage)', def: 127 },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   empress_echosystem: {
@@ -804,6 +825,7 @@ export const deviceDefs = {
       { cc: 52,  label: 'B MIDI Clock',                           def: 0   },
       { cc: 60,  label: 'Bypass (0=bypass, 127=engage)',          def: 127 },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   walrus_acs1: {
@@ -824,6 +846,7 @@ export const deviceDefs = {
       { cc: 30, label: 'Bypass (0=bypass, 127=engage)',                 def: 127 },
       { cc: 31, label: 'Boost (0=bypass, 127=engage)',                  def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   walrus_mako_m1: {
@@ -840,6 +863,7 @@ export const deviceDefs = {
       { cc: 31,  label: 'Bypass (0=bypass, 127=engage)',                   def: 127 },
       { cc: 104, label: 'Dry/Wet Mix (fw 1.19+)',                          def: 64  },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   walrus_mako_d1: {
@@ -854,6 +878,7 @@ export const deviceDefs = {
       { cc: 23,  label: 'Age / Bit Crusher (Digital)', def: 0  },
       { cc: 29,  label: 'Bypass (0=bypass, 127=engage)', def: 127 },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   walrus_mako_r1: {
@@ -865,6 +890,7 @@ export const deviceDefs = {
     params: [
       { cc: 30,  label: 'Bypass (0=bypass, 127=engage)', def: 127 },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   source_audio_nemesis: {
@@ -882,6 +908,7 @@ export const deviceDefs = {
       { cc: 10,  label: 'Output Level', def: 100 },
       { cc: 102, label: 'Bypass (0/127)', def: 127 },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   source_audio_c4: {
@@ -897,6 +924,7 @@ export const deviceDefs = {
       { cc: 104, label: 'Recall Preset (engaged state)',        def: 0   },
       { cc: 105, label: 'Toggle Bypass (any value)',            def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   source_audio_ventris: {
@@ -953,6 +981,7 @@ export const deviceDefs = {
       { cc: 103, label: 'Recall Preset (bypassed)', def: 0 },
       { cc: 104, label: 'Recall Preset (engaged)',  def: 0 },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   alexander_wavelength: {
@@ -968,6 +997,7 @@ export const deviceDefs = {
       { cc: 57, label: 'Level',        def: 100 },
       { cc: 59, label: 'Mode (0-5)',   def: 0  },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   strymon_timeline: {
@@ -1096,6 +1126,7 @@ export const deviceDefs = {
       { cc: 30,  label: 'KB8 (algo param 9)',                             def: 64  },
       { cc: 31,  label: 'KB9 (algo param 10)',                            def: 64  },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
     h9Sysex: { model: 0x01 },
   },
 
@@ -1522,6 +1553,7 @@ export const deviceDefs = {
       { cc: 46, label: 'Gig View (0/127)',    def: 0 },
       { cc: 47, label: 'Mode (0=Preset/1=Scene/2=Stomp)', def: 0 },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   eastwest: {
@@ -1561,6 +1593,7 @@ export const deviceDefs = {
       { cc: 40, label: 'Scene 7',                   def: 0   },
       { cc: 41, label: 'Scene 8',                   def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   fractal_fm9: {
@@ -1581,6 +1614,7 @@ export const deviceDefs = {
       { cc: 38, label: 'Scene 5',           def: 0   },
       { cc: 39, label: 'Scene 6',           def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   line6_helix: {
@@ -1592,6 +1626,7 @@ export const deviceDefs = {
       { cc: 64, label: 'Tuner (64+ = on)',         def: 0 },
       { cc: 68, label: 'Global Bypass (64+ = on)', def: 0 },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   line6_hxstomp: {
@@ -1617,6 +1652,7 @@ export const deviceDefs = {
       { cc: 71, label: 'Footswitch Mode (0-5)',                             def: 0   },
       { cc: 72, label: 'Preset Nav (0-63=prev, 64-127=next)',              def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   kemper_stage: {
@@ -1630,6 +1666,7 @@ export const deviceDefs = {
       { cc: 80, label: 'Tuner (64+ = on)',   def: 0   },
       { cc: 83, label: 'Tap Tempo',          def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   strymon_iridium: {
@@ -1639,6 +1676,7 @@ export const deviceDefs = {
       { cc: 100, label: 'Expression',     def: 0   },
       { cc: 102, label: 'Bypass (0/127)', def: 127 },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   neural_nanocortex: {
@@ -1649,6 +1687,7 @@ export const deviceDefs = {
       { cc: 44, label: 'Tap Tempo',                   def: 0 },
       { cc: 45, label: 'Tuner (0/127)',               def: 0 },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   // ── TC Electronic ──
@@ -1782,6 +1821,7 @@ export const deviceDefs = {
       { cc: 82, label: 'CTL-3',                      def: 0   },
       { cc: 83, label: 'CTL-4',                      def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   // ── Eventide Factor Series ──
@@ -1920,6 +1960,7 @@ export const deviceDefs = {
       { cc: 86, label: 'CTL-7',   def: 0   },
       { cc: 87, label: 'CTL-8',   def: 0   },
     ],
+    starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
   // ── Strymon NightSky ──
