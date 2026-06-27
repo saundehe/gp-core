@@ -364,4 +364,77 @@ export const pedalLib = {
   "Randall R412JT":                 { v:0, ma:0, cat:"Cab" },
   "Acoustic G412A":                 { v:0, ma:0, cat:"Cab" },
   "Ampeg V412":                     { v:0, ma:0, cat:"Cab" },
+
+  // ── Strymon (missing entries — match device-defs labels exactly) ──
+  "Strymon Iridium":               { v:9, ma:250, w:4.0,  d:4.5,  cat:"Amp sim",       inJ:"right", outJ:"left", pwrJ:"top" },
+  "Strymon Volante":               { v:9, ma:300, w:6.75, d:5.1,  cat:"Delay",         inJ:"left",  outJ:"right",pwrJ:"top", inJAt:0.20, outJAt:0.20 },
+  "Strymon NightSky":              { v:9, ma:250, w:4.5,  d:3.5,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Eventide Factor series + Space ──
+  "Eventide Space":                { v:9, ma:400, w:4.5,  d:3.75, cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Eventide TimeFactor":           { v:9, ma:400, w:4.5,  d:3.75, cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Eventide ModFactor":            { v:9, ma:400, w:4.5,  d:3.75, cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Eventide PitchFactor":          { v:9, ma:400, w:4.5,  d:3.75, cat:"Pitch / Octave",inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Boss 200/500-series + GT (missing entries) ──
+  "Boss IR-200":                   { v:9, ma:200, w:2.9,  d:5.1,  cat:"Amp sim",       inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss SY-200":                   { v:9, ma:70,  w:2.9,  d:5.1,  cat:"Synth",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss EQ-200":                   { v:9, ma:165, w:5.87, d:5.1,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss DD-500":                   { v:9, ma:500, w:7.25, d:5.5,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true, sendJ:"top", sendJAt:0.60, returnJ:"top", returnJAt:0.70 },
+  "Boss RV-500":                   { v:9, ma:500, w:7.25, d:5.5,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss MD-500":                   { v:9, ma:500, w:7.25, d:5.5,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss RC-500":                   { v:9, ma:600, w:5.87, d:5.1,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Boss GT-1000":                  { v:9, ma:2000,w:14.6, d:8.9,  cat:"Multi-FX",      inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true, sendJ:"top", sendJAt:0.60, returnJ:"top", returnJAt:0.70 },
+
+  // ── Chase Bliss Audio — full names matching device-defs (CBA aliases kept for back-compat) ──
+  "Chase Bliss Thermae":           { v:9, ma:200, w:4.5,  d:2.6,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Chase Bliss MOOD MKII":         { v:9, ma:200, w:4.5,  d:2.6,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Chase Bliss Blooper":           { v:9, ma:200, w:4.5,  d:2.6,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Chase Bliss Dark World":        { v:9, ma:200, w:4.5,  d:2.6,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Walrus Audio — ACS1 + Mako series ──
+  "Walrus ACS1":                   { v:9, ma:170, w:4.75, d:3.0,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Walrus Mako M1":                { v:9, ma:250, w:5.5,  d:4.5,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Walrus Mako D1":                { v:9, ma:250, w:5.5,  d:4.5,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Walrus Mako R1":                { v:9, ma:250, w:5.5,  d:4.5,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Source Audio ──
+  "Source Audio Nemesis":          { v:9, ma:200, w:4.5,  d:3.0,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Source Audio C4 Synth":         { v:9, ma:150, w:3.7,  d:1.5,  cat:"Synth",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Source Audio Ventris":          { v:9, ma:200, w:4.5,  d:3.0,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Hologram Electronics ──
+  "Hologram Microcosm":            { v:9, ma:300, w:5.5,  d:4.5,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Empress Effects ──
+  "Empress ZOIA":                  { v:9, ma:500, w:4.65, d:3.5,  cat:"Multi-FX",      inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── Meris X-series ──
+  "Meris Mercury X":               { v:9, ma:165, w:4.55, d:2.85, cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top" },
+  "Meris Enzo X":                  { v:9, ma:165, w:4.55, d:2.85, cat:"Synth",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "Meris Ottobit X":               { v:9, ma:165, w:4.55, d:2.85, cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Darkglass ──
+  "Darkglass Anagram":             { v:9, ma:300, w:5.5,  d:4.5,  cat:"Multi-FX",      inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Darkglass Alpha Omega 900":     { v:0, ma:0, cat:"Amp" },
+
+  // ── Alexander Pedals (full label match for device-defs template) ──
+  "Alexander Wavelength":          { v:9, ma:200, w:4.65, d:2.6,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+
+  // ── TC Electronic (full names matching device-defs) ──
+  "TC Electronic Flashback X4":    { v:9, ma:160, w:7.4,  d:5.4,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top" },
+  "TC Electronic Hall of Fame 2":  { v:9, ma:100, w:2.85, d:4.8,  cat:"Reverb",        inJ:"right", outJ:"left", pwrJ:"top" },
+
+  // ── Multi-FX floor units ──
+  "Neural DSP Quad Cortex":        { v:12, ma:2000, w:12.25, d:8.8, cat:"Multi-FX",    inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true, sendJ:"top", sendJAt:0.60, returnJ:"top", returnJAt:0.70 },
+  "Neural DSP Nano Cortex":        { v:9,  ma:500,  w:5.4,  d:4.5, cat:"Amp sim",      inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
+  "Fractal Axe-Fx III":            { v:0,  ma:0,  cat:"Amp sim" },
+  "Fractal FM9":                   { v:0,  ma:0,   w:18.0, d:8.5, cat:"Amp sim",       inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true },
+  "Line 6 Helix Floor":            { v:0,  ma:0,   w:22.3, d:10.3, cat:"Multi-FX",     inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true },
+  "Line 6 M9":                     { v:9,  ma:500,  w:7.0,  d:4.75, cat:"Multi-FX",    inJ:"right", outJ:"left", pwrJ:"top" },
+  "Kemper Profiler Stage":         { v:0,  ma:0,   w:13.4, d:8.9, cat:"Amp sim",       inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true },
+
+  // ── Software / plugins (no physical dims) ──
+  "Neural DSP plugin (Archetype/standalone)": { v:0, ma:0, cat:"Amp sim" },
+  "EastWest Opus / Play":          { v:0, ma:0, cat:"Outboard" },
 };
