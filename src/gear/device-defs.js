@@ -1351,6 +1351,8 @@ export const deviceDefs = {
       { cc: 81,  label: 'Ring Mod (0–63=On)',          def: 64  },
       { cc: 5,   label: 'Portamento',                 def: 0   },
     ],
+    // PC 0–99 selects presets 1–100. Factory programs are 0–36 (per Monologue manual pg 55).
+    programSelect: { label: 'Program', min: 0, max: 99, def: 0 },
     // Factory programs recalled via PC 0-36. ccValues are approximate for UI display;
     // the unit's stored patch is the authoritative state. Preset names per Monologue manual pg 55.
     starterPresets: [
