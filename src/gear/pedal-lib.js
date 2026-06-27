@@ -31,6 +31,7 @@ export const pedalLib = {
   "Digitech Whammy V":         { v:9, ma:200, w:5.0,  d:5.5,  cat:"Pitch / Octave",inJ:"right", outJ:"left", pwrJ:"top" },
   "Strymon El Capistan":       { v:9, ma:250, w:4.0,  d:4.5,  cat:"Delay",         inJ:"right", outJ:"left", pwrJ:"top" },
   "Strymon BigSky":            { v:9, ma:300, w:6.75, d:5.1,  cat:"Reverb",        inJ:"left",  outJ:"right",pwrJ:"top", inJAt:0.20, outJAt:0.20 },
+  "Strymon Mobius":            { v:9, ma:300, w:6.75, d:5.1,  cat:"Modulation",    inJ:"left",  outJ:"right",pwrJ:"top", inJAt:0.20, outJAt:0.20 },
   "Strymon Timeline":          { v:9, ma:300, w:6.75, d:5.1,  cat:"Delay",         inJ:"left",  outJ:"right",pwrJ:"top", inJAt:0.20, outJAt:0.20, hasFxLoop:true, returnJ:"top", returnJAt:0.70, sendJ:"top", sendJAt:0.78 },
   "Eventide H9":               { v:9, ma:400, w:4.9,  d:4.6,  cat:"Modulation",    inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
   "Line 6 HX Stomp":          { v:9, ma:500, w:4.7,  d:3.1,  cat:"Other",         inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true, sendJ:"left", sendJAt:0.55, returnJ:"left", returnJAt:0.70 },
