@@ -1102,7 +1102,8 @@ export const deviceDefs = {
       { name: 'Swell',    recallPC: -1, ccValues: { 102:127, 19:10, 3:64, 9:40, 14:70, 15:64, 16:0,  17:0,  18:0  } },
       { name: 'DLine',    recallPC: -1, ccValues: { 102:127, 19:11, 3:64, 9:40, 14:55, 15:64, 16:0,  17:0,  18:0  } },
     ],
-    strymonSysex: { model: 0x01 },
+    // deviceId 0x10 from Strymon identity reply; 300 presets (100 banks × A/B/C)
+    strymonSysex: { model: 0x01, deviceId: 0x10, slots: 300 },
   },
 
   strymon_bigsky: {
@@ -1135,7 +1136,8 @@ export const deviceDefs = {
       { name: 'Nonlinear',  recallPC: -1, ccValues: { 102:127, 19:10, 17:50,  18:0,  15:60, 3:64, 14:0,  9:64, 16:64 } },
       { name: 'Reflections',recallPC: -1, ccValues: { 102:127, 19:11, 17:55,  18:5,  15:55, 3:70, 14:0,  9:64, 16:64 } },
     ],
-    strymonSysex: { model: 0x03 },
+    // deviceId 0x15 from Strymon identity reply; 300 presets (100 banks × A/B/C)
+    strymonSysex: { model: 0x03, deviceId: 0x15, slots: 300 },
   },
 
   strymon_mobius: {
@@ -1174,7 +1176,8 @@ export const deviceDefs = {
       { name: 'Autoswell',    recallPC: -1, ccValues: { 102:127, 19:10, 17:64, 18:100, 9:64, 16:64  } },
       { name: 'Destroyer',    recallPC: -1, ccValues: { 102:127, 19:11, 17:64, 18:100, 9:64, 16:64  } },
     ],
-    strymonSysex: { model: 0x02 },
+    // deviceId 0x12 from Strymon identity reply; 200 presets (100 banks × A/B)
+    strymonSysex: { model: 0x02, deviceId: 0x12, slots: 200 },
   },
 
   eventide_h9: {
@@ -1821,7 +1824,9 @@ export const deviceDefs = {
       { cc: 100, label: 'Expression',                def: 0   },
       { cc: 102, label: 'Bypass (0/127)',            def: 127 },
     ],
-    strymonSysex: { model: 0x04 },
+    // deviceId TODO: El Capistan not in training data; known SPL product byte is 0x04.
+    // Strymon identity reply deviceId unconfirmed — set when verified against hardware.
+    strymonSysex: { model: 0x04, slots: 300 },
     starterPresets: [
       { name: 'Vintage Slap',  recallPC: -1, ccValues: { 102:127, 3:20,  9:15, 14:50, 15:20, 19:0   } },
       { name: 'Tape Echo',     recallPC: -1, ccValues: { 102:127, 3:64,  9:45, 14:65, 15:20, 19:43  } },
@@ -1845,7 +1850,8 @@ export const deviceDefs = {
       { cc: 100, label: 'Expression',                def: 0   },
       { cc: 102, label: 'Bypass (0/127)',            def: 127 },
     ],
-    strymonSysex: { model: 0x05 },
+    // deviceId 0x1A from Strymon identity reply; 300 presets (100 banks × A/B/C)
+    strymonSysex: { model: 0x05, deviceId: 0x1A, slots: 300 },
     starterPresets: [
       { name: 'Magneto Echo',  recallPC: -1, ccValues: { 102:127, 3:64,  9:64,  14:65, 15:10, 19:0   } },
       { name: 'Studio Wash',   recallPC: -1, ccValues: { 102:127, 3:64,  9:70,  14:70, 15:20, 19:43  } },
@@ -2176,7 +2182,9 @@ export const deviceDefs = {
       { name: 'Dark Pitch',   recallPC: -1, ccValues: { 102:127, 19:80,  21:60, 17:40, 15:30 } },
       { name: 'Subtle Room',  recallPC: -1, ccValues: { 102:127, 19:40,  21:40, 20:30  } },
     ],
-    strymonSysex: { model: 0x06 },
+    // deviceId TODO: NightSky not in training data deviceId list; known SPL product byte is 0x06.
+    // Strymon identity reply deviceId unconfirmed — set when verified against hardware.
+    strymonSysex: { model: 0x06, slots: 300 },
   },
 
   // ── HeadRush ──
