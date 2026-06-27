@@ -56,7 +56,7 @@ export const deviceDefs = {
       { name: 'PianoBass',       recallPC: -1, ccValues: { 14:127, 16:55,  17:5,  18:65, 19:127, 20:10,  21:40,  22:0,  23:10, 24:0,  25:90,  26:60, 28:0,   29:127 } },
       { name: 'FadedOctave',     recallPC: -1, ccValues: { 14:127, 16:90,  17:40, 18:80, 19:100, 20:100, 21:90,  22:0,  23:35, 24:70, 25:90,  26:45, 28:127, 29:127 } },
     ],
-    merisSysex: { model: 0x01 },
+    merisSysex: { model: 0x00 },
   },
 
   meris_polymoon: {
@@ -105,7 +105,7 @@ export const deviceDefs = {
       { name: 'DimensionChorus', recallPC: -1, ccValues: { 14:127, 9:0, 16:55,  17:64, 18:55,  19:20, 20:64,  21:127, 22:38, 23:64, 24:96,  25:20, 26:64,  27:100, 29:0,   31:0   } },
       { name: 'FlangeEcho',      recallPC: -1, ccValues: { 14:127, 9:0, 16:38,  17:55, 18:55,  19:20, 20:64,  21:100, 22:38, 23:55, 24:96,  25:20, 26:64,  27:127, 29:0,   31:0   } },
     ],
-    merisSysex: { model: 0x02 },
+    merisSysex: { model: 0x01 },
   },
 
   meris_hedra: {
@@ -203,7 +203,7 @@ export const deviceDefs = {
       { name: 'LinkArp',     recallPC: -1, ccValues: { 14:127, 9:0,   15:25,  29:80,  30:127, 16:122, 17:127, 18:127, 19:127, 20:74,  21:0,   22:0,   23:53,  24:54,  25:0,   26:36,  27:0   } },
       { name: 'ExpSweep',    recallPC: -1, ccValues: { 14:127, 9:127, 15:34,  29:112, 30:0,   16:89,  17:127, 18:91,  19:0,   20:98,  21:0,   22:0,   23:71,  24:87,  25:0,   26:0,   27:60  } },
     ],
-    merisSysex: { model: 0x03 },
+    merisSysex: { model: 0x02 },
   },
 
   meris_ottobit: {
@@ -251,7 +251,7 @@ export const deviceDefs = {
       { name: 'FuzzFilter',     recallPC: -1, ccValues: { 14:127, 16:127, 17:88,  18:44,  19:121, 20:0,   21:35, 22:64, 23:64,  24:64,  25:64,  26:64,  27:64,  29:127 } },
       { name: 'Quest',          recallPC: -1, ccValues: { 14:127, 16:127, 17:127, 18:127, 19:121, 20:79,  21:35, 22:74, 23:64,  24:74,  25:90,  26:85,  27:64,  29:0   } },
     ],
-    merisSysex: { model: 0x00 },
+    merisSysex: { model: 0x03 },
   },
 
   // ── Meris flagship X-series (modular workstations — large MIDI maps) ──
@@ -329,6 +329,7 @@ export const deviceDefs = {
       { cc: 121, label: 'MIDI Clock',        def: 0   },
     ],
     starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
+    merisSysex: { model: 0x05 }, // 0x05 = LVX per product order; verify against Meris sysex docs / iOS app traffic
   },
 
   meris_enzox: {
@@ -428,9 +429,16 @@ export const deviceDefs = {
 
   darkglass_ao900: {
     label: 'Darkglass Alpha Omega 900', type: 'Amp sim',
-    // Uses MIDI LEARN / Darkglass Suite -- no fixed CC map published.
-    note: 'Alpha Omega 900 MIDI IN: switch channels, toggle Mute & Compressor, recall 3 cab-sim slots via PC and CC. Uses MIDI LEARN (hold channel button to set MIDI channel; assign each function in Darkglass Suite). Add learned CCs as custom controls.',
-    params: [],
+    // CC80/81/82 confirmed HIGH confidence for channel switching (Alpha/Omega/Clean).
+    // EQ/drive/level knobs use MIDI LEARN (no fixed CC map published).
+    note: 'Alpha Omega 900 MIDI IN: switch channels, toggle Mute & Compressor, recall 3 cab-sim slots via PC and CC. EQ/drive/level knobs use MIDI LEARN (assign each function in Darkglass Suite). Program Change 0-127 recalls presets 1-128.',
+    params: [
+      { cc: 80, label: 'Channel — Alpha (high gain)',       def: 127 },
+      { cc: 81, label: 'Channel — Omega (ultra high gain)', def: 127 },
+      { cc: 82, label: 'Channel — Clean',                   def: 127 },
+      // Note: EQ/drive/level knobs use MIDI LEARN (no fixed CC map published).
+      // Program Change 0-127 recalls presets 1-128.
+    ],
   },
 
   boss_dd200: {
@@ -938,6 +946,23 @@ export const deviceDefs = {
       { cc: 30,  label: 'Bypass (0=bypass, 127=engage)', def: 127 },
     ],
     starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
+  },
+
+  walrus_eb_10: {
+    label: 'Walrus Audio EB-10', type: 'Preamp/EQ/Boost',
+    // CC map from EB-10 manual (v1). Program Change selects presets 1-4.
+    // TRS MIDI in (3.5mm Type A / tip-active).
+    params: [
+      { cc: 0, label: 'Bypass Toggle',  def: 0   },  // 0-63 = bypass, 64-127 = engaged
+      { cc: 1, label: 'Bass',           def: 64  },
+      { cc: 2, label: 'Mid',            def: 64  },
+      { cc: 3, label: 'Treble',         def: 64  },
+      { cc: 4, label: 'Volume',         def: 100 },
+      { cc: 5, label: 'Gain',           def: 64  },
+      { cc: 6, label: 'Boost Toggle',   def: 0   },  // 0-63 = off, 64-127 = on
+      { cc: 7, label: 'Boost Level',    def: 64  },
+    ],
+    starterPresets: [],
   },
 
   source_audio_nemesis: {
@@ -2045,6 +2070,21 @@ export const deviceDefs = {
       { recallPC: 1, name: 'Slot B', ccValues: {} },
       { recallPC: 2, name: 'Slot C', ccValues: {} },
     ],
+  },
+
+  tc_electronic_sub_n_up: {
+    label: 'TC Electronic Sub\'n\'Up', type: 'Octaver',
+    // CC assignments are default TonePrint Editor mappings and can be remapped per preset.
+    // Verify with TonePrint Editor software if behavior differs from expected.
+    params: [
+      { cc: 80, label: 'Bypass (On/Off)',                def: 127 },
+      { cc: 14, label: 'Sub Octave Level',               def: 64  },
+      { cc: 15, label: 'Sub Octave 2 Level (Poly mode)', def: 0   },
+      { cc: 16, label: 'Dry Level',                      def: 64  },
+      { cc: 17, label: 'Oct Up Level',                   def: 64  },
+      { cc: 18, label: 'Oct Up 2 Level (Poly mode)',     def: 0   },
+    ],
+    starterPresets: [],
   },
 
   line6_m9: {
