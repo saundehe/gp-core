@@ -38,6 +38,7 @@ export const deviceDefs = {
     // CC values estimated from the official Meris Mercury7 Factory Preset Diagram (2019).
     // Algorithm (CC29) and Swell (CC28) are exact; knob values are visual approximations.
     // Use "Read from pedal" in RigWork for exact values from your hardware.
+    programSelect: { label: 'Slot', min: 0, max: 15, def: 0 },
     starterPresets: [
       { name: 'Ultraplate',      recallPC: -1, ccValues: { 14:127, 16:80,  17:12, 18:77, 19:127, 20:0,   21:127, 22:0,  23:21, 24:0,  25:127, 26:63, 28:0,   29:0   } },
       { name: 'OctaveUp',        recallPC: -1, ccValues: { 14:127, 16:65,  17:30, 18:65, 19:127, 20:115, 21:127, 22:0,  23:50, 24:80, 25:80,  26:40, 28:0,   29:0   } },
@@ -87,6 +88,7 @@ export const deviceDefs = {
     // CC values from the official Meris Polymoon Factory Preset Diagram (2019).
     // CC9=Dotted8th (0/127), CC29=Phaser Mode (0/127), CC31=Half Speed (0/127).
     // Knob values are visual estimates; use "Read from pedal" for exact values.
+    programSelect: { label: 'Slot', min: 0, max: 15, def: 0 },
     starterPresets: [
       { name: 'MultiplyOne',     recallPC: -1, ccValues: { 14:127, 9:0, 16:38,  17:64, 18:96,  19:20, 20:64,  21:96,  22:38, 23:64, 24:96,  25:10, 26:64,  27:96,  29:0,   31:0   } },
       { name: 'MultiMem',        recallPC: -1, ccValues: { 14:127, 9:0, 16:38,  17:75, 18:80,  19:10, 20:55,  21:127, 22:38, 23:64, 24:64,  25:0,  26:55,  27:127, 29:0,   31:0   } },
@@ -137,6 +139,7 @@ export const deviceDefs = {
     // CC values from the official Meris Hedra Factory Settings Diagram (2019).
     // CC29=Delay Mode (0/127), CC30=Pitch Smoothing (0/127), CC31=Volume Swell (0/127).
     // Knob values are visual estimates; use "Read from pedal" for exact values.
+    programSelect: { label: 'Slot', min: 0, max: 15, def: 0 },
     starterPresets: [
       { name: 'SeriesSequence',    recallPC: -1, ccValues: { 14:127, 16:0, 17:64, 18:90, 19:32,  20:21,  21:105, 22:0,  23:70,  24:32, 25:10, 26:64, 27:96, 29:0,   30:0,   31:0 } },
       { name: 'PitchEcho',         recallPC: -1, ccValues: { 14:127, 16:0, 17:64, 18:80, 19:116, 20:84,  21:116, 22:0,  23:64,  24:64, 25:32, 26:64, 27:96, 29:127, 30:0,   31:0 } },
@@ -185,6 +188,7 @@ export const deviceDefs = {
     ],
     // CC values verified against the official Meris ENZO Factory Preset Diagram PDF.
     // Heel position (expression toe-up / no expression pedal). CC29 bands: 0-31=dry 32-63=mono 64-95=arp 96-127=poly.
+    programSelect: { label: 'Slot', min: 0, max: 15, def: 0 },
     starterPresets: [
       { name: 'PolySwell',   recallPC: -1, ccValues: { 14:127, 9:0,   15:127, 29:112, 30:0,   16:0,   17:127, 18:127, 19:20,  20:122, 21:55,  22:0,   23:70,  24:127, 25:0,   26:111, 27:0   } },
       { name: 'PolyRing',    recallPC: -1, ccValues: { 14:127, 9:0,   15:127, 29:112, 30:0,   16:64,  17:0,   18:120, 19:55,  20:0,   21:6,   22:0,   23:48,  24:0,   25:69,  26:53,  27:0   } },
@@ -233,6 +237,7 @@ export const deviceDefs = {
     // Knob angles extracted from vector paths at 4x resolution; step values from embedded text.
     // Heel position (expression toe-up / no expression pedal). CC29: 0=Pitch SEQ, 127=Filter SEQ.
     // CC15 (Tempo) and CC28 (Tap) are triggers — not stored in presets.
+    programSelect: { label: 'Slot', min: 0, max: 15, def: 0 },
     starterPresets: [
       { name: 'CycleArp',       recallPC: -1, ccValues: { 14:127, 16:127, 17:127, 18:127, 19:121, 20:74,  21:59, 22:37, 23:21,  24:0,   25:101, 26:79,  27:64,  29:0   } },
       { name: 'JumpSEQ',        recallPC: -1, ccValues: { 14:127, 16:127, 17:96,  18:127, 19:83,  20:84,  21:59, 22:0,  23:37,  24:64,  25:85,  26:101, 27:127, 29:0   } },
@@ -328,6 +333,7 @@ export const deviceDefs = {
       { cc: 120, label: 'Delay Damping',     def: 0   },
       { cc: 121, label: 'MIDI Clock',        def: 0   },
     ],
+    programSelect: { label: 'Slot', min: 0, max: 15, def: 0 },
     starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
     merisSysex: { model: 0x05 }, // 0x05 = LVX per product order; verify against Meris sysex docs / iOS app traffic
   },
@@ -1088,6 +1094,7 @@ export const deviceDefs = {
       { cc: 102, label: 'Bypass (0/127)', def: 127 },
     ],
     // CC19 machine: 0=Digital 1=Analog 2=Reverse 3=Filter 4=Lo-Fi 5=Dual 6=Ice 7=Trem 8=Pattern 9=Tape 10=Swell 11=DLine
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
     starterPresets: [
       { name: 'Digital',  recallPC: -1, ccValues: { 102:127, 19:0,  3:64, 9:40, 14:55, 15:64, 16:0,  17:0,  18:0  } },
       { name: 'Analog',   recallPC: -1, ccValues: { 102:127, 19:1,  3:64, 9:45, 14:55, 15:50, 16:20, 17:0,  18:0  } },
@@ -1122,6 +1129,7 @@ export const deviceDefs = {
       { cc: 102, label: 'Bypass (0/127)', def: 127 },
     ],
     // CC19 type: 0=Room 1=Hall 2=Plate 3=Spring 4=Swell 5=Bloom 6=Cloud 7=Chorale 8=Shimmer 9=Magneto 10=Nonlinear 11=Reflections
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
     starterPresets: [
       { name: 'Room',       recallPC: -1, ccValues: { 102:127, 19:0,  17:40,  18:5,  15:55, 3:70, 14:0,  9:64, 16:64 } },
       { name: 'Hall',       recallPC: -1, ccValues: { 102:127, 19:1,  17:80,  18:10, 15:55, 3:64, 14:0,  9:64, 16:64 } },
@@ -1162,6 +1170,7 @@ export const deviceDefs = {
       { cc: 100, label: 'Expression',         def: 0   },
       { cc: 102, label: 'Bypass (0/127)',     def: 127 },
     ],
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
     starterPresets: [
       { name: 'Chorus',       recallPC: -1, ccValues: { 102:127, 19:0,  17:50, 18:70,  9:64, 16:64  } },
       { name: 'Vibrato',      recallPC: -1, ccValues: { 102:127, 19:1,  17:40, 18:80,  9:64, 16:64  } },
@@ -1201,6 +1210,7 @@ export const deviceDefs = {
       { cc: 30,  label: 'KB8 (algo param 9)',                             def: 64  },
       { cc: 31,  label: 'KB9 (algo param 10)',                            def: 64  },
     ],
+    programSelect: { label: 'Program', min: 0, max: 98, def: 0 },
     starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
     h9Sysex: { model: 0x01 },
   },
@@ -1387,6 +1397,7 @@ export const deviceDefs = {
       { cc: 26,  label: 'Knob A (ctx-dep.)', def: 64 },
       { cc: 27,  label: 'Knob B (ctx-dep.)', def: 64 },
     ],
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
     starterPresets: [
       { name: 'Init Patch',  recallPC: 0,  ccValues: { 7:100, 74:80,  71:0  } },
       { name: 'Bright Lead', recallPC: -1, ccValues: { 74:110, 71:50 } },
@@ -1829,6 +1840,7 @@ export const deviceDefs = {
     // deviceId TODO: El Capistan not in training data; known SPL product byte is 0x04.
     // Strymon identity reply deviceId unconfirmed — set when verified against hardware.
     strymonSysex: { model: 0x04, slots: 300 },
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
     starterPresets: [
       { name: 'Vintage Slap',  recallPC: -1, ccValues: { 102:127, 3:20,  9:15, 14:50, 15:20, 19:0   } },
       { name: 'Tape Echo',     recallPC: -1, ccValues: { 102:127, 3:64,  9:45, 14:65, 15:20, 19:43  } },
@@ -1854,6 +1866,7 @@ export const deviceDefs = {
     ],
     // deviceId 0x1A from Strymon identity reply; 300 presets (100 banks × A/B/C)
     strymonSysex: { model: 0x05, deviceId: 0x1A, slots: 300 },
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
     starterPresets: [
       { name: 'Magneto Echo',  recallPC: -1, ccValues: { 102:127, 3:64,  9:64,  14:65, 15:10, 19:0   } },
       { name: 'Studio Wash',   recallPC: -1, ccValues: { 102:127, 3:64,  9:70,  14:70, 15:20, 19:43  } },
@@ -2053,6 +2066,7 @@ export const deviceDefs = {
       { cc: 7,  label: 'Volume (patch-defined)',          def: 100 },
       { cc: 64, label: 'Sustain / Hold (patch-defined)', def: 0   },
     ],
+    programSelect: { label: 'Program', min: 0, max: 63, def: 0 },
     starterPresets: [
       { recallPC: 0,  name: 'Init',   ccValues: {} },
       { recallPC: 1,  name: 'Slot 2', ccValues: {} },
@@ -2073,6 +2087,7 @@ export const deviceDefs = {
       { cc: 80, label: 'Shimmer Level',                 def: 0   },
       { cc: 93, label: 'Reverb On/Off',                 def: 127 },
     ],
+    programSelect: { label: 'TonePrint Slot', min: 0, max: 2, def: 0 },
     starterPresets: [
       { recallPC: 0, name: 'Slot A', ccValues: {} },
       { recallPC: 1, name: 'Slot B', ccValues: {} },
@@ -2109,6 +2124,7 @@ export const deviceDefs = {
       { cc: 70, label: 'Scene B Bypass All',               def: 0 },
       { cc: 71, label: 'Scene C Bypass All',               def: 0 },
     ],
+    programSelect: { label: 'Scene', min: 0, max: 47, def: 0 },
     starterPresets: [
       { recallPC: 0, name: 'Bank A Scene 1', ccValues: {} },
       { recallPC: 1, name: 'Bank A Scene 2', ccValues: {} },
@@ -2155,6 +2171,7 @@ export const deviceDefs = {
       { cc: 93, label: 'Tap Tempo (trigger)',                                           def: 0   },
       { cc: 102, label: 'Bypass (0-63=bypass, 64-127=engage)',                         def: 127 },
     ],
+    programSelect: { label: 'Program', min: 0, max: 100, def: 0 },
     starterPresets: [
       { recallPC: 0,   name: 'P01',    ccValues: {} },
       { recallPC: 1,   name: 'P02',    ccValues: {} },
@@ -2178,6 +2195,7 @@ export const deviceDefs = {
       { cc: 100, label: 'Expression',         def: 0   },
       { cc: 102, label: 'Bypass (0/127)',     def: 127 },
     ],
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
     starterPresets: [
       { name: 'Ambient Wash', recallPC: -1, ccValues: { 102:127, 19:100, 21:70, 20:80  } },
       { name: 'Shimmer',      recallPC: -1, ccValues: { 102:127, 19:90,  21:65, 23:90  } },
@@ -2210,6 +2228,7 @@ export const deviceDefs = {
       { cc: 56, label: 'Looper Half/Full Speed',     def: 0   },
       { cc: 64, label: 'Tap Tempo (trigger >64)',    def: 0   },
     ],
+    programSelect: { label: 'Patch', min: 0, max: 3, def: 0 },
     starterPresets: [
       { recallBank: 0, recallPC: 0, name: 'American Clean',    ccValues: {} },
       { recallBank: 0, recallPC: 1, name: 'Brit Clean Verb',   ccValues: {} },
@@ -2245,6 +2264,7 @@ export const deviceDefs = {
       { cc: 56, label: 'Looper Half/Full Speed',     def: 0   },
       { cc: 64, label: 'Tap Tempo (trigger >64)',    def: 0   },
     ],
+    programSelect: { label: 'Patch', min: 0, max: 3, def: 0 },
     starterPresets: [
       { recallBank: 0, recallPC: 0, name: 'American Clean',    ccValues: {} },
       { recallBank: 0, recallPC: 1, name: 'Brit Clean Verb',   ccValues: {} },
@@ -2279,6 +2299,7 @@ export const deviceDefs = {
       { cc: 56, label: 'Looper Half/Full Speed',     def: 0   },
       { cc: 64, label: 'Tap Tempo (trigger >64)',    def: 0   },
     ],
+    programSelect: { label: 'Patch', min: 0, max: 3, def: 0 },
     starterPresets: [
       { recallBank: 0, recallPC: 0, name: 'American Clean',    ccValues: {} },
       { recallBank: 0, recallPC: 1, name: 'Brit Clean Verb',   ccValues: {} },
@@ -2314,6 +2335,7 @@ export const deviceDefs = {
       { cc: 56, label: 'Looper Half/Full Speed',     def: 0   },
       { cc: 64, label: 'Tap Tempo (trigger >64)',    def: 0   },
     ],
+    programSelect: { label: 'Patch', min: 0, max: 3, def: 0 },
     starterPresets: [
       { recallBank: 0, recallPC: 0, name: 'American Clean',    ccValues: {} },
       { recallBank: 0, recallPC: 1, name: 'Brit Clean Verb',   ccValues: {} },
