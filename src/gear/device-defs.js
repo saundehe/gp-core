@@ -2355,4 +2355,489 @@ export const deviceDefs = {
       { recallBank: 3, recallPC: 3, name: 'Shimmer Verb',      ccValues: {} },
     ],
   },
+
+  arturia_microfreak: {
+    label: 'Arturia MicroFreak', type: 'Synth',
+    // VERIFIED against midi.guide + nanassound/midi_ctrl GitHub reference.
+    // CC5=Glide (NOT Envelope Attack). CC23=Cutoff. CC83=Resonance (NOT CC71).
+    // Envelope: CC105=Attack, CC106=Decay, CC29=Sustain. Cycling Env: CC102=Rise, CC103=Fall, CC28=Hold.
+    // CC24=Cycling Env Amount (not same as regular Env Amount). CC26=Filter Amount.
+    // LFO: CC93=Rate (free), CC94=Rate (sync). LFO Shape/Dest not CC-addressable.
+    // CC9=Osc Type, CC10=Wave, CC12=Timbre, CC13=Shape. CC2=Keyboard Spice. CC64=Keyboard Hold.
+    // 512 total slots (320 factory) per Arturia docs.
+    note: 'Digital monosynth. Single osc engine. CC83=Resonance. CC105/106/29=Env A/D/S. CC93=LFO Rate. CC102/103=Cyc Env Rise/Fall. No LFO Shape/Dest via CC.',
+    params: [
+      { cc: 23,  label: 'Cutoff',              def: 80  },
+      { cc: 83,  label: 'Resonance',           def: 0   },
+      { cc: 26,  label: 'Filter Amount',       def: 64  },
+      { cc: 24,  label: 'Cyc Env Amount',      def: 0   },
+      { cc: 105, label: 'Env Attack',          def: 10  },
+      { cc: 106, label: 'Env Decay',           def: 40  },
+      { cc: 29,  label: 'Env Sustain',         def: 60  },
+      { cc: 93,  label: 'LFO Rate',            def: 64  },
+      { cc: 102, label: 'Cyc Env Rise',        def: 64  },
+      { cc: 103, label: 'Cyc Env Fall',        def: 64  },
+      { cc: 28,  label: 'Cyc Env Hold',        def: 0   },
+      { cc: 9,   label: 'Osc Type',            def: 0   },
+      { cc: 10,  label: 'Osc Wave',            def: 64  },
+      { cc: 12,  label: 'Timbre',              def: 64  },
+      { cc: 13,  label: 'Shape',               def: 64  },
+      { cc: 2,   label: 'Keyboard Spice',      def: 0   },
+      { cc: 5,   label: 'Glide',               def: 0   },
+    ],
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
+    starterPresets: [
+      { name: 'Init',        recallPC: 0,  ccValues: { 23:80, 83:0,  9:0,  12:64, 13:64, 105:10, 106:40, 29:60 } },
+      { name: 'Seq Bass',    recallPC: 1,  ccValues: { 23:50, 83:40, 9:2,  12:80, 13:30, 105:2,  106:60, 29:0  } },
+      { name: 'Drone Pad',   recallPC: 2,  ccValues: { 23:70, 83:10, 9:4,  12:64, 13:90, 105:80, 106:90, 29:80 } },
+      { name: 'Weird Lead',  recallPC: 3,  ccValues: { 23:90, 83:50, 9:6,  12:100,13:60, 105:5,  106:30, 29:40 } },
+    ],
+  },
+
+  arturia_matrixbrute: {
+    label: 'Arturia MatrixBrute', type: 'Synth',
+    // CC assignments from Arturia MatrixBrute MIDI Implementation.
+    // CC74=Cutoff, CC71=Resonance follow GM convention on this synth.
+    // CC73=Amp Attack, CC72=Amp Release (GM convention). Brute Factor CC21.
+    // VCO1: CC28=Level, CC17=Fine Tune, CC19=Ultrasaw. VCO2: CC29=Level, CC23=Fine Tune.
+    // Sub: CC27=Level. Noise: CC30=Level. LFO1: CC16=Rate, CC18=Wave.
+    // Filter EG Amt: CC75. Two filters (Steiner-Parker + Ladder) share CC74 cutoff.
+    note: 'Analog mono. CC74=Cutoff, CC71=Res. Brute Factor CC21. Ultrasaw CC19. Two filter stages (Steiner+Ladder).',
+    params: [
+      { cc: 74,  label: 'Cutoff',              def: 80  },
+      { cc: 71,  label: 'Resonance',           def: 0   },
+      { cc: 75,  label: 'Filter EG Amt',       def: 64  },
+      { cc: 73,  label: 'Amp Attack',          def: 10  },
+      { cc: 72,  label: 'Amp Release',         def: 20  },
+      { cc: 16,  label: 'LFO1 Rate',           def: 64  },
+      { cc: 18,  label: 'LFO1 Wave',           def: 0   },
+      { cc: 17,  label: 'VCO1 Fine Tune',      def: 64  },
+      { cc: 19,  label: 'VCO1 Ultrasaw',       def: 0   },
+      { cc: 21,  label: 'Brute Factor',        def: 0   },
+      { cc: 23,  label: 'VCO2 Fine Tune',      def: 64  },
+      { cc: 28,  label: 'VCO1 Level',          def: 100 },
+      { cc: 29,  label: 'VCO2 Level',          def: 0   },
+      { cc: 27,  label: 'Sub Level',           def: 0   },
+      { cc: 30,  label: 'Noise Level',         def: 0   },
+      { cc: 5,   label: 'Glide',               def: 0   },
+    ],
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
+    starterPresets: [
+      { name: 'Init',        recallPC: 0, ccValues: { 74:80,  71:0,  28:100, 29:0,  73:10, 72:20, 21:0  } },
+      { name: 'Acid Bass',   recallPC: 1, ccValues: { 74:50,  71:80, 28:100, 29:0,  73:2,  72:15, 21:20 } },
+      { name: 'Brute Lead',  recallPC: 2, ccValues: { 74:90,  71:30, 28:100, 29:60, 73:5,  72:20, 21:60 } },
+      { name: 'Ultrasaw',    recallPC: 3, ccValues: { 74:80,  71:10, 28:100, 29:80, 19:80, 73:10, 72:20 } },
+      { name: 'Dark Mono',   recallPC: 4, ccValues: { 74:30,  71:50, 28:100, 29:0,  73:2,  72:40, 21:40 } },
+    ],
+  },
+
+  moog_grandmother: {
+    label: 'Moog Grandmother', type: 'Synth',
+    // VERIFIED against midi.guide (official Moog source). Fully analog semi-modular.
+    // NO patch memory — knob positions are hardware-only. Omit programSelect entirely.
+    // Filter cutoff, resonance, and envelope ADSR are NOT controllable via MIDI CC.
+    // Only modulation/utility/arp parameters are CC-addressable (22 total CCs).
+    // CC3=LFO Rate (Modulation Rate). CC5=Glide Time. CC8=Arp/Seq Rate.
+    // CC65=Glide On/Off (0=Off, 64+=On). CC74=OSC 1 Octave (NOT cutoff on Grandmother).
+    // CC75=OSC 2 Octave (NOT filter EG). CC77=OSC 2 Sync.
+    note: 'Fully analog semi-modular. NO patch memory. Filter/Env ADSR are hardware-only (no CC). CC3=LFO Rate. CC74=OSC1 Oct (NOT cutoff). CC75=OSC2 Oct.',
+    params: [
+      { cc: 3,   label: 'LFO Rate',            def: 64  },
+      { cc: 5,   label: 'Glide Time',          def: 0   },
+      { cc: 8,   label: 'Arp/Seq Rate',        def: 64  },
+      { cc: 12,  label: 'OSC 2 Freq',          def: 64  },
+      { cc: 65,  label: 'Glide On (64+=On)',   def: 0   },
+      { cc: 74,  label: 'OSC 1 Octave',        def: 64  },
+      { cc: 75,  label: 'OSC 2 Octave',        def: 64  },
+      { cc: 77,  label: 'OSC 2 Sync',          def: 0   },
+      { cc: 85,  label: 'Glide Type',          def: 0   },
+      { cc: 90,  label: 'Arp/Seq Clock Div',   def: 64  },
+      { cc: 91,  label: 'Arp/Seq Mode',        def: 0   },
+      { cc: 107, label: 'Pitch Bend Up',       def: 2   },
+      { cc: 108, label: 'Pitch Bend Down',     def: 2   },
+    ],
+  },
+
+  elektron_digitone: {
+    label: 'Elektron Digitone', type: 'Synth',
+    // VERIFIED against midi.guide + Elektron Digitone User Manual (OS 1.41).
+    // FM synth. 124 parameters. Many use MSB/LSB 14-bit pairs (CC / CC+32).
+    // Filter: CC23=Freq MSB, CC55=Freq LSB (14-bit pair). CC24=Resonance MSB, CC56=LSB.
+    // Filter Env: CC70=Attack, CC71=Decay, CC72=Sustain, CC73=Release. CC25/57=Env Depth.
+    // Amp Envelope: CC104=Attack, CC105=Decay, CC106=Sustain, CC107=Release.
+    // FM Params: CC90=Algorithm, CC91=Ratio C, CC92=Ratio A. CC16/48=Ratio B (14-bit).
+    // LFO1: CC28/60=Speed (14-bit), CC29/61=Depth, CC110=Dest, CC111=Wave.
+    // LFO2: CC30/62=Speed (14-bit), CC31/63=Depth, CC116=Dest, CC117=Wave.
+    // Auto Channel (default ch 10): controls whichever synth track is currently selected.
+    // 512 factory sounds in Sound Pool; projects hold 128 patterns (8 banks x 16).
+    note: 'FM poly (4-track). 14-bit filter CC23/55. FM algo CC90-92. Amp Env CC104-107. Filter Env CC70-73. LFO1 dest CC110, LFO2 dest CC116.',
+    params: [
+      { cc: 23,  label: 'Filter Freq MSB',     def: 100 },
+      { cc: 55,  label: 'Filter Freq LSB',     def: 0   },
+      { cc: 24,  label: 'Resonance MSB',       def: 0   },
+      { cc: 25,  label: 'Env Depth MSB',       def: 64  },
+      { cc: 70,  label: 'Filter Env Attack',   def: 10  },
+      { cc: 71,  label: 'Filter Env Decay',    def: 40  },
+      { cc: 72,  label: 'Filter Env Sustain',  def: 60  },
+      { cc: 73,  label: 'Filter Env Release',  def: 20  },
+      { cc: 104, label: 'Amp Attack',          def: 0   },
+      { cc: 105, label: 'Amp Decay',           def: 60  },
+      { cc: 106, label: 'Amp Sustain',         def: 80  },
+      { cc: 107, label: 'Amp Release',         def: 20  },
+      { cc: 90,  label: 'FM Algorithm',        def: 0   },
+      { cc: 91,  label: 'Ratio C',             def: 64  },
+      { cc: 92,  label: 'Ratio A',             def: 64  },
+      { cc: 16,  label: 'Ratio B MSB',         def: 64  },
+      { cc: 17,  label: 'Harmonics MSB',       def: 0   },
+      { cc: 18,  label: 'Detune MSB',          def: 64  },
+      { cc: 19,  label: 'Feedback MSB',        def: 0   },
+      { cc: 20,  label: 'FM Mix MSB',          def: 64  },
+      { cc: 28,  label: 'LFO1 Speed MSB',      def: 64  },
+      { cc: 29,  label: 'LFO1 Depth MSB',      def: 0   },
+      { cc: 110, label: 'LFO1 Destination',    def: 0   },
+      { cc: 111, label: 'LFO1 Waveform',       def: 0   },
+      { cc: 30,  label: 'LFO2 Speed MSB',      def: 64  },
+      { cc: 31,  label: 'LFO2 Depth MSB',      def: 0   },
+      { cc: 116, label: 'LFO2 Destination',    def: 0   },
+      { cc: 117, label: 'LFO2 Waveform',       def: 0   },
+    ],
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
+    starterPresets: [
+      { name: 'Init',        recallPC: 0, ccValues: { 23:100, 24:0,  90:0,  104:0, 105:60, 106:80, 107:20 } },
+      { name: 'E Piano',     recallPC: 1, ccValues: { 23:100, 24:0,  90:2,  104:0, 105:80, 106:0,  107:30 } },
+      { name: 'Bell',        recallPC: 2, ccValues: { 23:100, 24:0,  90:1,  91:80, 92:40,  104:0,  105:90, 107:50 } },
+      { name: 'Bass',        recallPC: 3, ccValues: { 23:80,  24:20, 90:0,  104:2, 105:40, 106:0,  107:20 } },
+    ],
+  },
+
+  sequential_prophet_6: {
+    label: 'Sequential Prophet-6', type: 'Synth',
+    // VERIFIED against midi.guide + Sequential Prophet-6 Operation Manual v2.1.
+    // 1,000 total programs: 10 banks x 100, banks 0-4 user-writable, banks 5-9 permanent factory.
+    // LP Filter: CC102=Cutoff, CC103=Resonance. HP Filter: CC106=Cutoff, CC107=Resonance.
+    // GM CC74 is listed as 'Brightness' (LP Cutoff alias) — use CC102 as primary.
+    // Filter Env: CC50=Attack, CC51=Decay, CC52=Sustain, CC53=Release, CC47=LP Env Amt.
+    // Amp Env: CC43=Attack, CC44=Decay, CC45=Sustain, CC46=Release. CC40=VCA Env Amt.
+    // Oscillators: CC67=OSC1 Freq, CC69=OSC1 Level, CC70=OSC1 Shape, CC71=OSC1 PW.
+    //              CC75=OSC2 Freq, CC77=OSC2 Level, CC78=OSC2 Shape, CC79=OSC2 PW.
+    // NO LFO via CC — LFO is NRPN-only. CC9=Distortion. CC65=Glide On/Off.
+    note: 'Analog poly (6-voice). LP Cutoff CC102, HP Cutoff CC106. Filter Env CC50-53. Amp Env CC43-46. NO LFO via CC (NRPN only). Distortion CC9.',
+    params: [
+      { cc: 102, label: 'LP Cutoff',           def: 80  },
+      { cc: 103, label: 'LP Resonance',        def: 0   },
+      { cc: 47,  label: 'LP Env Amount',       def: 64  },
+      { cc: 106, label: 'HP Cutoff',           def: 0   },
+      { cc: 107, label: 'HP Resonance',        def: 0   },
+      { cc: 50,  label: 'Filter Env Attack',   def: 10  },
+      { cc: 51,  label: 'Filter Env Decay',    def: 40  },
+      { cc: 52,  label: 'Filter Env Sustain',  def: 60  },
+      { cc: 53,  label: 'Filter Env Release',  def: 20  },
+      { cc: 43,  label: 'Amp Attack',          def: 10  },
+      { cc: 44,  label: 'Amp Decay',           def: 40  },
+      { cc: 45,  label: 'Amp Sustain',         def: 80  },
+      { cc: 46,  label: 'Amp Release',         def: 20  },
+      { cc: 40,  label: 'VCA Env Amount',      def: 100 },
+      { cc: 67,  label: 'OSC1 Freq',           def: 64  },
+      { cc: 69,  label: 'OSC1 Level',          def: 100 },
+      { cc: 70,  label: 'OSC1 Shape',          def: 0   },
+      { cc: 75,  label: 'OSC2 Freq',           def: 64  },
+      { cc: 77,  label: 'OSC2 Level',          def: 0   },
+      { cc: 78,  label: 'OSC2 Shape',          def: 0   },
+      { cc: 8,   label: 'Sub Osc Level',       def: 0   },
+      { cc: 9,   label: 'Distortion',          def: 0   },
+      { cc: 65,  label: 'Glide On/Off',        def: 0   },
+      { cc: 5,   label: 'Glide Mode',          def: 0   },
+    ],
+    programSelect: { label: 'Program', min: 0, max: 99, def: 0 },
+    starterPresets: [
+      { name: 'Init',        recallPC: 0, ccValues: { 102:80, 103:0,  69:100, 77:0,  43:10, 44:40, 45:80, 46:20 } },
+      { name: 'Warm Poly',   recallPC: 1, ccValues: { 102:75, 103:10, 69:100, 77:80, 43:15, 44:45, 45:85, 46:25 } },
+      { name: 'Bright Lead', recallPC: 2, ccValues: { 102:110,103:30, 69:100, 77:0,  43:5,  44:25, 45:70, 46:15 } },
+      { name: 'Bass',        recallPC: 3, ccValues: { 102:50, 103:40, 69:100, 77:0,  43:2,  44:50, 45:0,  46:20 } },
+      { name: 'Pad',         recallPC: 4, ccValues: { 102:65, 103:5,  69:80,  77:80, 43:60, 44:70, 45:90, 46:70 } },
+    ],
+  },
+
+  sequential_ob6: {
+    label: 'Sequential OB-6', type: 'Synth',
+    // Oberheim-architecture 6-voice analog poly (Dave Smith + Tom Oberheim co-design).
+    // CC map mirrors Prophet-6 structure (same Sequential platform).
+    // LP Filter: CC102=Cutoff, CC103=Resonance. HP Filter: CC106=Cutoff.
+    // Filter Env: CC50-53. Amp Env: CC43-46. No LFO via CC.
+    // OSC1: CC67=Freq, CC69=Level, CC70=Shape. OSC2: CC75=Freq, CC77=Level, CC78=Shape.
+    // 500 presets (5 banks x 100, banks A-E).
+    note: 'Analog poly (6-voice, Oberheim arch). LP Cutoff CC102, HP Cutoff CC106. Filter Env CC50-53. Amp Env CC43-46. No LFO CC. 500 presets.',
+    params: [
+      { cc: 102, label: 'LP Cutoff',           def: 80  },
+      { cc: 103, label: 'LP Resonance',        def: 0   },
+      { cc: 47,  label: 'LP Env Amount',       def: 64  },
+      { cc: 106, label: 'HP Cutoff',           def: 0   },
+      { cc: 50,  label: 'Filter Env Attack',   def: 10  },
+      { cc: 51,  label: 'Filter Env Decay',    def: 40  },
+      { cc: 52,  label: 'Filter Env Sustain',  def: 60  },
+      { cc: 53,  label: 'Filter Env Release',  def: 20  },
+      { cc: 43,  label: 'Amp Attack',          def: 10  },
+      { cc: 44,  label: 'Amp Decay',           def: 40  },
+      { cc: 45,  label: 'Amp Sustain',         def: 80  },
+      { cc: 46,  label: 'Amp Release',         def: 20  },
+      { cc: 40,  label: 'VCA Env Amount',      def: 100 },
+      { cc: 67,  label: 'OSC1 Freq',           def: 64  },
+      { cc: 69,  label: 'OSC1 Level',          def: 100 },
+      { cc: 70,  label: 'OSC1 Shape',          def: 0   },
+      { cc: 75,  label: 'OSC2 Freq',           def: 64  },
+      { cc: 77,  label: 'OSC2 Level',          def: 0   },
+      { cc: 78,  label: 'OSC2 Shape',          def: 0   },
+      { cc: 8,   label: 'Sub Osc Level',       def: 0   },
+      { cc: 65,  label: 'Glide On/Off',        def: 0   },
+      { cc: 5,   label: 'Glide Mode',          def: 0   },
+    ],
+    programSelect: { label: 'Program', min: 0, max: 99, def: 0 },
+    starterPresets: [
+      { name: 'Init',        recallPC: 0, ccValues: { 102:80, 103:0,  69:100, 77:0,  43:10, 44:40, 45:80, 46:20 } },
+      { name: 'Oberheim Pad',recallPC: 1, ccValues: { 102:70, 103:8,  69:100, 77:80, 43:40, 44:60, 45:90, 46:60 } },
+      { name: 'Poly Lead',   recallPC: 2, ccValues: { 102:100,103:25, 69:100, 77:40, 43:8,  44:30, 45:70, 46:20 } },
+      { name: 'Fat Bass',    recallPC: 3, ccValues: { 102:45, 103:40, 69:100, 77:0,  43:2,  44:50, 45:0,  46:20 } },
+    ],
+  },
+
+  asm_hydrasynth: {
+    label: 'ASM Hydrasynth', type: 'Synth',
+    // VERIFIED against midi.guide (ASM Hydrasynth official). 115 CC parameters.
+    // 1,024 patches: 8 banks x 128 (firmware 2.0+ unified all models). Favorites: 32 slots.
+    // Filter 1: CC74=Cutoff, CC71=Resonance (follows GM convention on Hydrasynth).
+    // Filter 2: CC55=Cutoff, CC56=Resonance.
+    // 5 Envelopes: ENV1 CC81-84, ENV2 CC85-88, ENV3 CC89-90/96-97, ENV4 CC25/27/125/124, ENV5 CC102-105.
+    // 5 LFOs: LFO1 CC72 Rate/CC70 Gain, LFO2 CC73/28, LFO3 CC76/75, LFO4 CC78/77, LFO5 CC80/79.
+    // Macros: CC16-23 (Macro 1-8). Glide: CC5=Time, CC66=On/Off.
+    // FX: Delay CC14/15/63/92, Reverb CC65/67/91. OSC Wavscan: CC24 (OSC1), CC26 (OSC2).
+    note: 'Wave-morph poly. CC74=F1 Cutoff, CC71=F1 Res. 5 ENVs + 5 LFOs all CC-accessible. Macros CC16-23. Delay CC14/15. Reverb CC65/67.',
+    params: [
+      { cc: 74,  label: 'F1 Cutoff',           def: 80  },
+      { cc: 71,  label: 'F1 Resonance',        def: 0   },
+      { cc: 54,  label: 'F1 Env1 Amount',      def: 64  },
+      { cc: 50,  label: 'F1 Drive',            def: 0   },
+      { cc: 51,  label: 'F1 Keytrack',         def: 64  },
+      { cc: 55,  label: 'F2 Cutoff',           def: 80  },
+      { cc: 56,  label: 'F2 Resonance',        def: 0   },
+      { cc: 81,  label: 'ENV1 Attack',         def: 10  },
+      { cc: 82,  label: 'ENV1 Decay',          def: 40  },
+      { cc: 83,  label: 'ENV1 Sustain',        def: 60  },
+      { cc: 84,  label: 'ENV1 Release',        def: 20  },
+      { cc: 85,  label: 'ENV2 Attack',         def: 10  },
+      { cc: 86,  label: 'ENV2 Decay',          def: 40  },
+      { cc: 87,  label: 'ENV2 Sustain',        def: 80  },
+      { cc: 88,  label: 'ENV2 Release',        def: 20  },
+      { cc: 72,  label: 'LFO1 Rate',           def: 64  },
+      { cc: 70,  label: 'LFO1 Gain',           def: 64  },
+      { cc: 73,  label: 'LFO2 Rate',           def: 64  },
+      { cc: 28,  label: 'LFO2 Gain',           def: 64  },
+      { cc: 76,  label: 'LFO3 Rate',           def: 64  },
+      { cc: 24,  label: 'OSC1 Wavscan',        def: 0   },
+      { cc: 44,  label: 'OSC1 Volume',         def: 100 },
+      { cc: 26,  label: 'OSC2 Wavscan',        def: 0   },
+      { cc: 46,  label: 'OSC2 Volume',         def: 0   },
+      { cc: 95,  label: 'Detune',              def: 0   },
+      { cc: 5,   label: 'Glide Time',          def: 0   },
+      { cc: 66,  label: 'Glide On/Off',        def: 0   },
+      { cc: 16,  label: 'Macro 1',             def: 64  },
+      { cc: 17,  label: 'Macro 2',             def: 64  },
+      { cc: 18,  label: 'Macro 3',             def: 64  },
+      { cc: 19,  label: 'Macro 4',             def: 64  },
+      { cc: 92,  label: 'Delay Dry/Wet',       def: 0   },
+      { cc: 91,  label: 'Reverb Dry/Wet',      def: 0   },
+    ],
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
+    starterPresets: [
+      { name: 'Init',        recallPC: 0, ccValues: { 74:80,  71:0,  44:100, 46:0,  81:10, 82:40, 83:60, 84:20 } },
+      { name: 'Wavscan Pad', recallPC: 1, ccValues: { 74:70,  71:5,  44:80,  46:80, 24:50, 26:70, 81:60, 82:70, 83:90, 84:70 } },
+      { name: 'Lead',        recallPC: 2, ccValues: { 74:100, 71:20, 44:100, 46:0,  81:5,  82:25, 83:65, 84:15 } },
+      { name: 'Poly Bass',   recallPC: 3, ccValues: { 74:50,  71:35, 44:100, 46:40, 81:2,  82:50, 83:0,  84:20 } },
+    ],
+  },
+
+  novation_bass_station_ii: {
+    label: 'Novation Bass Station II', type: 'Synth',
+    // VERIFIED against midi.guide (Novation Bass Station II official source).
+    // Analog monosynth. 128 presets (64 factory + 64 user).
+    // GM CC74/CC71 do NOT apply. Filter Cutoff=CC16/48 (14-bit MSB/LSB), Resonance=CC82.
+    // Amp Env: CC90=Attack, CC91=Decay, CC92=Sustain, CC93=Release.
+    // Mod Env (doubles as Filter Env): CC102=Attack, CC103=Decay, CC104=Sustain, CC105=Release.
+    // LFO1: CC18/50=Speed (14-bit), CC88=Wave. LFO2: CC19/51=Speed (14-bit), CC89=Wave.
+    // Filter mod env depth CC85. Filter type CC83 (Classic/Acid). Filter shape CC84 (LP/BP/HP).
+    // CC114=Overdrive. Osc sync CC110. Sub osc: CC80=Wave, CC81=Octave.
+    note: 'Analog mono. CC16/48=Cutoff (14-bit), CC82=Res. Amp Env CC90-93. Mod Env CC102-105. Two LFOs. CC83=Filter Type (Classic/Acid). CC114=Overdrive.',
+    params: [
+      { cc: 16,  label: 'Cutoff MSB',          def: 80  },
+      { cc: 48,  label: 'Cutoff LSB',          def: 0   },
+      { cc: 82,  label: 'Resonance',           def: 0   },
+      { cc: 85,  label: 'Mod Env Depth',       def: 64  },
+      { cc: 83,  label: 'Filter Type',         def: 0   },
+      { cc: 84,  label: 'Filter Shape',        def: 0   },
+      { cc: 90,  label: 'Amp Attack',          def: 10  },
+      { cc: 91,  label: 'Amp Decay',           def: 40  },
+      { cc: 92,  label: 'Amp Sustain',         def: 80  },
+      { cc: 93,  label: 'Amp Release',         def: 20  },
+      { cc: 102, label: 'Mod Env Attack',      def: 10  },
+      { cc: 103, label: 'Mod Env Decay',       def: 40  },
+      { cc: 104, label: 'Mod Env Sustain',     def: 60  },
+      { cc: 105, label: 'Mod Env Release',     def: 20  },
+      { cc: 18,  label: 'LFO1 Speed MSB',      def: 64  },
+      { cc: 88,  label: 'LFO1 Waveform',       def: 0   },
+      { cc: 19,  label: 'LFO2 Speed MSB',      def: 64  },
+      { cc: 89,  label: 'LFO2 Waveform',       def: 0   },
+      { cc: 80,  label: 'Sub Osc Wave',        def: 0   },
+      { cc: 81,  label: 'Sub Osc Octave',      def: 0   },
+      { cc: 114, label: 'Overdrive',           def: 0   },
+      { cc: 110, label: 'Osc Sync',            def: 0   },
+      { cc: 5,   label: 'Glide',               def: 0   },
+    ],
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
+    starterPresets: [
+      { name: 'Init',        recallPC: 0, ccValues: { 16:80, 82:0,  90:10, 91:40, 92:80, 93:20 } },
+      { name: 'Acid Bass',   recallPC: 1, ccValues: { 16:60, 82:80, 83:1,  90:2,  91:30, 92:0,  93:15 } },
+      { name: 'Sub Bass',    recallPC: 2, ccValues: { 16:40, 82:20, 80:1,  81:1,  90:2,  91:50, 92:0,  93:20 } },
+      { name: 'Sync Lead',   recallPC: 3, ccValues: { 16:90, 82:30, 110:64,90:5,  91:30, 92:60, 93:15 } },
+      { name: 'Overdrive',   recallPC: 4, ccValues: { 16:70, 82:40, 114:80,90:8,  91:35, 92:70, 93:20 } },
+    ],
+  },
+
+  novation_peak: {
+    label: 'Novation Peak', type: 'Synth',
+    // VERIFIED against midi.guide (Novation Summit and Peak official source).
+    // 8-voice analog/digital hybrid. 512 presets: 4 banks A-D x 128 (A+B factory, C+D user).
+    // GM CC74/CC71 do NOT apply. Cutoff=CC29, Resonance=CC79.
+    // Amp Env: CC86=Attack, CC87=Decay, CC88=Sustain, CC89=Release.
+    // Mod1 Env: CC90=Attack, CC91=Decay, CC92=Sustain, CC93=Release.
+    // Mod2 Env: CC94=Attack, CC95=Decay, CC117=Sustain, CC103=Release.
+    // LFO1: CC30=Rate, CC81=Sync Rate, CC82=Fade. LFO2: CC31=Rate, CC84=Sync Rate, CC85=Fade.
+    // Filter Overdrive CC80. Filter Keyboard Track CC75. Osc controls: CC3/14/15/12 for OSC1.
+    note: 'Analog/digital hybrid (8-voice). CC29=Cutoff, CC79=Res. Amp Env CC86-89. Mod1 Env CC90-93. Mod2 Env CC94/95/117/103. Two LFOs CC30/31.',
+    params: [
+      { cc: 29,  label: 'Cutoff',              def: 80  },
+      { cc: 79,  label: 'Resonance',           def: 0   },
+      { cc: 80,  label: 'Filter Overdrive',    def: 0   },
+      { cc: 75,  label: 'Filter Keytrack',     def: 64  },
+      { cc: 86,  label: 'Amp Attack',          def: 10  },
+      { cc: 87,  label: 'Amp Decay',           def: 40  },
+      { cc: 88,  label: 'Amp Sustain',         def: 80  },
+      { cc: 89,  label: 'Amp Release',         def: 20  },
+      { cc: 90,  label: 'Mod1 Env Attack',     def: 10  },
+      { cc: 91,  label: 'Mod1 Env Decay',      def: 40  },
+      { cc: 92,  label: 'Mod1 Env Sustain',    def: 60  },
+      { cc: 93,  label: 'Mod1 Env Release',    def: 20  },
+      { cc: 30,  label: 'LFO1 Rate',           def: 64  },
+      { cc: 82,  label: 'LFO1 Fade',           def: 0   },
+      { cc: 31,  label: 'LFO2 Rate',           def: 64  },
+      { cc: 85,  label: 'LFO2 Fade',           def: 0   },
+      { cc: 12,  label: 'OSC1 Shape',          def: 0   },
+      { cc: 14,  label: 'OSC1 Coarse',         def: 64  },
+      { cc: 15,  label: 'OSC1 Fine',           def: 64  },
+      { cc: 3,   label: 'OSC1 Range',          def: 0   },
+      { cc: 5,   label: 'Glide',               def: 0   },
+    ],
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
+    starterPresets: [
+      { name: 'Init',        recallPC: 0, ccValues: { 29:80,  79:0,  86:10, 87:40, 88:80, 89:20 } },
+      { name: 'Warm Poly',   recallPC: 1, ccValues: { 29:75,  79:10, 86:15, 87:45, 88:85, 89:25 } },
+      { name: 'Bright Pad',  recallPC: 2, ccValues: { 29:100, 79:20, 86:50, 87:60, 88:90, 89:60 } },
+      { name: 'Lead',        recallPC: 3, ccValues: { 29:110, 79:30, 86:5,  87:25, 88:70, 89:15 } },
+    ],
+  },
+
+  roland_jd_xi: {
+    label: 'Roland JD-Xi', type: 'Synth',
+    // VERIFIED against midi.guide + Roland JD-Xi MIDI Implementation PDF (roland.com).
+    // Hybrid: 1x analog mono + 2x SuperNATURAL digital poly partials + 1x drum.
+    // Roland follows GM CC convention — CC74=Cutoff, CC71=Resonance (confirmed).
+    // CC73=Amp Attack (GM), CC72=Amp Release (GM), CC75=Amp Decay (Roland extension).
+    // Per-partial LFO Rate: CC16 (P1), CC17 (P2), CC18 (P3).
+    // Per-partial Filter Cutoff: CC102 (P1), CC103 (P2), CC104 (P3).
+    // Per-partial Filter Resonance: CC105 (P1), CC106 (P2), CC107 (P3).
+    // Per-partial Amp Level: CC117 (P1), CC118 (P2), CC119 (P3).
+    // FX: CC12=Reverb Level, CC13=Delay Level, CC91=Reverb Send, CC94=Delay Send.
+    // Programs: Banks A-H x 64 = 512 slots; MIDI PC 0-127 on selected bank.
+    note: 'Hybrid synth. Follows GM CC74/71/73/72. Per-partial CC: LFO Rate CC16-18, Cutoff CC102-104, Res CC105-107. Rev CC12/91. Delay CC13/94.',
+    params: [
+      { cc: 74,  label: 'Cutoff',              def: 80  },
+      { cc: 71,  label: 'Resonance',           def: 0   },
+      { cc: 73,  label: 'Amp Attack',          def: 10  },
+      { cc: 75,  label: 'Amp Decay',           def: 40  },
+      { cc: 72,  label: 'Amp Release',         def: 20  },
+      { cc: 16,  label: 'P1 LFO Rate',         def: 64  },
+      { cc: 17,  label: 'P2 LFO Rate',         def: 64  },
+      { cc: 18,  label: 'P3 LFO Rate',         def: 64  },
+      { cc: 102, label: 'P1 Filter Cutoff',    def: 64  },
+      { cc: 103, label: 'P2 Filter Cutoff',    def: 64  },
+      { cc: 104, label: 'P3 Filter Cutoff',    def: 64  },
+      { cc: 105, label: 'P1 Filter Res',       def: 0   },
+      { cc: 106, label: 'P2 Filter Res',       def: 0   },
+      { cc: 117, label: 'P1 Amp Level',        def: 100 },
+      { cc: 118, label: 'P2 Amp Level',        def: 0   },
+      { cc: 119, label: 'P3 Amp Level',        def: 0   },
+      { cc: 12,  label: 'Reverb Level',        def: 40  },
+      { cc: 91,  label: 'Reverb Send',         def: 40  },
+      { cc: 13,  label: 'Delay Level',         def: 0   },
+      { cc: 94,  label: 'Delay Send',          def: 0   },
+      { cc: 7,   label: 'Volume',              def: 100 },
+    ],
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
+    starterPresets: [
+      { name: 'Init',        recallPC: 0, ccValues: { 74:80,  71:0,  73:10, 72:20, 117:100, 118:0,  119:0  } },
+      { name: 'Analog Bass', recallPC: 1, ccValues: { 74:50,  71:30, 73:2,  72:15, 117:100, 118:0,  119:0  } },
+      { name: 'EP Pad',      recallPC: 2, ccValues: { 74:80,  71:5,  73:30, 72:50, 117:0,   118:100,119:0  } },
+      { name: 'Lead+Pad',    recallPC: 3, ccValues: { 74:90,  71:15, 73:10, 72:25, 117:100, 118:80, 119:0  } },
+    ],
+  },
+
+  behringer_deepmind_12: {
+    label: 'Behringer DeepMind 12', type: 'Synth',
+    // VERIFIED against midi.guide (Behringer DeepMind 12 official source).
+    // 12-voice fully analog poly (2 VCOs + analog filter per voice).
+    // 1,024 presets: 8 banks A-H x 128 patches.
+    // GM CC74/71 do NOT apply. VCF Cutoff=CC29, Resonance=CC30.
+    // VCA Env: CC37=Attack, CC39=Decay, CC44=Sustain, CC41=Release.
+    // VCF Env: CC42=Attack, CC43=Decay (no CC for VCF Sustain), CC45=Release.
+    // MOD Env: CC46=Attack, CC47=Decay, CC48=Sustain, CC49=Release.
+    // LFO1: CC16=Rate, CC17=Delay. LFO2: CC18=Rate, CC19=Delay.
+    // Portamento: CC5. HPF: CC35=Frequency. VCF Mod depth CC31, LFO mod CC33, Key mod CC34.
+    // OSC2: CC24=Pitch, CC25=Coarse. Noise CC27. Unison Detune CC28.
+    note: 'Analog poly (12-voice). CC29=Cutoff, CC30=Res. VCA Env CC37/39/44/41. VCF Env CC42/43/45 (no VCF Sustain CC). Two LFOs CC16/18. HPF CC35.',
+    params: [
+      { cc: 29,  label: 'VCF Cutoff',          def: 80  },
+      { cc: 30,  label: 'VCF Resonance',       def: 0   },
+      { cc: 31,  label: 'VCF Mod (Env Depth)', def: 64  },
+      { cc: 33,  label: 'VCF LFO Mod',         def: 0   },
+      { cc: 34,  label: 'VCF Key Mod',         def: 0   },
+      { cc: 35,  label: 'HPF Frequency',       def: 0   },
+      { cc: 37,  label: 'VCA Attack',          def: 10  },
+      { cc: 39,  label: 'VCA Decay',           def: 40  },
+      { cc: 44,  label: 'VCA Sustain',         def: 80  },
+      { cc: 41,  label: 'VCA Release',         def: 20  },
+      { cc: 42,  label: 'VCF Env Attack',      def: 10  },
+      { cc: 43,  label: 'VCF Env Decay',       def: 40  },
+      { cc: 45,  label: 'VCF Env Release',     def: 20  },
+      { cc: 46,  label: 'MOD Env Attack',      def: 10  },
+      { cc: 47,  label: 'MOD Env Decay',       def: 40  },
+      { cc: 48,  label: 'MOD Env Sustain',     def: 60  },
+      { cc: 49,  label: 'MOD Env Release',     def: 20  },
+      { cc: 16,  label: 'LFO1 Rate',           def: 64  },
+      { cc: 17,  label: 'LFO1 Delay',          def: 0   },
+      { cc: 18,  label: 'LFO2 Rate',           def: 64  },
+      { cc: 19,  label: 'LFO2 Delay',          def: 0   },
+      { cc: 25,  label: 'OSC2 Pitch Coarse',   def: 64  },
+      { cc: 26,  label: 'OSC2 Level',          def: 0   },
+      { cc: 27,  label: 'Noise Level',         def: 0   },
+      { cc: 28,  label: 'Unison Detune',       def: 0   },
+      { cc: 5,   label: 'Portamento',          def: 0   },
+      { cc: 7,   label: 'Volume',              def: 100 },
+    ],
+    programSelect: { label: 'Program', min: 0, max: 127, def: 0 },
+    starterPresets: [
+      { name: 'Init',        recallPC: 0, ccValues: { 29:80,  30:0,  37:10, 39:40, 44:80, 41:20 } },
+      { name: 'Warm Poly',   recallPC: 1, ccValues: { 29:75,  30:8,  37:15, 39:45, 44:85, 41:25 } },
+      { name: 'Lush Pad',    recallPC: 2, ccValues: { 29:65,  30:5,  37:60, 39:70, 44:90, 41:70, 28:20 } },
+      { name: 'Analog Lead', recallPC: 3, ccValues: { 29:100, 30:30, 37:5,  39:25, 44:70, 41:15 } },
+      { name: 'Bass',        recallPC: 4, ccValues: { 29:45,  30:40, 37:2,  39:50, 44:0,  41:20 } },
+    ],
+  },
 };
