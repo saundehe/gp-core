@@ -1654,6 +1654,18 @@ export const deviceDefs = {
     ],
   },
 
+  vcv_rack: {
+    label: 'VCV Rack', type: 'Software Instrument', software: true, params: [],
+    note: 'Route a virtual MIDI port (loopMIDI / IAC) into Rack. Map knobs with the core MIDI-Map module (or MIDI-CC for patchable CV), then add the same CCs here. Core Rack ignores Program Change; scene recall re-sends every CC, so mapped knobs snap back without PC. For whole-patch snapshots add stoermelder TRANSIT (morphs) or 8FACE mk2 and map its slot selector to a CC.',
+    starter: [
+      { cc: 20, label: 'Map slot 1 (CC20)', def: 0 },
+      { cc: 21, label: 'Map slot 2 (CC21)', def: 0 },
+      { cc: 22, label: 'Map slot 3 (CC22)', def: 0 },
+      { cc: 23, label: 'Map slot 4 (CC23)', def: 0 },
+      { cc: 24, label: 'Snapshot select (TRANSIT / 8FACE)', def: 0 },
+    ],
+  },
+
   // ── Modelers / floor units ──
 
   fractal_axefx3: {
