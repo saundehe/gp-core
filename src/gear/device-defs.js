@@ -469,22 +469,26 @@ export const deviceDefs = {
 
   boss_od200: {
     label: 'Boss OD-200', type: 'Drive/OD',
-    // Boss 200-series factory default CC assignments.
+    // Boss 200-series factory default CC assignments (CCi menu). Assignable range: CC1-31 and CC64-95.
+    // Panel labels vs MIDI menu names: BOTTOM=Low(Loc), CHARACTER=Middle(Mdc), TOP=High(hiC), E.LEVEL=Level(LUC).
+    // CC28 (SHC) toggle requires controller to send 0 THEN 127 on the same CC# — a single value does not work.
     params: [
-      { cc: 16, label: 'Expression (EXP, hardwired)',  def: 64  },
-      { cc: 17, label: 'Drive (default assign)',        def: 64  },
-      { cc: 18, label: 'Level (default assign)',        def: 100 },
-      { cc: 19, label: 'Low (default assign)',          def: 64  },
-      { cc: 20, label: 'Middle (default assign)',       def: 64  },
-      { cc: 21, label: 'High (default assign)',         def: 64  },
-      { cc: 22, label: 'Booster Pre-Lvl (default)',    def: 64  },
-      { cc: 23, label: 'Booster Post-Lvl (default)',   def: 64  },
-      { cc: 27, label: 'Effect On/Off (0=off/127=on)', def: 127 },
-      { cc: 28, label: 'Memory / Tap',                 def: 0   },
-      { cc: 80, label: 'CTL-1',                        def: 0   },
-      { cc: 81, label: 'CTL-2',                        def: 0   },
-      { cc: 83, label: 'Boost On/Off (0=off/127=on)',  def: 0   },
+      { cc: 16, label: 'Expression / EXP (hardwired)',       def: 64  },
+      { cc: 17, label: 'Drive (drC)',                        def: 64  },
+      { cc: 18, label: 'E.Level / Level (LUC)',              def: 100 },
+      { cc: 19, label: 'Bottom / Low (Loc)',                 def: 64  },
+      { cc: 20, label: 'Character / Middle (Mdc)',           def: 64  },
+      { cc: 21, label: 'Top / High (hiC)',                   def: 64  },
+      { cc: 22, label: 'Booster Pre Level (PrC)',            def: 64  },
+      { cc: 23, label: 'Booster Post Level (PSC)',           def: 64  },
+      { cc: 27, label: 'Effect On/Off EFC (0=off, 127=on)', def: 127 },
+      { cc: 28, label: 'Bypass Toggle SHC (send 0 then 127)', def: 0 },
+      { cc: 80, label: 'CTL-1 (C1C)',                       def: 0   },
+      { cc: 81, label: 'CTL-2 (C2C)',                       def: 0   },
+      { cc: 82, label: 'Memory/Boost Switch (MEC)',          def: 0   },
+      { cc: 83, label: 'Boost On/Off bSC (0=off, 127=on)',  def: 0   },
     ],
+    programSelect: { label: 'Patch', min: 0, max: 31, def: 0 },
     starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
 
