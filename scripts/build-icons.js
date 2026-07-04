@@ -33,7 +33,7 @@ const LUCIDE = [
   // toolbar verbs (RigWork/Riffwork surfaces)
   'message-circle', 'camera', 'book-open', 'scroll-text', 'ban', 'rotate-ccw',
   'map', 'table', 'scan', 'target', 'arrow-left-right', 'send', 'file-music',
-  'pentagon',
+  'pentagon', 'palette', 'move-horizontal', 'arrow-down-to-line',
 ];
 
 // Custom symbols (24x24, stroke geometry matching Lucide conventions).
