@@ -12,7 +12,7 @@ test('pedalLib has entries with required fields', () => {
     assert.ok(typeof p.v === 'number',   `${name}: missing v`);
     assert.ok(typeof p.ma === 'number',  `${name}: missing ma`);
     assert.ok(typeof p.cat === 'string', `${name}: missing cat`);
-    if (!NON_PEDALBOARD_CATS.has(p.cat)) {
+    if (!NON_PEDALBOARD_CATS.has(p.cat) && !p.sw) {
       assert.ok(typeof p.w === 'number',   `${name}: missing w`);
       assert.ok(typeof p.d === 'number',   `${name}: missing d`);
       assert.ok(typeof p.inJ === 'string', `${name}: missing inJ`);

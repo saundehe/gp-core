@@ -1,14 +1,14 @@
 {
   "name": "@gp/core",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "type": "module",
   "description": "GP product family shared spine — gear library, MIDI device defs, shared schemas.",
   "exports": {
-    "./gear":    "./src/gear/index.js",
+    "./gear": "./src/gear/index.js",
     "./account": "./src/account/index.js",
-    "./part":    "./src/part/index.js",
-    "./theory":  "./src/theory/index.js",
-    "./song":      "./src/song/index.js",
+    "./part": "./src/part/index.js",
+    "./theory": "./src/theory/index.js",
+    "./song": "./src/song/index.js",
     "./clockwork": "./src/clockwork/index.js"
   },
   "files": [

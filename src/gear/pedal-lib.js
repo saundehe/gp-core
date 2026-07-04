@@ -428,13 +428,13 @@ export const pedalLib = {
   // ── Multi-FX floor units ──
   "Neural DSP Quad Cortex":        { v:12, ma:2000, w:12.25, d:8.8, cat:"Multi-FX",    inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true, sendJ:"top", sendJAt:0.60, returnJ:"top", returnJAt:0.70 },
   "Neural DSP Nano Cortex":        { v:9,  ma:500,  w:5.4,  d:4.5, cat:"Amp sim",      inJ:"right", outJ:"left", pwrJ:"top", inJAt:0.40, outJAt:0.40 },
-  "Fractal Axe-Fx III":            { v:0,  ma:0,  cat:"Amp sim" },
+  "Fractal Axe-Fx III":            { v:0,  ma:0,   w:19.0, d:14.25, cat:"Amp sim",      inJ:"top", outJ:"top", pwrJ:"top", hasFxLoop:true },
   "Fractal FM9":                   { v:0,  ma:0,   w:18.0, d:8.5, cat:"Amp sim",       inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true },
   "Line 6 Helix Floor":            { v:0,  ma:0,   w:22.3, d:10.3, cat:"Multi-FX",     inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true },
   "Line 6 M9":                     { v:9,  ma:500,  w:7.0,  d:4.75, cat:"Multi-FX",    inJ:"right", outJ:"left", pwrJ:"top" },
   "Kemper Profiler Stage":         { v:0,  ma:0,   w:13.4, d:8.9, cat:"Amp sim",       inJ:"right", outJ:"left", pwrJ:"top", hasFxLoop:true },
 
   // ── Software / plugins (no physical dims) ──
-  "Neural DSP plugin (Archetype/standalone)": { v:0, ma:0, cat:"Amp sim" },
-  "EastWest Opus / Play":          { v:0, ma:0, cat:"Amp sim" },
+  "Neural DSP plugin (Archetype/standalone)": { v:0, ma:0, cat:"Amp sim", sw:true },
+  "EastWest Opus / Play":          { v:0, ma:0, cat:"Amp sim", sw:true },
 };
