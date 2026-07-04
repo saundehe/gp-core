@@ -1,6 +1,6 @@
 {
   "name": "@gp/core",
-  "version": "0.9.10",
+  "version": "0.10.0",
   "type": "module",
   "description": "GP product family shared spine — gear library, MIDI device defs, shared schemas.",
   "exports": {
@@ -9,7 +9,11 @@
     "./part": "./src/part/index.js",
     "./theory": "./src/theory/index.js",
     "./song": "./src/song/index.js",
-    "./clockwork": "./src/clockwork/index.js"
+    "./clockwork": "./src/clockwork/index.js",
+    "./ui": "./src/ui/index.js",
+    "./ui/tokens.css": "./src/ui/tokens.css",
+    "./ui/base.css": "./src/ui/base.css",
+    "./ui/icons.svg": "./src/ui/icons.svg"
   },
   "files": [
     "src/",
@@ -20,6 +24,7 @@
     "test": "node --test test/gear.test.js test/account.test.js test/part.test.js test/theory.test.js test/song.test.js test/clockwork.test.js"
   },
   "devDependencies": {
-    "esbuild": "^0.24.0"
+    "esbuild": "^0.24.0",
+    "lucide-static": "^1.23.0"
   }
 }

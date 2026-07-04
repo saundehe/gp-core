@@ -1,0 +1,235 @@
+/* @gp/core ui — shared primitives for the Riffwork family.
+   Requires tokens.css. Quiet borders, no glow, no CRT.
+   Class prefix: gp- (safe to load next to legacy per-app styles during migration). */
+
+/* ---- foundation ---- */
+*, *::before, *::after { box-sizing: border-box; }
+
+body.gp-body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--fs-2);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.gp-body ::selection { background: var(--accent-tint); }
+
+.gp-body h1, .gp-body h2, .gp-body h3 {
+  line-height: var(--lh-tight);
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--sp-3);
+}
+.gp-body h1 { font-size: var(--fs-6); font-weight: 700; }
+.gp-body h2 { font-size: var(--fs-5); font-weight: 650; }
+.gp-body h3 { font-size: var(--fs-4); font-weight: 600; }
+
+.gp-body a { color: var(--accent); text-decoration: none; }
+.gp-body a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.gp-body code, .gp-body kbd, .gp-mono { font-family: var(--font-mono); font-size: 0.93em; }
+.gp-body kbd {
+  padding: 1px 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-0);
+}
+
+:where(.gp-body) :focus-visible {
+  outline: 2px solid var(--accent-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+.gp-body::-webkit-scrollbar, .gp-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.gp-body::-webkit-scrollbar-thumb, .gp-scroll::-webkit-scrollbar-thumb {
+  background: var(--bg4); border-radius: var(--r-full); border: 2px solid var(--bg);
+}
+
+/* ---- icons (pairs with icons.svg sprite: <svg class="gp-icon"><use href="#i-name"/></svg>) ---- */
+.gp-icon {
+  width: 18px; height: 18px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  vertical-align: -3px;
+  flex: none;
+}
+.gp-icon--sm { width: 14px; height: 14px; vertical-align: -2px; }
+.gp-icon--lg { width: 24px; height: 24px; vertical-align: -5px; }
+
+/* ---- buttons ---- */
+.gp-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  padding: 7px 14px;
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font: inherit; font-size: var(--fs-1); font-weight: 550;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast);
+  user-select: none;
+  white-space: nowrap;
+}
+.gp-btn:hover { background: var(--bg4); border-color: var(--border-strong); text-decoration: none; }
+.gp-btn:active { background: var(--bg3); }
+.gp-btn:disabled { opacity: 0.45; cursor: default; pointer-events: none; }
+
+.gp-btn--primary {
+  background: var(--accent); color: var(--accent-ink); border-color: transparent;
+  font-weight: 650;
+}
+.gp-btn--primary:hover { background: var(--accent-hover); border-color: transparent; }
+.gp-btn--primary:active { background: var(--accent-press); }
+
+.gp-btn--ghost { background: transparent; border-color: transparent; color: var(--text-muted); }
+.gp-btn--ghost:hover { background: var(--bg3); color: var(--text); border-color: transparent; }
+
+.gp-btn--danger { color: var(--danger); }
+.gp-btn--danger:hover { background: var(--danger-tint); border-color: var(--danger); }
+
+.gp-btn--sm { padding: 4px 10px; font-size: var(--fs-0); }
+.gp-btn--lg { padding: 10px 20px; font-size: var(--fs-2); }
+
+/* icon-only square button (toolbars, sidebars) */
+.gp-btn--icon { padding: 7px; }
+.gp-btn--icon.gp-btn--sm { padding: 5px; }
+
+/* pressed/toggled state for toolbar toggles */
+.gp-btn[aria-pressed="true"], .gp-btn.is-active {
+  background: var(--accent-tint);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---- cards / panels ---- */
+.gp-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+}
+.gp-card--hover { transition: border-color var(--t-fast), background var(--t-fast); }
+.gp-card--hover:hover { border-color: var(--border-strong); background: var(--bg3); }
+
+.gp-divider { border: 0; border-top: 1px solid var(--border); margin: var(--sp-4) 0; }
+
+/* ---- inputs ---- */
+.gp-input, .gp-select, .gp-textarea {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font: inherit; font-size: var(--fs-1);
+  transition: border-color var(--t-fast);
+}
+.gp-input::placeholder, .gp-textarea::placeholder { color: var(--text-faint); }
+.gp-input:focus, .gp-select:focus, .gp-textarea:focus {
+  outline: none; border-color: var(--accent);
+}
+.gp-label {
+  display: block;
+  font-size: var(--fs-0); font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: var(--sp-1);
+}
+.gp-field { margin-bottom: var(--sp-4); }
+
+/* ---- chips / badges ---- */
+.gp-chip {
+  display: inline-flex; align-items: center; gap: var(--sp-1);
+  padding: 2px 9px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  font-size: var(--fs-0); font-weight: 550;
+  color: var(--text-muted);
+}
+.gp-chip--accent { background: var(--accent-tint); border-color: transparent; color: var(--accent); }
+.gp-chip--ok     { background: var(--ok-tint);     border-color: transparent; color: var(--ok); }
+.gp-chip--warn   { background: var(--warn-tint);   border-color: transparent; color: var(--warn); }
+.gp-chip--danger { background: var(--danger-tint); border-color: transparent; color: var(--danger); }
+
+/* ---- nav (sidebar / header items) ---- */
+.gp-nav-item {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: 7px 10px;
+  border-radius: var(--r);
+  color: var(--text-muted);
+  font-size: var(--fs-1); font-weight: 550;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+  text-decoration: none;
+}
+.gp-nav-item:hover { background: var(--bg3); color: var(--text); text-decoration: none; }
+.gp-nav-item.is-active { background: var(--accent-tint); color: var(--accent); }
+
+/* ---- brand mark (monogram tile) ---- */
+.gp-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  background: var(--accent); color: var(--accent-ink);
+  border-radius: 7px;
+  font-family: var(--font-ui); font-weight: 800; font-size: 13px; letter-spacing: -0.02em;
+  flex: none;
+}
+.gp-wordmark {
+  font-weight: 700; font-size: var(--fs-2); letter-spacing: -0.01em; color: var(--text);
+}
+.gp-wordmark .gp-wordmark-suffix { color: var(--text-muted); font-weight: 550; }
+
+/* ---- modal ---- */
+.gp-overlay {
+  position: fixed; inset: 0;
+  background: rgba(8, 9, 11, 0.6);
+  backdrop-filter: blur(3px);
+  z-index: var(--z-overlay);
+}
+.gp-modal {
+  position: fixed; inset: 0; margin: auto;
+  width: min(560px, calc(100vw - 32px));
+  height: fit-content; max-height: min(80vh, 720px);
+  overflow: auto;
+  background: var(--bg2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  padding: var(--sp-5);
+  box-shadow: var(--shadow-2);
+  z-index: var(--z-modal);
+}
+
+/* ---- tables ---- */
+.gp-table { width: 100%; border-collapse: collapse; font-size: var(--fs-1); }
+.gp-table th {
+  text-align: left; font-size: var(--fs-0); font-weight: 600;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--border-strong);
+}
+.gp-table td { padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--border); }
+.gp-table tr:hover td { background: var(--bg3); }
+
+/* ---- utility ---- */
+.gp-muted { color: var(--text-muted); }
+.gp-faint { color: var(--text-faint); }
+.gp-row { display: flex; align-items: center; gap: var(--sp-2); }
+.gp-stack { display: flex; flex-direction: column; gap: var(--sp-3); }
+.gp-grid { display: grid; gap: var(--sp-4); }
+
+/* ---- motion discipline ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

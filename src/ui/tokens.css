@@ -1,0 +1,83 @@
+/* @gp/core ui — design tokens (single source of truth for the Riffwork family)
+   Pro studio dark. Neutral near-black, one amber accent, quiet borders.
+   Consumed by: Riffwork, RigWork (Vite import), GP Tools (copied by deploy script).
+   Only the Spine lane edits this file. */
+
+:root {
+  color-scheme: dark;
+
+  /* ---- surfaces ---- */
+  --bg: #101114;            /* page */
+  --bg2: #17181c;           /* card / panel */
+  --bg3: #1d1f24;           /* nested surface, inputs */
+  --bg4: #24262c;           /* hover / active surface */
+  --border: #2a2d33;
+  --border-strong: #3a3e46;
+
+  /* ---- text ---- */
+  --text: #e8e9ec;
+  --text-muted: #9aa0a8;
+  --text-faint: #686d76;
+
+  /* ---- accent (ONE, used sparingly) ---- */
+  --accent: #ffb454;
+  --accent-hover: #ffc272;
+  --accent-press: #e89c38;
+  --accent-ink: #201503;            /* text on accent fills */
+  --accent-tint: rgba(255, 180, 84, 0.13);   /* selected rows, active nav */
+  --accent-ring: rgba(255, 180, 84, 0.45);   /* focus ring */
+
+  /* ---- status ---- */
+  --ok: #6fd68b;
+  --ok-tint: rgba(111, 214, 139, 0.13);
+  --warn: #e8c268;
+  --warn-tint: rgba(232, 194, 104, 0.13);
+  --danger: #ff5e5e;
+  --danger-tint: rgba(255, 94, 94, 0.13);
+  --info: #7ab8ff;
+  --info-tint: rgba(122, 184, 255, 0.13);
+
+  /* ---- type ---- */
+  --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', monospace;
+  --fs-0: 12px;   /* fine print, chips */
+  --fs-1: 13px;   /* secondary UI */
+  --fs-2: 14px;   /* body / default UI */
+  --fs-3: 16px;   /* emphasized body */
+  --fs-4: 20px;   /* h3 */
+  --fs-5: 24px;   /* h2 */
+  --fs-6: 32px;   /* h1 */
+  --fs-7: 44px;   /* hero */
+  --lh-tight: 1.2;
+  --lh-body: 1.55;
+
+  /* ---- space (4px scale) ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* ---- radius ---- */
+  --r-sm: 5px;    /* chips, inputs */
+  --r: 8px;       /* buttons, cards */
+  --r-lg: 12px;   /* panels, modals */
+  --r-full: 999px;
+
+  /* ---- elevation ---- */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 8px 28px rgba(0, 0, 0, 0.5);
+
+  /* ---- motion ---- */
+  --t-fast: 120ms ease;
+  --t-med: 200ms ease;
+
+  /* ---- layers ---- */
+  --z-nav: 100;
+  --z-overlay: 800;
+  --z-modal: 900;
+  --z-toast: 1000;
+}
