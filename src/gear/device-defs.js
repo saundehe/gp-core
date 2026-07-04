@@ -11,6 +11,96 @@
 //   software   — true for plugins/software (no physical power draw)
 //   starter    — like starterPresets but becomes customParams (for MIDI-learn-only devices)
 //   merisSysex — { model } — Meris sysex model byte (Meris devices only)
+//
+// Enumerated / formatted controls (added v0.28):
+//   params[].options[] — { label, val, max } — renders as a labelled selector instead
+//                        of a raw 0-127 slider. `val` = the CC value sent for that option
+//                        (the librarian's canonical mapped value); `max` = inclusive upper
+//                        bound the pedal uses to band an arbitrary value onto this option
+//                        (used to display preset / read-from-pedal / incoming-CC values).
+//                        Options listed low→high.
+//   params[].fmt       — formatter key (RigWork maps it to a display function): 'tempoMs',
+//                        'hedraPitch', 'merisFbFilter', 'polymoonDelayLevel'. Slider stays,
+//                        only the value readout is humanised.
+// All option values verified against the studiocode.dev (francoisgeorgy) Polymoon/Hedra/Enzo
+// editor sources + the Meris pedal manuals. Do not invent values — these fire at real pedals.
+
+const _merisOnOff = (off = 'Off', on = 'On') => ([
+  { label: off, val: 0,   max: 63  },
+  { label: on,  val: 127, max: 127 },
+]);
+
+// Polymoon Early/Late Modulation (CC22/25) — 16 steps of 8 (francoisgeorgy _modulations)
+const POLYMOON_MOD = [
+  'Off', 'Slow speed, shallow depth', 'Medium speed, shallow depth', 'Medium speed, wide depth',
+  'Fast speed, wide depth', 'Fast speed, exaggerated depth', 'FM 24Hz', 'FM 48Hz', 'FM 96Hz',
+  'Maj 2nd down + Maj 2nd up', 'Oct down + Min 3rd up', 'Perf 5th down + Perf 4th up',
+  'Tremolo mute + Perf 4th up', 'Oct down + Perf 5th up', 'Perf 5th down + Oct up', 'Oct down + Oct up',
+].map((label, i) => ({ label, val: i * 8, max: i === 15 ? 127 : i * 8 + 7 }));
+
+const POLYMOON_MULTIPLY = [
+  { label: '1 tap',  val: 0,   max: 7   },
+  { label: '2 taps', val: 32,  max: 32  },
+  { label: '3 taps', val: 62,  max: 62  },
+  { label: '4 taps', val: 87,  max: 87  },
+  { label: '5 taps', val: 115, max: 115 },
+  { label: '6 taps', val: 127, max: 127 },
+];
+
+const POLYMOON_PHASER = [
+  { label: 'Off',        val: 0,   max: 31  },
+  { label: 'Slow',       val: 63,  max: 63  },
+  { label: 'Whole note', val: 95,  max: 95  },
+  { label: '1/4 note',   val: 127, max: 127 },
+];
+
+// <33 Env Down, <89 Env Up, else LFO (send values from _map_flanger_mode: 0 / 33 / 127)
+const POLYMOON_FLANGER = [
+  { label: 'Env Down', val: 0,   max: 32  },
+  { label: 'Env Up',   val: 33,  max: 88  },
+  { label: 'LFO',      val: 127, max: 127 },
+];
+
+const POLYMOON_DOTTED8 = [
+  { label: '1/4 note',   val: 0,   max: 63  },
+  { label: 'Dotted 8th', val: 127, max: 127 },
+];
+
+// Hedra Delay Mode (CC29) — the feedback-routing selector. "Pitch Feedback" puts the
+// pitch-shifters inside the delay feedback loop (escalating pitch). Meris Hedra manual v9.
+const HEDRA_DELAY_MODE = [
+  { label: 'Dual',           val: 0,   max: 31  },
+  { label: 'Dual + Series',  val: 63,  max: 63  },
+  { label: 'Series',         val: 95,  max: 95  },
+  { label: 'Pitch Feedback', val: 127, max: 127 },
+];
+
+// Hedra Key (CC16) — KEY thresholds from francoisgeorgy; 'Chromatic' must send exactly 127.
+const HEDRA_KEY = [
+  ['C', 2], ['Db', 11], ['D', 25], ['Eb', 37], ['E', 47], ['F', 58], ['Gb', 66], ['G', 77],
+  ['Ab', 87], ['A', 97], ['Bb', 108], ['B', 119], ['Chromatic', 127],
+].map(([label, max]) => ({ label, val: max, max }));
+
+// Hedra Scale (CC22) — MODE thresholds from francoisgeorgy.
+const HEDRA_SCALE = [
+  ['Major', 11], ['Minor', 37], ['Melodic', 58], ['Harmonic', 78],
+  ['Dbl Harmonic', 97], ['Eastern', 119], ['Pentatonic', 127],
+].map(([label, max]) => ({ label, val: max, max }));
+
+const ENZO_SYNTH_MODE = [
+  { label: 'Dry',  val: 0,   max: 31  },
+  { label: 'Mono', val: 63,  max: 63  },
+  { label: 'Arp',  val: 95,  max: 95  },
+  { label: 'Poly', val: 127, max: 127 },
+];
+const ENZO_WAVESHAPE = [
+  { label: 'Sawtooth', val: 0,   max: 63  },
+  { label: 'Square',   val: 127, max: 127 },
+];
+const ENZO_ENV_TYPE = [
+  { label: 'Triggered', val: 0,   max: 63  },
+  { label: 'Follower',  val: 127, max: 127 },
+];
 
 export const deviceDefs = {
   meris_mercury7: {
@@ -67,21 +157,21 @@ export const deviceDefs = {
       { cc: 16, label: 'Time',                     def: 64  },
       { cc: 17, label: 'Feedback',                 def: 40  },
       { cc: 18, label: 'Mix',                      def: 64  },
-      { cc: 19, label: 'Multiply',                 def: 0   },
+      { cc: 19, label: 'Multiply',                 def: 0,   options: POLYMOON_MULTIPLY },
       { cc: 20, label: 'Dimension',                def: 0   },
       { cc: 21, label: 'Dynamics',                 def: 64  },
-      { cc: 22, label: 'Early Modulation (alt)',   def: 0   },
-      { cc: 23, label: 'Feedback Filter (alt)',    def: 64  },
-      { cc: 24, label: 'Delay Level (alt)',        def: 100 },
-      { cc: 25, label: 'Late Modulation (alt)',    def: 0   },
-      { cc: 26, label: 'DYN Flanger Mode (alt)',   def: 0   },
+      { cc: 22, label: 'Early Modulation (alt)',   def: 0,   options: POLYMOON_MOD },
+      { cc: 23, label: 'Feedback Filter (alt)',    def: 64,  fmt: 'merisFbFilter' },
+      { cc: 24, label: 'Delay Level (alt)',        def: 100, fmt: 'polymoonDelayLevel' },
+      { cc: 25, label: 'Late Modulation (alt)',    def: 0,   options: POLYMOON_MOD },
+      { cc: 26, label: 'DYN Flanger Mode (alt)',   def: 0,   options: POLYMOON_FLANGER },
       { cc: 27, label: 'DYN Flanger Speed (alt)',  def: 64  },
-      { cc: 9,  label: 'Dotted 8th',               def: 0   },
-      { cc: 15, label: 'Tempo (10ms steps)',        def: 0   },
+      { cc: 9,  label: 'Dotted 8th',               def: 0,   options: POLYMOON_DOTTED8 },
+      { cc: 15, label: 'Tempo (10ms steps)',        def: 0,  fmt: 'tempoMs' },
       { cc: 28, label: 'Tap',                      def: 0   },
-      { cc: 29, label: 'Phaser Mode',              def: 0   },
+      { cc: 29, label: 'Phaser Mode',              def: 0,   options: POLYMOON_PHASER },
       { cc: 30, label: 'Flanger Feedback',         def: 0   },
-      { cc: 31, label: 'Half Speed (0/127)',        def: 0   },
+      { cc: 31, label: 'Half Speed',                def: 0,  options: _merisOnOff() },
       { cc: 4,  label: 'Expression',               def: 0   },
       { cc: 14, label: 'Bypass (0/127)',           def: 127 },
     ],
@@ -115,24 +205,24 @@ export const deviceDefs = {
     // Knob+alt names CONFIRMED vs the Hedra manual front panel.
     // CC#s follow the verified 500-series scheme; switch CCs 29-31 least certain.
     params: [
-      { cc: 16, label: 'Key',                          def: 0   },
+      { cc: 16, label: 'Key',                          def: 0,  options: HEDRA_KEY },
       { cc: 17, label: 'Micro Tune',                   def: 64  },
       { cc: 18, label: 'Mix',                          def: 64  },
-      { cc: 19, label: 'Pitch 1',                      def: 64  },
-      { cc: 20, label: 'Pitch 2',                      def: 64  },
-      { cc: 21, label: 'Pitch 3',                      def: 64  },
-      { cc: 22, label: 'Scale Type (alt)',              def: 0   },
+      { cc: 19, label: 'Pitch 1',                      def: 64, fmt: 'hedraPitch' },
+      { cc: 20, label: 'Pitch 2',                      def: 64, fmt: 'hedraPitch' },
+      { cc: 21, label: 'Pitch 3',                      def: 64, fmt: 'hedraPitch' },
+      { cc: 22, label: 'Scale Type (alt)',              def: 0,  options: HEDRA_SCALE },
       { cc: 23, label: 'Pitch Correction+Glide (alt)', def: 0   },
       { cc: 24, label: 'Feedback (alt)',                def: 0   },
       { cc: 25, label: 'Time Division 1 (alt)',         def: 0   },
       { cc: 26, label: 'Time Division 2 (alt)',         def: 0   },
       { cc: 27, label: 'Time Division 3 (alt)',         def: 0   },
-      { cc: 9,  label: 'Half Speed (0/127)',            def: 0   },
-      { cc: 15, label: 'Tempo (10ms steps)',            def: 0   },
+      { cc: 9,  label: 'Half Speed',                    def: 0,  options: _merisOnOff() },
+      { cc: 15, label: 'Tempo (10ms steps)',            def: 0,  fmt: 'tempoMs' },
       { cc: 28, label: 'Tap',                          def: 0   },
-      { cc: 29, label: 'Delay Mode',                   def: 0   },
+      { cc: 29, label: 'Delay Mode',                   def: 0,  options: HEDRA_DELAY_MODE },
       { cc: 30, label: 'Pitch Smoothing (0/127)',       def: 0   },
-      { cc: 31, label: 'Volume Swell (0/127)',          def: 0   },
+      { cc: 31, label: 'Volume Swell',                  def: 0,  options: _merisOnOff() },
       { cc: 4,  label: 'Expression',                   def: 0   },
       { cc: 14, label: 'Bypass (0/127)',               def: 127 },
     ],
@@ -178,11 +268,11 @@ export const deviceDefs = {
       { cc: 25, label: 'Sustain (alt)',                      def: 0   },
       { cc: 26, label: 'Filter Envelope (alt)',              def: 64  },
       { cc: 27, label: 'Modulation (alt)',                   def: 0   },
-      { cc: 9,  label: 'Envelope Type (0=trig/127=follow)', def: 0   },
-      { cc: 15, label: 'Tempo (10ms steps)',                 def: 0   },
+      { cc: 9,  label: 'Envelope Type',                     def: 0,  options: ENZO_ENV_TYPE },
+      { cc: 15, label: 'Tempo (10ms steps)',                 def: 0,  fmt: 'tempoMs' },
       { cc: 28, label: 'Tap',                               def: 0   },
-      { cc: 29, label: 'Synth Mode (dry/mono/arp/poly)',    def: 96  },
-      { cc: 30, label: 'Waveshape (0=saw/127=square)',      def: 0   },
+      { cc: 29, label: 'Synth Mode',                        def: 96, options: ENZO_SYNTH_MODE },
+      { cc: 30, label: 'Waveshape',                         def: 0,  options: ENZO_WAVESHAPE },
       { cc: 4,  label: 'Expression',                        def: 0   },
       { cc: 14, label: 'Bypass (0/127)',                    def: 127 },
     ],
