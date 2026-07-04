@@ -30,6 +30,10 @@ const LUCIDE = [
   // gear / hardware
   'cable', 'plug', 'plug-zap', 'usb', 'bluetooth', 'wifi', 'cpu', 'zap',
   'power', 'wrench', 'layers', 'box', 'speaker', 'circle-dot', 'toggle-right',
+  // toolbar verbs (RigWork/Riffwork surfaces)
+  'message-circle', 'camera', 'book-open', 'scroll-text', 'ban', 'rotate-ccw',
+  'map', 'table', 'scan', 'target', 'arrow-left-right', 'send', 'file-music',
+  'pentagon',
 ];
 
 // Custom symbols (24x24, stroke geometry matching Lucide conventions).
