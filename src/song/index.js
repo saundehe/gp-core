@@ -12,3 +12,10 @@ export {
   createSetlist, normalizeSetlist,
   upsertSetlistEntry, removeSetlistEntry, moveSetlistEntry,
 } from './setlist.js';
+export {
+  createShowFileRw, normalizeShowFileRw,
+  createShowFileSection, normalizeShowFileSection,
+  createShowFileSongEntry, normalizeShowFileSongEntry,
+  createShowFile, normalizeShowFile,
+  encodeShowFile, decodeShowFile,
+} from './showfile.js';
