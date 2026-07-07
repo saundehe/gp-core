@@ -75,6 +75,17 @@ const HEDRA_DELAY_MODE = [
   { label: 'Pitch Feedback', val: 127, max: 127 },
 ];
 
+// Alexander Wavelength Mode (CC59) — accepts exact values 0-5 for the 6 effect modes
+// (manual p1). Values >5 are dead, so this must be a selector, not a 0-127 slider.
+const WAVELENGTH_MODE = [
+  { label: 'Tremolo', val: 0, max: 0   },
+  { label: 'Chorus',  val: 1, max: 1   },
+  { label: 'Phaser',  val: 2, max: 2   },
+  { label: 'Flanger', val: 3, max: 3   },
+  { label: 'Vibe',    val: 4, max: 4   },
+  { label: 'Filter',  val: 5, max: 127 },
+];
+
 // Hedra Key (CC16) — KEY thresholds from francoisgeorgy; 'Chromatic' must send exactly 127.
 const HEDRA_KEY = [
   ['C', 2], ['Db', 11], ['D', 25], ['Eb', 37], ['E', 47], ['F', 58], ['Gb', 66], ['G', 77],
@@ -1167,7 +1178,7 @@ export const deviceDefs = {
       { cc: 54, label: 'Shape',        def: 0  },
       { cc: 56, label: 'Ramp Speed',   def: 64 },
       { cc: 57, label: 'Level',        def: 100 },
-      { cc: 59, label: 'Mode (0-5)',   def: 0  },
+      { cc: 59, label: 'Mode',         def: 0, options: WAVELENGTH_MODE },
     ],
     starterPresets: [{ name: 'Init', recallPC: -1, ccValues: {} }],
   },
