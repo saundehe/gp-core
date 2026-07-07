@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { pedalLib, deviceDefs, createGearItem, createBoard, normalizeGearItem, normalizeBoard } from '../src/gear/index.js';
+import { pedalLib, deviceDefs, createGearItem, createBoard, normalizeGearItem, normalizeBoard, isValidBank, PROGRAM_CHANGE_MAX } from '../src/gear/index.js';
 
 // Categories without a pedalboard footprint — skip physical dimension checks for these.
 // Amps, cabs, audio interfaces, and DI boxes get their layout dims from KIND_DIMS in the app.
@@ -79,6 +79,86 @@ test('starterPresets have required fields', () => {
       assert.ok(typeof sp.name === 'string',          `${key}: starterPreset missing name`);
       assert.ok(typeof sp.recallPC === 'number',      `${key}: starterPreset missing recallPC`);
       assert.ok(typeof sp.ccValues === 'object',      `${key}: starterPreset missing ccValues`);
+    }
+  }
+});
+
+// Data-integrity invariants over the hand-entered 96-device CC map. Type checks above are not enough:
+// the header says "these fire at real pedals," so a single bad value sends garbage MIDI to hardware.
+// This is the test that catches the Korg minilogue xd recallPC 128-199 defect and future community
+// gear submissions. A raw MIDI data byte is 7-bit (0-127); programs beyond the first bank need a bank.
+const in7bit = (v) => Number.isInteger(v) && v >= 0 && v <= PROGRAM_CHANGE_MAX;
+
+test('deviceDefs: no duplicate CC within a device', () => {
+  for (const [key, def] of Object.entries(deviceDefs)) {
+    const seen = new Set();
+    for (const p of (def.params || [])) {
+      assert.ok(!seen.has(p.cc), `${key}: duplicate CC ${p.cc}`);
+      seen.add(p.cc);
+    }
+  }
+});
+
+test('deviceDefs: every cc, default, option val and preset ccValue is a 7-bit value', () => {
+  for (const [key, def] of Object.entries(deviceDefs)) {
+    for (const p of (def.params || [])) {
+      assert.ok(in7bit(p.cc),  `${key}: param cc ${p.cc} not 0-127`);
+      assert.ok(in7bit(p.def), `${key}: cc${p.cc} default ${p.def} not 0-127`);
+      for (const o of (p.options || [])) {
+        assert.ok(in7bit(o.val), `${key}: cc${p.cc} option "${o.label}" val ${o.val} not 0-127`);
+        assert.ok(in7bit(o.max), `${key}: cc${p.cc} option "${o.label}" max ${o.max} not 0-127`);
+      }
+    }
+    for (const sp of (def.starterPresets || [])) {
+      for (const [cc, v] of Object.entries(sp.ccValues || {})) {
+        assert.ok(in7bit(v), `${key}: preset "${sp.name}" cc${cc} value ${v} not 0-127`);
+      }
+    }
+  }
+});
+
+test('deviceDefs: option bands have strictly increasing max, ending at 127', () => {
+  for (const [key, def] of Object.entries(deviceDefs)) {
+    for (const p of (def.params || [])) {
+      if (!Array.isArray(p.options) || !p.options.length) continue;
+      let prev = -1;
+      for (const o of p.options) {
+        assert.ok(o.max > prev, `${key}: cc${p.cc} option "${o.label}" max ${o.max} not > previous ${prev}`);
+        prev = o.max;
+      }
+      assert.equal(prev, 127, `${key}: cc${p.cc} last option band max is ${prev}, must cover to 127`);
+    }
+  }
+});
+
+test('deviceDefs: starterPreset ccValues keys are a subset of the device param CCs', () => {
+  for (const [key, def] of Object.entries(deviceDefs)) {
+    const paramCCs = new Set((def.params || []).map((p) => p.cc));
+    for (const sp of (def.starterPresets || [])) {
+      for (const cc of Object.keys(sp.ccValues || {})) {
+        assert.ok(paramCCs.has(Number(cc)), `${key}: preset "${sp.name}" references undeclared cc${cc}`);
+      }
+    }
+  }
+});
+
+test('deviceDefs: recallPC is -1 or in [programSelect.min, min(max,127)] unless a valid bank is present', () => {
+  for (const [key, def] of Object.entries(deviceDefs)) {
+    const ps = def.programSelect;
+    const lo = ps ? ps.min : 0;
+    const hi = ps ? Math.min(ps.max, PROGRAM_CHANGE_MAX) : PROGRAM_CHANGE_MAX;
+    for (const sp of (def.starterPresets || [])) {
+      if (sp.recallPC === -1) continue;
+      // A recallPC is always sent as a raw 7-bit Program Change byte.
+      assert.ok(in7bit(sp.recallPC), `${key}: preset "${sp.name}" recallPC ${sp.recallPC} is not a 7-bit PC byte`);
+      if (sp.bank !== undefined) {
+        assert.ok(isValidBank(sp.bank), `${key}: preset "${sp.name}" has an invalid bank ${JSON.stringify(sp.bank)}`);
+        continue; // bank + a valid PC byte can reach any program; range check does not apply
+      }
+      assert.ok(
+        sp.recallPC >= lo && sp.recallPC <= hi,
+        `${key}: preset "${sp.name}" recallPC ${sp.recallPC} outside [${lo},${hi}] and has no bank`
+      );
     }
   }
 });
