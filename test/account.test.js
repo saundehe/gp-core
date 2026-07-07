@@ -161,8 +161,9 @@ test('isTrialing - null returns false', () => {
 });
 
 test('isActive - trialing counts as active', () => {
-  const t = createTrial(PRODUCTS.riffwork, 1_700_000_000_000);
-  assert.ok(isActive(t));
+  const now = 1_700_000_000_000;
+  const t   = createTrial(PRODUCTS.riffwork, now);
+  assert.ok(isActive(t, now));
 });
 
 test('trialDaysRemaining - 7 days in returns ~7 remaining', () => {
@@ -393,4 +394,109 @@ test('resolveAccountState - perpetual license sets tierLabel', () => {
   const state = resolveAccountState(user, [lic], PRODUCTS.rigwork);
   assert.equal(state.tierLabel, 'Pro (lifetime)');
   assert.equal(state.isPro,     true);
+});
+
+// ── Entitlement expiry gates (bugs 1-3) ───────────────────────────────────────
+
+test('isActive - expired trial is not active', () => {
+  const start = 1_700_000_000_000;
+  const t     = createTrial(PRODUCTS.rigwork, start);
+  const after = start + 20 * 24 * 60 * 60 * 1000;
+  assert.ok(!isActive(t, after));
+});
+
+test('isActive - trial still inside window is active', () => {
+  const start  = 1_700_000_000_000;
+  const t      = createTrial(PRODUCTS.rigwork, start);
+  const midway = start + 5 * 24 * 60 * 60 * 1000;
+  assert.ok(isActive(t, midway));
+});
+
+test('isPro - expired trial is not Pro (bug 1)', () => {
+  const start = 1_700_000_000_000;
+  const t     = createTrial(PRODUCTS.rigwork, start);
+  const after = start + 20 * 24 * 60 * 60 * 1000;
+  assert.ok(!isPro(t, after));
+});
+
+test('isPro - valid trial (now) is still Pro', () => {
+  const start = 1_700_000_000_000;
+  const t     = createTrial(PRODUCTS.rigwork, start);
+  assert.ok(isPro(t, start));
+});
+
+test('isPro - active-but-expired subscription is not Pro (bug 2)', () => {
+  const now = 1_700_000_000_000;
+  const lic = createLicense({
+    status: STATUS.active, tier: TIERS.monthly,
+    current_period_end: now - 30 * 24 * 60 * 60 * 1000,
+  });
+  assert.ok(!isPro(lic, now));
+});
+
+test('isPro - perpetual license (no period end) stays Pro', () => {
+  const now = 1_700_000_000_000;
+  const lic = createLicense({ status: STATUS.active, tier: TIERS.perpetual_v1 });
+  assert.ok(isPro(lic, now));
+});
+
+test('caps - expired trial falls back to free caps (2 / 5)', () => {
+  const start = 1_700_000_000_000;
+  const t     = createTrial(PRODUCTS.rigwork, start);
+  const after = start + 20 * 24 * 60 * 60 * 1000;
+  assert.equal(midiDeviceCap(t, after), 2);
+  assert.equal(cloudSongCap(t, after),  5);
+});
+
+test('isProFor - expired trial for right product is not Pro', () => {
+  const start = 1_700_000_000_000;
+  const t     = createTrial(PRODUCTS.rigwork, start);
+  const after = start + 20 * 24 * 60 * 60 * 1000;
+  assert.ok(!isProFor(t, PRODUCTS.rigwork, after));
+});
+
+test('resolveAccountState - expired trial: not Pro, free caps, Free label', () => {
+  const start = 1_700_000_000_000;
+  const now   = start + 20 * 24 * 60 * 60 * 1000;
+  const user  = { id: 'u1', email: 'heath@gp.com' };
+  const trial = createTrial(PRODUCTS.rigwork, start);
+  const state = resolveAccountState(user, [trial], PRODUCTS.rigwork, now);
+  assert.equal(state.isPro,     false);
+  assert.equal(state.midiCap,   2);
+  assert.equal(state.songCap,   5);
+  assert.equal(state.daysLeft,  0);
+  assert.equal(state.tierLabel, 'Free');
+});
+
+test('resolveAccountState - active-but-expired subscription is not Pro (bug 2)', () => {
+  const now  = 1_700_000_000_000;
+  const user = { id: 'u1', email: 'heath@gp.com' };
+  const lic  = createLicense({
+    product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.monthly,
+    current_period_end: now - 30 * 24 * 60 * 60 * 1000,
+  });
+  const state = resolveAccountState(user, [lic], PRODUCTS.rigwork, now);
+  assert.equal(state.isPro,     false);
+  assert.equal(state.midiCap,   2);
+  assert.equal(state.songCap,   5);
+  assert.equal(state.tierLabel, 'Free');
+});
+
+test('resolveAccountState - perpetual license stays Pro with a now clock', () => {
+  const now  = 1_700_000_000_000;
+  const user = { id: 'u1', email: 'heath@gp.com' };
+  const lic  = createLicense({ product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.perpetual_v1 });
+  const state = resolveAccountState(user, [lic], PRODUCTS.rigwork, now);
+  assert.equal(state.isPro,     true);
+  assert.equal(state.midiCap,   null);
+  assert.equal(state.tierLabel, 'Pro (lifetime)');
+});
+
+test('resolveAccountState - past_due license shows payment-issue label (bug 3)', () => {
+  const now  = 1_700_000_000_000;
+  const user = { id: 'u1', email: 'heath@gp.com' };
+  const lic  = createLicense({ product: PRODUCTS.rigwork, status: STATUS.past_due, tier: TIERS.monthly });
+  const state = resolveAccountState(user, [lic], PRODUCTS.rigwork, now);
+  assert.equal(state.isPro,     false);
+  assert.equal(state.tierLabel, 'Pro (monthly), payment issue');
 });

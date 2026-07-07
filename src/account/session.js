@@ -1,5 +1,6 @@
 import { createUser } from './schema.js';
 import {
+  STATUS,
   isPro, isTrialing, midiDeviceCap, cloudSongCap,
   trialDaysRemaining, getTierLabel,
 } from './license.js';
@@ -49,15 +50,28 @@ export function resolveAccountState(supabaseUser, licenseRows, product, nowMs = 
   if (!supabaseUser) return { ...FREE_STATE };
   const user    = createUser({ id: supabaseUser.id, email: supabaseUser.email });
   const license = sessionToLicense(licenseRows ?? [], product);
-  const pro     = isPro(license);
+  const pro     = isPro(license, nowMs);
   return {
     user,
     license,
     isPro:     pro,
     isTrial:   isTrialing(license),
     daysLeft:  trialDaysRemaining(license, nowMs),
-    tierLabel: getTierLabel(license?.tier),
-    midiCap:   midiDeviceCap(license),
-    songCap:   cloudSongCap(license),
+    tierLabel: accountTierLabel(license, pro),
+    midiCap:   midiDeviceCap(license, nowMs),
+    songCap:   cloudSongCap(license, nowMs),
   };
+}
+
+/**
+ * Label for the resolved account state. Only a Pro state gets a Pro label.
+ * A past_due license shows its tier plus a payment-issue note; any other
+ * non-Pro state (cancelled, expired, lapsed trial) reads as 'Free'.
+ * @param {object|null} license
+ * @param {boolean}     pro - the already-resolved Pro flag for this state
+ */
+function accountTierLabel(license, pro) {
+  if (pro) return getTierLabel(license?.tier);
+  if (license?.status === STATUS.past_due) return `${getTierLabel(license.tier)}, payment issue`;
+  return 'Free';
 }

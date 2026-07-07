@@ -28,31 +28,51 @@ export function getTierLabel(tier) {
   return TIER_LABELS[tier] ?? 'Free';
 }
 
-/** True if the license row represents an active or trialing subscription. */
-export function isActive(license) {
+/**
+ * True if the license row represents an active or trialing subscription.
+ * A 'trialing' license whose trial window has closed is no longer active.
+ * @param {object|null} license
+ * @param {number} [nowMs] - injectable clock for testing
+ */
+export function isActive(license, nowMs = Date.now()) {
   if (!license) return false;
-  return license.status === STATUS.active || license.status === STATUS.trialing;
+  if (license.status === STATUS.trialing) {
+    // A trial is active only until its trial_ends_at timestamp passes.
+    return !license.trial_ends_at || license.trial_ends_at > nowMs;
+  }
+  return license.status === STATUS.active;
 }
 
-/** True when the user has a non-free Pro entitlement. */
-export function isPro(license) {
-  return isActive(license) && !!license.tier;
+/**
+ * True when the user has a non-free Pro entitlement.
+ * An active subscription past its current_period_end (see isExpired) is not Pro;
+ * perpetual licenses have no period end and stay Pro.
+ * @param {object|null} license
+ * @param {number} [nowMs] - injectable clock for testing
+ */
+export function isPro(license, nowMs = Date.now()) {
+  if (isExpired(license, nowMs)) return false;
+  return isActive(license, nowMs) && !!license.tier;
 }
 
 /**
  * Max MIDI devices for RigWork.
  * Returns null (unlimited) for Pro, 2 for free.
+ * @param {object|null} license
+ * @param {number} [nowMs] - injectable clock for testing
  */
-export function midiDeviceCap(license) {
-  return isPro(license) ? null : 2;
+export function midiDeviceCap(license, nowMs = Date.now()) {
+  return isPro(license, nowMs) ? null : 2;
 }
 
 /**
  * Max cloud songs for Riffwork.
  * Returns null (unlimited) for Pro, 5 for free.
+ * @param {object|null} license
+ * @param {number} [nowMs] - injectable clock for testing
  */
-export function cloudSongCap(license) {
-  return isPro(license) ? null : 5;
+export function cloudSongCap(license, nowMs = Date.now()) {
+  return isPro(license, nowMs) ? null : 5;
 }
 
 /** True if the license is in the trial period (not yet converted to a paid sub). */
@@ -70,9 +90,10 @@ export function isPerpetual(license) {
  * Useful when a caller holds multiple licenses (one per product).
  * @param {object|null} license
  * @param {string} product - from PRODUCTS
+ * @param {number} [nowMs] - injectable clock for testing
  */
-export function isProFor(license, product) {
-  return isPro(license) && license.product === product;
+export function isProFor(license, product, nowMs = Date.now()) {
+  return isPro(license, nowMs) && license.product === product;
 }
 
 /**
