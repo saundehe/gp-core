@@ -6,6 +6,16 @@ export const TIERS = Object.freeze({
 
 export const TRIAL_DURATION_DAYS = 14;
 
+/**
+ * Free-tier caps — the single source of truth for both the logged-out path
+ * (session.js's FREE_STATE) and the logged-in path (midiDeviceCap/cloudSongCap
+ * below). Edit a pricing change here; nothing else should hardcode 2 or 5.
+ */
+export const FREE_CAPS = Object.freeze({
+  midi:  2,
+  songs: 5,
+});
+
 export const PRODUCTS = Object.freeze({
   riffwork: 'riffwork',
   rigwork:  'rigwork',
@@ -62,7 +72,7 @@ export function isPro(license, nowMs = Date.now()) {
  * @param {number} [nowMs] - injectable clock for testing
  */
 export function midiDeviceCap(license, nowMs = Date.now()) {
-  return isPro(license, nowMs) ? null : 2;
+  return isPro(license, nowMs) ? null : FREE_CAPS.midi;
 }
 
 /**
@@ -72,7 +82,7 @@ export function midiDeviceCap(license, nowMs = Date.now()) {
  * @param {number} [nowMs] - injectable clock for testing
  */
 export function cloudSongCap(license, nowMs = Date.now()) {
-  return isPro(license, nowMs) ? null : 5;
+  return isPro(license, nowMs) ? null : FREE_CAPS.songs;
 }
 
 /** True if the license is in the trial period (not yet converted to a paid sub). */

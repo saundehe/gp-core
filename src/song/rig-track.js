@@ -1,3 +1,5 @@
+import { encodeB64url, decodeB64url } from '../codec.js';
+
 export function createRigAutomation({
   cc,
   value,
@@ -115,14 +117,10 @@ export function removeCue(track, bar) {
 
 /**
  * Encode a rig track (sorted cue array) to a base64url string.
- * Same encoding as @gp/part's encodePart — JSON → UTF-8 → base64url.
+ * Same encoding as @gp/part's encodePart — JSON → UTF-8 → base64url (see ../codec.js).
  */
 export function encodeRigTrack(cues) {
-  const json   = JSON.stringify(cues);
-  const bytes  = new TextEncoder().encode(json);
-  let binary   = '';
-  for (const b of bytes) binary += String.fromCharCode(b);
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  return encodeB64url(cues);
 }
 
 /**
@@ -131,11 +129,7 @@ export function encodeRigTrack(cues) {
  */
 export function decodeRigTrack(str) {
   try {
-    const b64    = str.replace(/-/g, '+').replace(/_/g, '/');
-    const binary = atob(b64);
-    const bytes  = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    return createRigTrack(JSON.parse(new TextDecoder().decode(bytes)));
+    return createRigTrack(decodeB64url(str));
   } catch {
     return [];
   }

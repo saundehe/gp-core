@@ -1,5 +1,6 @@
-import { createSong } from './song.js';
-import { createSetlist } from './setlist.js';
+import { createSong, normalizeSong } from './song.js';
+import { createSetlist, normalizeSetlist } from './setlist.js';
+import { encodeB64url, decodeB64url } from '../codec.js';
 
 /**
  * Show File v1 — the setlist spine artifact. See docs/SHOWFILE_SPEC.md.
@@ -117,7 +118,17 @@ export function createShowFileSongEntry({
 
 export function normalizeShowFileSongEntry(raw) {
   if (!raw) return null;
-  if (raw._v === 1) return raw;
+  if (raw._v === 1) {
+    // Fresh shallow copy, and still walk the nested song/rw/sections through
+    // their own normalizers — a decoded/hand-edited entry can carry a
+    // top-level _v:1 while its nested fields are stale or legacy-shaped.
+    return {
+      ...raw,
+      song:     raw.song ? normalizeSong(raw.song) : createSong(),
+      rw:       raw.rw   ? normalizeShowFileRw(raw.rw) : createShowFileRw(),
+      sections: (raw.sections || []).map(s => normalizeShowFileSection(s) ?? createShowFileSection()),
+    };
+  }
   return createShowFileSongEntry({
     song:     raw.song     ?? null,
     rw:       raw.rw       ?? null,
@@ -126,10 +137,25 @@ export function normalizeShowFileSongEntry(raw) {
   });
 }
 
+// Used by createShowFile: builds fresh entries for raw (non-_v) input, and
+// preserves already-normalized entries as-is (createShowFile is a "create",
+// not a "normalize", call — see normalizeShowFileSongsMapDeep below for the
+// re-normalize case, which additionally walks already-_v:1 entries).
 function normalizeShowFileSongsMap(songs) {
   const out = {};
   for (const [songId, entry] of Object.entries(songs || {})) {
     out[songId] = (entry && entry._v === 1) ? entry : createShowFileSongEntry(entry);
+  }
+  return out;
+}
+
+// Used by normalizeShowFile's _v:1 fast path: every entry — even one already
+// carrying _v:1 — is routed through normalizeShowFileSongEntry, which copies
+// and walks its nested song/rw/sections rather than trusting them as-is.
+function normalizeShowFileSongsMapDeep(songs) {
+  const out = {};
+  for (const [songId, entry] of Object.entries(songs || {})) {
+    out[songId] = normalizeShowFileSongEntry(entry) ?? createShowFileSongEntry();
   }
   return out;
 }
@@ -167,7 +193,17 @@ export function createShowFile({
 
 export function normalizeShowFile(raw) {
   if (!raw) return null;
-  if (raw._v === 1) return raw;
+  if (raw._v === 1) {
+    // Fresh shallow copy, and still walk the setlist + songs map through their
+    // own normalizers — a decoded payload (decodeShowFile accepts arbitrary
+    // base64 from a URL hash) carrying a top-level _v:1 must not bypass
+    // nested normalization, and must not hand back the caller's own object.
+    return {
+      ...raw,
+      setlist: raw.setlist ? normalizeSetlist(raw.setlist) : createSetlist(),
+      songs:   normalizeShowFileSongsMapDeep(raw.songs),
+    };
+  }
   return createShowFile({
     id:      raw.id      ?? '',
     name:    raw.name    ?? '',
@@ -184,13 +220,10 @@ export function normalizeShowFile(raw) {
 
 /**
  * Encode a Show File to a base64url string, suitable for a `#show=` hash link.
+ * Encoding itself lives in ../codec.js — shared with @gp/part and encodeRigTrack.
  */
 export function encodeShowFile(showFile) {
-  const json   = JSON.stringify(showFile);
-  const bytes  = new TextEncoder().encode(json);
-  let binary   = '';
-  for (const b of bytes) binary += String.fromCharCode(b);
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  return encodeB64url(showFile);
 }
 
 /**
@@ -200,11 +233,7 @@ export function encodeShowFile(showFile) {
  */
 export function decodeShowFile(str) {
   try {
-    const b64    = str.replace(/-/g, '+').replace(/_/g, '/');
-    const binary = atob(b64);
-    const bytes  = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    return normalizeShowFile(JSON.parse(new TextDecoder().decode(bytes)));
+    return normalizeShowFile(decodeB64url(str));
   } catch {
     return null;
   }

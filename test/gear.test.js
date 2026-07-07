@@ -66,6 +66,21 @@ test('normalizeGearItem is idempotent', () => {
   assert.equal(again._v, 1); // already has _v, untouched
 });
 
+test('normalizeGearItem backfills createGearItem invariants even when _v is already present', () => {
+  // A legacy / hand-synced item can carry _v:1 without ever passing through
+  // createGearItem — boardIds/customParams/presets/boardId must still land as arrays,
+  // otherwise consumer code doing item.presets.map / item.boardIds.includes crashes.
+  const legacy = { id: 'x', name: 'Hand-synced Pedal', _v: 1 };
+  const normalized = normalizeGearItem(legacy);
+  assert.equal(normalized._v, 1);
+  assert.deepEqual(normalized.boardIds, []);
+  assert.deepEqual(normalized.customParams, []);
+  assert.deepEqual(normalized.presets, []);
+  assert.equal(normalized.boardId, null);
+  assert.doesNotThrow(() => normalized.presets.map((p) => p));
+  assert.doesNotThrow(() => normalized.boardIds.includes('board-1'));
+});
+
 test('normalizeBoard normalizes nested devices', () => {
   const legacy = { id: 'b1', name: 'My Rig', devices: [{ id: 'd1', name: 'DS-1' }] };
   const board = normalizeBoard(legacy);

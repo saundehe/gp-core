@@ -1,6 +1,6 @@
 import { createUser } from './schema.js';
 import {
-  STATUS,
+  STATUS, FREE_CAPS,
   isPro, isTrialing, midiDeviceCap, cloudSongCap,
   trialDaysRemaining, getTierLabel,
 } from './license.js';
@@ -8,6 +8,8 @@ import {
 /**
  * Account state for a logged-out or unlicensed user.
  * Products copy this via spread — the object itself is frozen.
+ * midiCap/songCap read from FREE_CAPS (license.js) — the single source of
+ * truth shared with midiDeviceCap/cloudSongCap's own free-tier fallback.
  */
 export const FREE_STATE = Object.freeze({
   user:      null,
@@ -16,8 +18,8 @@ export const FREE_STATE = Object.freeze({
   isTrial:   false,
   daysLeft:  null,
   tierLabel: 'Free',
-  midiCap:   2,
-  songCap:   5,
+  midiCap:   FREE_CAPS.midi,
+  songCap:   FREE_CAPS.songs,
 });
 
 /**

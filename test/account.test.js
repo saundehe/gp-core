@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  TIERS, PRODUCTS, STATUS, TRIAL_DURATION_DAYS,
+  TIERS, PRODUCTS, STATUS, TRIAL_DURATION_DAYS, FREE_CAPS,
   isActive, isPro, isTrialing, isPerpetual, isProFor,
   midiDeviceCap, cloudSongCap, trialDaysRemaining, isExpired,
   isVersionLocked, ownsVersion, getTierLabel,
@@ -286,6 +286,14 @@ test('FREE_STATE shape', () => {
 
 test('FREE_STATE is frozen', () => {
   assert.throws(() => { FREE_STATE.isPro = true; }, TypeError);
+});
+
+test('FREE_STATE caps match FREE_CAPS - single source of truth for free-tier limits', () => {
+  assert.equal(FREE_STATE.midiCap, FREE_CAPS.midi);
+  assert.equal(FREE_STATE.songCap, FREE_CAPS.songs);
+  // and the logged-in free path (midiDeviceCap/cloudSongCap with no license) agrees too
+  assert.equal(midiDeviceCap(null), FREE_CAPS.midi);
+  assert.equal(cloudSongCap(null),  FREE_CAPS.songs);
 });
 
 // ── sessionToLicense ──────────────────────────────────────────────────────────

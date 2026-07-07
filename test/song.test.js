@@ -54,9 +54,14 @@ test('createSong preserves unknown fields', () => {
   assert.equal(s.tuning, 'drop_d');
 });
 
-test('normalizeSong - already _v:1 passes through', () => {
+test('normalizeSong - already _v:1 returns a fresh copy with the same values', () => {
+  // Fix: normalizeSong used to return the caller's own reference on the _v:1
+  // fast path (unlike normalizeLicense/normalizePart, which copy). It now
+  // matches their copy semantics — same values, different object.
   const s = createSong({ title: 'Doom' });
-  assert.strictEqual(normalizeSong(s), s);
+  const n = normalizeSong(s);
+  assert.notStrictEqual(n, s);
+  assert.deepEqual(n, s);
 });
 
 test('normalizeSong - null returns null', () => {
@@ -695,9 +700,33 @@ test('createShowFileSongEntry preserves already-normalized song/rw/sections', ()
   assert.strictEqual(entry.sections[0], section);
 });
 
-test('normalizeShowFileSongEntry - already _v:1 passes through', () => {
-  const entry = createShowFileSongEntry();
-  assert.strictEqual(normalizeShowFileSongEntry(entry), entry);
+test('normalizeShowFileSongEntry - already _v:1 returns a fresh copy with nested fields normalized', () => {
+  // Fix: used to return the same reference and skip nested normalization on
+  // the _v:1 fast path. Now copies the top-level object and still walks
+  // song/rw/sections through their own normalizers.
+  const entry = createShowFileSongEntry({ song: createSong({ title: 'Doom Riff' }) });
+  const n = normalizeShowFileSongEntry(entry);
+  assert.notStrictEqual(n, entry);
+  assert.equal(n._v, 1);
+  assert.equal(n.song.title, 'Doom Riff');
+});
+
+test('normalizeShowFileSongEntry - _v:1 top level with legacy-shaped nested song still normalizes it', () => {
+  // A decoded/hand-edited entry can carry a top-level _v:1 while its nested
+  // song/rw/sections are stale or legacy-shaped (no _v). The fast path must
+  // not trust those nested fields as-is.
+  const raw = {
+    _v: 1,
+    song: { title: 'Legacy Song', key: 'D' }, // no _v
+    rw: null,
+    sections: [{ name: 'Verse', rw_bar: 5 }], // no _v
+  };
+  const n = normalizeShowFileSongEntry(raw);
+  assert.equal(n.song._v, 1);
+  assert.equal(n.song.title, 'Legacy Song');
+  assert.equal(n.rw._v, 1);
+  assert.equal(n.sections[0]._v, 1);
+  assert.equal(n.sections[0].rw_bar, 5);
 });
 
 test('normalizeShowFileSongEntry - null returns null', () => {
@@ -767,9 +796,41 @@ test('createShowFile preserves unknown fields', () => {
   assert.equal(sf.venue, 'The Smell');
 });
 
-test('normalizeShowFile - already _v:1 passes through', () => {
+test('normalizeShowFile - already _v:1 returns a fresh copy, not the caller\'s reference', () => {
+  // Fix: normalizeShowFile used to return the same object reference on the
+  // _v:1 fast path (unlike normalizeLicense/normalizePart, which copy) and
+  // skip nested normalization entirely.
   const sf = createShowFile({ name: 'Encore' });
-  assert.strictEqual(normalizeShowFile(sf), sf);
+  const n = normalizeShowFile(sf);
+  assert.notStrictEqual(n, sf);
+  assert.equal(n._v, 1);
+  assert.equal(n.name, 'Encore');
+});
+
+test('normalizeShowFile - _v:1 top level still normalizes legacy-shaped nested songs', () => {
+  // A decoded payload (decodeShowFile accepts arbitrary base64 from a URL hash)
+  // can carry a top-level _v:1 while its songs map entries are legacy-shaped.
+  // The fast path must still walk and normalize them, and must return a
+  // different top-level object than the input.
+  const raw = {
+    _v: 1,
+    id: 'sf-legacy',
+    name: 'Hand-Edited Show',
+    date: null,
+    notes: '',
+    setlist: { name: 'Main Set', entries: [{ song_id: 'z', song_title: 'Closer' }] }, // no _v
+    songs: {
+      z: { song: { title: 'Closer' } }, // no _v anywhere
+    },
+  };
+  const n = normalizeShowFile(raw);
+  assert.notStrictEqual(n, raw);
+  assert.notStrictEqual(n.songs, raw.songs);
+  assert.equal(n.songs.z._v, 1);
+  assert.equal(n.songs.z.song._v, 1);
+  assert.equal(n.songs.z.song.title, 'Closer');
+  assert.equal(n.setlist._v, 1);
+  assert.equal(n.setlist.entries[0].song_title, 'Closer');
 });
 
 test('normalizeShowFile - null returns null', () => {

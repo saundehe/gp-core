@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "build": "node scripts/build.js",
-    "test": "node --test test/gear.test.js test/account.test.js test/part.test.js test/theory.test.js test/song.test.js test/clockwork.test.js"
+    "test": "node --test test/gear.test.js test/account.test.js test/part.test.js test/theory.test.js test/song.test.js test/clockwork.test.js test/codec.test.js"
   },
   "devDependencies": {
     "esbuild": "^0.24.0",

@@ -111,12 +111,24 @@ export function createBoard(props = {}) {
 }
 
 /**
- * Ensure a loaded GearItem has _v. Idempotent; does NOT increment _v.
+ * Ensure a loaded GearItem has _v AND the array/id invariants createGearItem
+ * guarantees (boardIds, boardId, customParams, presets). Idempotent; does NOT
+ * increment _v. Runs the backfill even when _v is already present — a legacy
+ * or hand-synced item can carry _v:1 without ever having passed through
+ * createGearItem, and consumers do `item.presets.map` / `item.boardIds.includes`
+ * unconditionally.
  * Consumers call this on data loaded from localStorage / Supabase before using it.
  */
 export function normalizeGearItem(item) {
-  if (!item || item._v) return item;
-  return { ...item, _v: 1 };
+  if (!item) return item;
+  return {
+    ...item,
+    _v: 1,
+    boardIds: item.boardIds || [],
+    boardId: item.boardId ?? item.boardIds?.[0] ?? null,
+    customParams: item.customParams || [],
+    presets: item.presets || [],
+  };
 }
 
 /**
