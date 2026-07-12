@@ -41,3 +41,14 @@ test('decodeB64url throws on malformed input (callers map this to their own fall
   assert.throws(() => decodeB64url('not!!valid'));
   assert.throws(() => decodeB64url(''));
 });
+
+// ── P2-6: codec is a published subpath export ─────────────────────────────────
+// riffwork and rig each hand-roll their own base64url encoder today and are
+// already drifting from this shared one (see TODO_gp_core_fable_sweep). This
+// pass only publishes "./codec" in package.json exports — it does NOT migrate
+// either consumer; that's a follow-up.
+
+test('package.json exports "./codec" pointing at src/codec.js', async () => {
+  const { default: pkg } = await import('../package.json', { with: { type: 'json' } });
+  assert.equal(pkg.exports['./codec'], './src/codec.js');
+});

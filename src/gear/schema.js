@@ -132,10 +132,17 @@ export function normalizeGearItem(item) {
 }
 
 /**
- * Ensure a loaded Board has _v. Idempotent.
+ * Ensure a loaded Board has _v AND that every device in it has been run
+ * through normalizeGearItem. Idempotent. Runs the device map even when
+ * board._v is already present (P2-2) — a hand-synced `_v:1` board can carry
+ * devices that never passed through createGearItem (no presets/boardIds
+ * arrays), and this used to skip normalization entirely on that fast path,
+ * leaving `item.presets.map` / `item.boardIds.includes` to crash downstream —
+ * the exact hole normalizeGearItem's own "backfill even when _v present" fix
+ * was for.
  */
 export function normalizeBoard(board) {
-  if (!board || board._v) return board;
+  if (!board) return board;
   return {
     ...board,
     _v: 1,

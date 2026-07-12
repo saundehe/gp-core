@@ -88,6 +88,19 @@ test('normalizeBoard normalizes nested devices', () => {
   assert.equal(board.devices[0]._v, 1);
 });
 
+test('normalizeBoard runs the device map even when board._v is already present (P2-2)', () => {
+  // Fix: used to skip normalization entirely once board._v was truthy — a
+  // hand-synced _v:1 board with array-less devices would then crash
+  // consumers doing item.presets.map / item.boardIds.includes, the exact
+  // hole normalizeGearItem's own "backfill even when _v present" fix was for.
+  const handSynced = { _v: 1, id: 'b1', name: 'My Rig', devices: [{ id: 'd1', name: 'DS-1', _v: 1 }] };
+  const board = normalizeBoard(handSynced);
+  assert.deepEqual(board.devices[0].presets, []);
+  assert.deepEqual(board.devices[0].boardIds, []);
+  assert.doesNotThrow(() => board.devices[0].presets.map(p => p));
+  assert.doesNotThrow(() => board.devices[0].boardIds.includes('x'));
+});
+
 test('starterPresets have required fields', () => {
   for (const [key, def] of Object.entries(deviceDefs)) {
     for (const sp of (def.starterPresets || [])) {
