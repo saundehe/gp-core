@@ -29,10 +29,16 @@ export function createShowFileRw({
   return { _v: 1, file, cloud_id: cloudId, ...rest };
 }
 
+/**
+ * Idempotent upgrade for a raw or already-normalized ShowFileRw.
+ * P1-6: _v >= 1 is current (never downgrades a newer row). P2-2: always
+ * returns a fresh object — no nested collections to walk here.
+ */
 export function normalizeShowFileRw(raw) {
   if (!raw) return null;
-  if (raw._v === 1) return raw;
+  if (raw._v >= 1) return { ...raw };
   return createShowFileRw({
+    ...raw,
     file:    raw.file     ?? null,
     cloudId: raw.cloud_id ?? raw.cloudId ?? null,
   });
@@ -73,10 +79,17 @@ export function createShowFileSection({
   };
 }
 
+/**
+ * Idempotent upgrade for a raw or already-normalized ShowFileSection.
+ * P1-6: _v >= 1 is current. P2-2: always returns a fresh object (scene/preset
+ * stay opaque per spec §3/§4 — this file only carries them through untouched,
+ * so there is nothing further to walk).
+ */
 export function normalizeShowFileSection(raw) {
   if (!raw) return null;
-  if (raw._v === 1) return raw;
+  if (raw._v >= 1) return { ...raw };
   return createShowFileSection({
+    ...raw,
     name:   raw.name   ?? '',
     bpm:    raw.bpm    ?? null,
     beats:  raw.beats  ?? null,
@@ -108,28 +121,40 @@ export function createShowFileSongEntry({
 } = {}) {
   return {
     _v: 1,
-    song:     song ? (song._v === 1 ? song : createSong(song)) : createSong(),
-    rw:       rw   ? (rw._v === 1   ? rw   : createShowFileRw(rw)) : createShowFileRw(),
-    sections: sections.map(s => (s && s._v === 1) ? s : createShowFileSection(s)),
+    song:     song ? (song._v >= 1 ? song : createSong(song)) : createSong(),
+    rw:       rw   ? (rw._v >= 1   ? rw   : createShowFileRw(rw)) : createShowFileRw(),
+    // P2-1: filter non-object entries (a null/corrupt slot) instead of
+    // throwing on `s._v` of null; `?? []` covers an explicit `sections: null`
+    // (the parameter default only covers `undefined`).
+    sections: (sections ?? [])
+      .filter(s => s && typeof s === 'object')
+      .map(s => s._v >= 1 ? s : createShowFileSection(s)),
     loopwork,
     ...rest,
   };
 }
 
+/**
+ * Idempotent upgrade for a raw or already-normalized ShowFileSongEntry.
+ * P1-6: _v >= 1 is current — never downgrades a newer entry. Still walks the
+ * nested song/rw/sections through their own normalizers on that fast path: a
+ * decoded/hand-edited entry can carry a top-level _v:1 while its nested
+ * fields are stale, legacy-shaped, or corrupt (P2-1/P2-2).
+ */
 export function normalizeShowFileSongEntry(raw) {
   if (!raw) return null;
-  if (raw._v === 1) {
-    // Fresh shallow copy, and still walk the nested song/rw/sections through
-    // their own normalizers — a decoded/hand-edited entry can carry a
-    // top-level _v:1 while its nested fields are stale or legacy-shaped.
+  if (raw._v >= 1) {
     return {
       ...raw,
       song:     raw.song ? normalizeSong(raw.song) : createSong(),
       rw:       raw.rw   ? normalizeShowFileRw(raw.rw) : createShowFileRw(),
-      sections: (raw.sections || []).map(s => normalizeShowFileSection(s) ?? createShowFileSection()),
+      sections: (raw.sections ?? [])
+        .filter(s => s === null || (s && typeof s === 'object'))
+        .map(s => normalizeShowFileSection(s) ?? createShowFileSection()),
     };
   }
   return createShowFileSongEntry({
+    ...raw,
     song:     raw.song     ?? null,
     rw:       raw.rw       ?? null,
     sections: raw.sections ?? [],
@@ -144,7 +169,9 @@ export function normalizeShowFileSongEntry(raw) {
 function normalizeShowFileSongsMap(songs) {
   const out = {};
   for (const [songId, entry] of Object.entries(songs || {})) {
-    out[songId] = (entry && entry._v === 1) ? entry : createShowFileSongEntry(entry);
+    // P2-1: a null/non-object entry falls back to a fresh placeholder instead
+    // of throwing inside createShowFileSongEntry's destructure.
+    out[songId] = (entry && entry._v >= 1) ? entry : createShowFileSongEntry(entry ?? {});
   }
   return out;
 }
@@ -185,19 +212,49 @@ export function createShowFile({
     name,
     date,
     notes,
-    setlist: setlist ? (setlist._v === 1 ? setlist : createSetlist(setlist)) : createSetlist(),
+    setlist: setlist ? (setlist._v >= 1 ? setlist : createSetlist(setlist)) : createSetlist(),
     songs:   normalizeShowFileSongsMap(songs),
     ...rest,
   };
 }
 
+/**
+ * Current Show File schema version. This is the ONE place in gp-core that
+ * uses the "refuse newer" forward-compat policy (P1-6, option b) rather than
+ * "treat _v >= current as current" (option a, used for every row-level type
+ * nested inside a Show File — setlist entries, sections, song entries, etc.).
+ * A Show File is a durable, portable, whole-gig artifact a user hands between
+ * machines running different gp-core versions; silently downgrading one to a
+ * lossy legacy shape (dropping unknown top-level fields, stamping _v back
+ * down) is worse than refusing to open it. Row-level types don't get their
+ * own decode entry point, so "preserve read-only" is the safer default there.
+ */
+export const SHOWFILE_VERSION = 1;
+
+/**
+ * Idempotent upgrade for a raw or already-normalized Show File.
+ *
+ * P1-6 forward-compat: refuses (returns null) any payload whose top-level
+ * `_v` is a number greater than SHOWFILE_VERSION — this code cannot safely
+ * interpret a Show File from a newer gp-core, and the old exact-match
+ * (`_v === 1`) behavior would silently route it through the LEGACY branch
+ * below, which reconstructs the object from a fixed field list and drops
+ * every field it doesn't know about (verified: a `_v:2` file with a new
+ * top-level field loses that field and gets stamped back down to `_v:1`).
+ * Use decodeShowFile's companion `describeShowFileDecodeError` if a caller
+ * needs to distinguish "newer version" from "garbage/unparseable" instead of
+ * just getting null back.
+ *
+ * P2-1/P2-2 (unchanged from before): fresh shallow copy, and still walk the
+ * setlist + songs map through their own normalizers — a decoded payload
+ * (decodeShowFile accepts arbitrary base64 from a URL hash) carrying a
+ * top-level _v:1 must not bypass nested normalization, and must not hand back
+ * the caller's own object.
+ */
 export function normalizeShowFile(raw) {
   if (!raw) return null;
-  if (raw._v === 1) {
-    // Fresh shallow copy, and still walk the setlist + songs map through their
-    // own normalizers — a decoded payload (decodeShowFile accepts arbitrary
-    // base64 from a URL hash) carrying a top-level _v:1 must not bypass
-    // nested normalization, and must not hand back the caller's own object.
+  if (typeof raw._v === 'number' && raw._v > SHOWFILE_VERSION) return null;
+  if (raw._v >= 1) {
     return {
       ...raw,
       setlist: raw.setlist ? normalizeSetlist(raw.setlist) : createSetlist(),
@@ -205,6 +262,7 @@ export function normalizeShowFile(raw) {
     };
   }
   return createShowFile({
+    ...raw,
     id:      raw.id      ?? '',
     name:    raw.name    ?? '',
     date:    raw.date    ?? null,
@@ -228,8 +286,16 @@ export function encodeShowFile(showFile) {
 
 /**
  * Decode a base64url Show File string. Returns a normalized Show File, or
- * `null` on parse failure (unlike decodeRigTrack, there is no meaningful
- * "empty" Show File to fall back to).
+ * `null` on ANY failure — parse error, malformed payload, OR a `_v` newer
+ * than this code understands (P1-6). This keeps the existing null-check
+ * contract every caller already relies on (e.g. rig's `main.js:7610`
+ * `if (!decodeShowFile(...))`) rather than returning a truthy error object
+ * that would silently pass those checks and crash later on missing fields.
+ *
+ * A caller that wants to tell "made with a newer version" apart from
+ * "corrupt/garbage" for a friendlier error message can call
+ * describeShowFileDecodeError with the same string — it's a separate, purely
+ * additive export so it never changes what decodeShowFile itself returns.
  */
 export function decodeShowFile(str) {
   try {
@@ -237,4 +303,23 @@ export function decodeShowFile(str) {
   } catch {
     return null;
   }
+}
+
+/**
+ * Pure diagnostic companion to decodeShowFile: explains WHY a string would
+ * fail to decode, without changing decodeShowFile's own null-only contract.
+ * @param {string} str
+ * @returns {null|'newer-version'|'malformed'} null means it would decode fine.
+ */
+export function describeShowFileDecodeError(str) {
+  let raw;
+  try {
+    raw = decodeB64url(str);
+  } catch {
+    return 'malformed';
+  }
+  if (raw && typeof raw === 'object' && typeof raw._v === 'number' && raw._v > SHOWFILE_VERSION) {
+    return 'newer-version';
+  }
+  return null;
 }

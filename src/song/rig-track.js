@@ -25,16 +25,42 @@ export function createRigCue({
     preset_id:   presetId,
     scene_id:    sceneId,
     device_id:   deviceId,
-    automations: automations.map(a => a._v === 1 ? a : createRigAutomation(a)),
+    automations: (automations ?? []).filter(a => a && typeof a === 'object').map(a => a._v >= 1 ? a : createRigAutomation(a)),
     note,
     ...rest,
   };
 }
 
+/**
+ * Idempotent upgrade AND backfill for a raw or already-normalized RigCue.
+ *
+ * Two fixes live here together:
+ * - P1-6 (forward-compat): treats _v >= 1 as "already current" rather than
+ *   exact-matching _v === 1, so a future-versioned cue (_v: 2+) is preserved
+ *   read-only instead of being routed into createRigCue, which would stamp
+ *   _v back down to 1 and silently destroy whatever the newer schema added.
+ * - P1-5 (backfill): even on the _v >= 1 fast path, this always returns a
+ *   fresh object with `automations` guaranteed to be an array and `bar`
+ *   guaranteed numeric — mirroring normalizeGearItem's "backfill even when _v
+ *   is already present" pattern (gear/schema.js). A hand-edited or truncated
+ *   share payload can decode to `{ _v: 1, bar: 1 }` with no `automations` key
+ *   at all; without this, interpolateRigTrack's `for (const auto of
+ *   cue.automations)` throws at show time instead of failing at decode time.
+ * @param {*} raw
+ */
 export function normalizeRigCue(raw) {
   if (!raw) return null;
-  if (raw._v === 1) return raw;
+  if (raw._v >= 1) {
+    return {
+      ...raw,
+      bar: typeof raw.bar === 'number' && !Number.isNaN(raw.bar) ? raw.bar : (Number(raw.bar) || 1),
+      automations: Array.isArray(raw.automations)
+        ? raw.automations.map(a => (a && a._v >= 1) ? a : createRigAutomation(a ?? {}))
+        : [],
+    };
+  }
   return createRigCue({
+    ...raw,
     bar:         raw.bar       ?? 1,
     presetId:    raw.preset_id ?? raw.presetId  ?? null,
     sceneId:     raw.scene_id  ?? raw.sceneId   ?? null,
@@ -44,9 +70,17 @@ export function normalizeRigCue(raw) {
   });
 }
 
+/**
+ * Build a sorted, backfilled RigTrack from raw or normalized cues.
+ * Every cue is routed through normalizeRigCue (P1-5/P1-6), and non-object
+ * entries (null, a stray string, etc.) are dropped rather than crashing the
+ * whole decode — one corrupt slot in a shared/hand-edited payload salvages
+ * the rest of the track instead of nuking it (P2-1).
+ */
 export function createRigTrack(cues = []) {
-  return cues
-    .map(c => c._v === 1 ? c : createRigCue(c))
+  return (cues ?? [])
+    .filter(c => c && typeof c === 'object')
+    .map(c => normalizeRigCue(c))
     .sort((a, b) => a.bar - b.bar);
 }
 
@@ -68,8 +102,22 @@ export function interpolateRigTrack(cues, bar) {
   for (const cue of cues) {
     if (cue.bar > bar) break;
     for (const auto of cue.automations) {
-      const key       = `${auto.device_id ?? ''}:${auto.cc}`;
-      const fromValue = settled.get(key) ?? 0;
+      const key = `${auto.device_id ?? ''}:${auto.cc}`;
+      let fromValue = settled.get(key) ?? 0;
+
+      // P1-4: ramp-onto-ramp. If this key has a ramp already in flight (not
+      // yet settled), resolve ITS interpolated value at this cue's bar first
+      // and use that as `from` — otherwise fromValue falls back to the last
+      // *settled* value (0 if none), and a new ramp starting mid-flight of an
+      // old one snaps to that stale/zero value instead of continuing smoothly
+      // (an audible pop on a live volume/mix ramp).
+      const inFlight = ramps.get(key);
+      if (inFlight) {
+        const t = clamp01((cue.bar - inFlight.startBar) / (inFlight.endBar - inFlight.startBar));
+        fromValue = Math.round(inFlight.from + (inFlight.to - inFlight.from) * t);
+        settled.set(key, fromValue);
+        ramps.delete(key);
+      }
 
       if (auto.ramp_bars === 0) {
         settled.set(key, auto.value);
@@ -93,18 +141,25 @@ export function interpolateRigTrack(cues, bar) {
   }
 
   return Array.from(result, ([key, value]) => {
-    const i        = key.indexOf(':');
+    // P2-7: split on the LAST ':' — device_id itself may legally contain ':'
+    // (e.g. a synced/hand-edited id like 'usb:port1'), and splitting on the
+    // first ':' would parse the cc back out as NaN.
+    const i        = key.lastIndexOf(':');
     const deviceId = key.slice(0, i) || null;
     const cc       = Number(key.slice(i + 1));
     return { deviceId, cc, value };
   });
 }
 
+function clamp01(t) {
+  return Math.min(1, Math.max(0, t));
+}
+
 /**
  * Insert or replace the cue at `cue.bar`. Returns a new sorted array.
  */
 export function upsertCue(track, cue) {
-  const c = cue._v === 1 ? cue : createRigCue(cue);
+  const c = normalizeRigCue(cue) ?? createRigCue();
   return [...track.filter(x => x.bar !== c.bar), c].sort((a, b) => a.bar - b.bar);
 }
 

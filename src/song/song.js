@@ -39,9 +39,11 @@ export function createSong({
 
 export function normalizeSong(raw) {
   if (!raw) return null;
-  if (raw._v === 1) {
+  if (raw._v >= 1) {
     // Fresh shallow copy on the fast path too, matching normalizeLicense/normalizePart's
     // copy semantics — callers must not get back their own mutable reference.
+    // P1-6: _v >= 1 (not === 1) so a future schema version is preserved
+    // read-only instead of being downgraded by createSong.
     return { ...raw };
   }
   return createSong(raw);

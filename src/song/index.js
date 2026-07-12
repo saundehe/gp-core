@@ -17,5 +17,6 @@ export {
   createShowFileSection, normalizeShowFileSection,
   createShowFileSongEntry, normalizeShowFileSongEntry,
   createShowFile, normalizeShowFile,
-  encodeShowFile, decodeShowFile,
+  encodeShowFile, decodeShowFile, describeShowFileDecodeError,
+  SHOWFILE_VERSION,
 } from './showfile.js';

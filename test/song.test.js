@@ -12,7 +12,7 @@ import {
   createShowFileSection, normalizeShowFileSection,
   createShowFileSongEntry, normalizeShowFileSongEntry,
   createShowFile, normalizeShowFile,
-  encodeShowFile, decodeShowFile,
+  encodeShowFile, decodeShowFile, describeShowFileDecodeError, SHOWFILE_VERSION,
 } from '../src/song/index.js';
 
 // ── Song ──────────────────────────────────────────────────────────────────────
@@ -128,6 +128,13 @@ test('normalizeSection - snake_case fields', () => {
   assert.equal(sec.end_bar,   12);
 });
 
+test('normalizeSection - _v greater than current is preserved, not downgraded (P1-6)', () => {
+  const futureRow = { _v: 2, name: 'Future Section', newField: 'x' };
+  const n = normalizeSection(futureRow);
+  assert.equal(n._v, 2);
+  assert.equal(n.newField, 'x');
+});
+
 // ── RigAutomation ─────────────────────────────────────────────────────────────
 
 test('createRigAutomation defaults', () => {
@@ -182,9 +189,14 @@ test('createRigCue preserves already-normalized automations', () => {
   assert.strictEqual(c.automations[0], a);
 });
 
-test('normalizeRigCue - already _v:1 passes through', () => {
+test('normalizeRigCue - already _v:1 returns a fresh, value-equal copy (P2-2/P1-5)', () => {
+  // Fix: used to return the caller's own reference. Now always backfills
+  // (mirrors normalizeGearItem) and returns a fresh object, matching
+  // normalizeLicense/normalizePart's copy semantics.
   const c = createRigCue({ bar: 3 });
-  assert.strictEqual(normalizeRigCue(c), c);
+  const n = normalizeRigCue(c);
+  assert.notStrictEqual(n, c);
+  assert.deepEqual(n, c);
 });
 
 test('normalizeRigCue - null returns null', () => {
@@ -212,10 +224,14 @@ test('createRigTrack returns sorted cues', () => {
   assert.equal(track[2].bar, 17);
 });
 
-test('createRigTrack passes through already-normalized cues', () => {
+test('createRigTrack returns value-equal (backfilled) cues for already-normalized input', () => {
+  // Fix (P1-5/P2-2): createRigTrack now routes every cue through the
+  // backfilling normalizeRigCue, so it no longer hands back the caller's own
+  // cue reference even when it was already _v:1.
   const c = createRigCue({ bar: 1 });
   const track = createRigTrack([c]);
-  assert.strictEqual(track[0], c);
+  assert.notStrictEqual(track[0], c);
+  assert.deepEqual(track[0], c);
 });
 
 test('createRigTrack empty input', () => {
@@ -381,6 +397,91 @@ test('decodeRigTrack - returns [] on garbage input', () => {
   assert.deepEqual(decodeRigTrack('not-valid-base64!!!'), []);
 });
 
+// ── P1-5: backfilling normalizer, decode-time salvage instead of a show-time crash ──
+
+test('decodeRigTrack - truncated cue missing automations decodes AND interpolates without crashing (P1-5)', () => {
+  const encoded = encodeRigTrack([{ _v: 1, bar: 1 }]); // no `automations` key at all
+  const decoded = decodeRigTrack(encoded);
+  assert.equal(decoded.length, 1);
+  assert.deepEqual(decoded[0].automations, []);
+  assert.doesNotThrow(() => interpolateRigTrack(decoded, 2));
+  assert.deepEqual(interpolateRigTrack(decoded, 2), []);
+});
+
+test('normalizeRigCue - backfills automations array and numeric bar even when _v is already present (P1-5)', () => {
+  const n = normalizeRigCue({ _v: 1, bar: '3' });
+  assert.equal(n.bar, 3);
+  assert.deepEqual(n.automations, []);
+});
+
+test('normalizeRigCue - _v greater than current is preserved read-only, not downgraded (P1-6)', () => {
+  const futureRow = { _v: 2, bar: 5, newField: 'from the future', automations: [] };
+  const n = normalizeRigCue(futureRow);
+  assert.equal(n._v, 2, 'never stamp _v downward');
+  assert.equal(n.newField, 'from the future', 'preserve-unknown via rest spread');
+});
+
+// ── P2-1: salvage decode — one corrupt cue doesn't nuke the whole track ───────
+
+test('createRigTrack - drops a null/non-object cue entry and keeps the rest', () => {
+  const track = createRigTrack([null, { bar: 9, preset_id: 'chorus' }, 'garbage']);
+  assert.equal(track.length, 1);
+  assert.equal(track[0].preset_id, 'chorus');
+});
+
+test('createRigTrack - null cues array does not throw (explicit null bypasses the default param)', () => {
+  assert.deepEqual(createRigTrack(null), []);
+});
+
+// ── P2-7: key round-trip survives a device_id containing ':' ─────────────────
+
+test('interpolateRigTrack - device_id containing \':\' round-trips correctly (P2-7)', () => {
+  const track = createRigTrack([
+    createRigCue({ bar: 1, automations: [createRigAutomation({ cc: 64, value: 100, deviceId: 'usb:port1' })] }),
+  ]);
+  const state = interpolateRigTrack(track, 1);
+  assert.equal(state.length, 1);
+  assert.equal(state[0].deviceId, 'usb:port1');
+  assert.equal(state[0].cc, 64);
+  assert.ok(!Number.isNaN(state[0].cc));
+});
+
+// ── P1-4: ramp-onto-ramp resolves the in-flight ramp's value, no snap-to-0 pop ──
+
+test('interpolateRigTrack - ramp-onto-ramp continues smoothly instead of snapping to 0 (P1-4)', () => {
+  // cue@bar1 ramps CC7 0 -> 100 over 8 bars (ends bar 9)
+  // cue@bar5 ramps CC7 -> 20 over 4 bars (also ends bar 9), starting mid-flight
+  // of the first ramp.
+  const track = createRigTrack([
+    createRigCue({ bar: 1, automations: [createRigAutomation({ cc: 7, value: 100, rampBars: 8 })] }),
+    createRigCue({ bar: 5, automations: [createRigAutomation({ cc: 7, value: 20,  rampBars: 4 })] }),
+  ]);
+  const at = (bar) => interpolateRigTrack(track, bar).find(e => e.cc === 7).value;
+
+  // Just before the second cue fires: still riding the first ramp, ~49.
+  assert.equal(at(4.9), 49);
+  // At the second cue's bar: continues from the first ramp's value there (50)
+  // instead of the old bug's snap to 0 (fromValue defaulted to `settled` which
+  // was never populated for an in-flight ramp).
+  assert.equal(at(5.0), 50);
+  assert.notEqual(at(5.0), 0, 'must not snap to 0 — that was the audible pop bug');
+  // Midway through the second ramp (bar 7 of 5..9): from 50 toward 20.
+  assert.equal(at(7), 35);
+  // Second ramp's target reached at its end bar.
+  assert.equal(at(9), 20);
+});
+
+test('interpolateRigTrack - ramp-onto-ramp on different keys is unaffected (no cross-talk)', () => {
+  const track = createRigTrack([
+    createRigCue({ bar: 1, automations: [createRigAutomation({ cc: 7, value: 100, rampBars: 8 })] }),
+    createRigCue({ bar: 5, automations: [createRigAutomation({ cc: 11, value: 20, rampBars: 4 })] }),
+  ]);
+  const state = interpolateRigTrack(track, 5);
+  const byCC = Object.fromEntries(state.map(e => [e.cc, e.value]));
+  assert.equal(byCC[11], 0); // t=0 at the new ramp's own start bar -> from(0) + (20-0)*0 = 0
+  assert.ok(byCC[7] > 0 && byCC[7] < 100);
+});
+
 // ── createSong with clock_track ───────────────────────────────────────────────
 
 test('createSong accepts clockTrack and stores as clock_track', () => {
@@ -447,9 +548,18 @@ test('createSetlistEntry preserves unknown fields', () => {
   assert.equal(e.color, '#e8a020');
 });
 
-test('normalizeSetlistEntry - already _v:1 passes through', () => {
+test('normalizeSetlistEntry - already _v:1 returns a fresh, value-equal copy (P2-2)', () => {
   const e = createSetlistEntry({ songId: 'x' });
-  assert.strictEqual(normalizeSetlistEntry(e), e);
+  const n = normalizeSetlistEntry(e);
+  assert.notStrictEqual(n, e);
+  assert.deepEqual(n, e);
+});
+
+test('normalizeSetlistEntry - _v greater than current is preserved, not downgraded (P1-6)', () => {
+  const futureRow = { _v: 2, song_id: 'x', newField: 'from the future' };
+  const n = normalizeSetlistEntry(futureRow);
+  assert.equal(n._v, 2);
+  assert.equal(n.newField, 'from the future');
 });
 
 test('normalizeSetlistEntry - null returns null', () => {
@@ -502,9 +612,38 @@ test('createSetlist preserves unknown fields', () => {
   assert.equal(sl.venue, 'The Smell');
 });
 
-test('normalizeSetlist - already _v:1 passes through', () => {
+test('normalizeSetlist - already _v:1 returns a fresh, value-equal copy (P2-2)', () => {
   const sl = createSetlist({ name: 'Encore' });
-  assert.strictEqual(normalizeSetlist(sl), sl);
+  const n = normalizeSetlist(sl);
+  assert.notStrictEqual(n, sl);
+  assert.deepEqual(n, sl);
+});
+
+test('normalizeSetlist - _v:1 top level still normalizes legacy-shaped nested entries (P2-2)', () => {
+  const raw = { _v: 1, name: 'Hand-edited', entries: [{ song_id: 'z', song_title: 'Closer' }] };
+  const n = normalizeSetlist(raw);
+  assert.notStrictEqual(n, raw);
+  assert.equal(n.entries[0]._v, 1);
+  assert.equal(n.entries[0].song_title, 'Closer');
+});
+
+test('normalizeSetlist - _v greater than current is preserved, not downgraded (P1-6)', () => {
+  const futureRow = { _v: 2, name: 'Future Show', entries: [], newField: 'x' };
+  const n = normalizeSetlist(futureRow);
+  assert.equal(n._v, 2);
+  assert.equal(n.newField, 'x');
+});
+
+// ── P2-1: salvage decode — a null setlist entry doesn't nuke the whole setlist ──
+
+test('createSetlist - drops a null entry and keeps the rest', () => {
+  const sl = createSetlist({ entries: [null, { songId: 'ok', songTitle: 'Survives' }] });
+  assert.equal(sl.entries.length, 1);
+  assert.equal(sl.entries[0].song_title, 'Survives');
+});
+
+test('createSetlist - explicit null entries array does not throw', () => {
+  assert.deepEqual(createSetlist({ entries: null }).entries, []);
 });
 
 test('normalizeSetlist - null returns null', () => {
@@ -587,9 +726,18 @@ test('createShowFileRw preserves unknown fields', () => {
   assert.equal(rw.pinned, true);
 });
 
-test('normalizeShowFileRw - already _v:1 passes through', () => {
+test('normalizeShowFileRw - already _v:1 returns a fresh, value-equal copy (P2-2)', () => {
   const rw = createShowFileRw({ file: 'X' });
-  assert.strictEqual(normalizeShowFileRw(rw), rw);
+  const n = normalizeShowFileRw(rw);
+  assert.notStrictEqual(n, rw);
+  assert.deepEqual(n, rw);
+});
+
+test('normalizeShowFileRw - _v greater than current is preserved, not downgraded (P1-6)', () => {
+  const futureRow = { _v: 2, file: 'X', newField: 'x' };
+  const n = normalizeShowFileRw(futureRow);
+  assert.equal(n._v, 2);
+  assert.equal(n.newField, 'x');
 });
 
 test('normalizeShowFileRw - null returns null', () => {
@@ -642,9 +790,18 @@ test('createShowFileSection preserves unknown fields', () => {
   assert.equal(sec.color, '#f00');
 });
 
-test('normalizeShowFileSection - already _v:1 passes through', () => {
+test('normalizeShowFileSection - already _v:1 returns a fresh, value-equal copy (P2-2)', () => {
   const sec = createShowFileSection({ name: 'Intro' });
-  assert.strictEqual(normalizeShowFileSection(sec), sec);
+  const n = normalizeShowFileSection(sec);
+  assert.notStrictEqual(n, sec);
+  assert.deepEqual(n, sec);
+});
+
+test('normalizeShowFileSection - _v greater than current is preserved, not downgraded (P1-6)', () => {
+  const futureRow = { _v: 2, name: 'Future Section', newField: 'x' };
+  const n = normalizeShowFileSection(futureRow);
+  assert.equal(n._v, 2);
+  assert.equal(n.newField, 'x');
 });
 
 test('normalizeShowFileSection - null returns null', () => {
@@ -938,4 +1095,91 @@ test('encodeShowFile + decodeShowFile round-trip - zero rig data show still deco
 
 test('decodeShowFile - returns null on garbage input', () => {
   assert.equal(decodeShowFile('not-valid-base64!!!'), null);
+});
+
+// ── P1-6: forward-compat — refuse a Show File newer than this code understands ──
+
+test('normalizeShowFile - refuses (returns null) a _v greater than SHOWFILE_VERSION', () => {
+  const v2File = { _v: SHOWFILE_VERSION + 1, name: 'From the future', newV2Field: 'must not be dropped silently' };
+  assert.equal(normalizeShowFile(v2File), null);
+});
+
+test('decodeShowFile - a v2-into-v1 payload decodes to null, not a downgraded/lossy object', () => {
+  // Before the fix: a _v:2 Show File fell through the exact-match (_v===1)
+  // check into the LEGACY branch, which reconstructed the object from a fixed
+  // field list — dropping `newV2Field` entirely and stamping _v back down to
+  // 1. That is silent data destruction on the "one artifact = whole gig"
+  // durability promise. Now it's refused outright instead.
+  const v2Payload = {
+    _v: SHOWFILE_VERSION + 1,
+    id: 'sf-future', name: 'Future Show', date: null, notes: '',
+    newV2Field: 'must not be dropped silently',
+    setlist: { _v: 2, id: 'sl-1', name: 'Main Set', entries: [] },
+    songs: {},
+  };
+  const encoded = encodeShowFile(v2Payload);
+  const decoded = decodeShowFile(encoded);
+  assert.equal(decoded, null);
+});
+
+test('describeShowFileDecodeError - distinguishes newer-version from malformed from decodable', () => {
+  const v2Payload = encodeShowFile({ _v: SHOWFILE_VERSION + 1, name: 'Future', setlist: null, songs: {} });
+  assert.equal(describeShowFileDecodeError(v2Payload), 'newer-version');
+  assert.equal(describeShowFileDecodeError('not-valid-base64!!!'), 'malformed');
+  const v1Payload = encodeShowFile(createShowFile({ name: 'Current' }));
+  assert.equal(describeShowFileDecodeError(v1Payload), null);
+});
+
+test('normalizeShowFile - _v exactly current still decodes normally (not refused)', () => {
+  const sf = createShowFile({ name: 'Current Version' });
+  const n = normalizeShowFile(sf);
+  assert.notEqual(n, null);
+  assert.equal(n.name, 'Current Version');
+});
+
+test('normalizeShowFile - legacy object (no _v) still upgrades cleanly, not refused', () => {
+  const n = normalizeShowFile({ name: 'Old Show' });
+  assert.notEqual(n, null);
+  assert.equal(n._v, 1);
+});
+
+test('normalizeShowFile - legacy fallback preserves unknown top-level fields via rest spread (P1-6)', () => {
+  // The legacy (no-_v) branch is only reached by genuinely versionless data
+  // now that _v > current is refused earlier. It must still forward unknown
+  // fields into createShowFile's ...rest rather than reconstructing from a
+  // fixed field list.
+  const raw = { name: 'Old Show', venue: 'The Smell' };
+  const n = normalizeShowFile(raw);
+  assert.equal(n.venue, 'The Smell');
+});
+
+// ── P2-1: salvage decode — one corrupt entry doesn't nuke the whole show ──────
+
+test('normalizeShowFile - a null setlist entry salvages instead of returning null for the whole show', () => {
+  const raw = { _v: 1, setlist: { entries: [null, { song_id: 'ok', song_title: 'Survives' }] }, songs: {} };
+  const decoded = normalizeShowFile(raw);
+  assert.notEqual(decoded, null);
+  assert.equal(decoded.setlist.entries.length, 1);
+  assert.equal(decoded.setlist.entries[0].song_title, 'Survives');
+});
+
+test('encodeShowFile + decodeShowFile round-trip - a null setlist entry salvages the rest', () => {
+  const raw = { setlist: { entries: [null, { song_id: 'ok', song_title: 'Survives' }] }, songs: {} };
+  const decoded = decodeShowFile(encodeShowFile(raw));
+  assert.notEqual(decoded, null);
+  assert.equal(decoded.setlist.entries.length, 1);
+});
+
+test('createShowFileSongEntry - null sections entry and explicit null sections do not throw (P2-1)', () => {
+  assert.doesNotThrow(() => createShowFileSongEntry({ sections: null }));
+  assert.deepEqual(createShowFileSongEntry({ sections: null }).sections, []);
+  const entry = createShowFileSongEntry({ sections: [null, { name: 'Verse' }] });
+  assert.equal(entry.sections.length, 1);
+  assert.equal(entry.sections[0].name, 'Verse');
+});
+
+test('createSetlist - explicit null entries in createShowFile songs map does not throw (P2-1)', () => {
+  assert.doesNotThrow(() => createShowFile({ songs: { a: null } }));
+  const sf = createShowFile({ songs: { a: null } });
+  assert.equal(sf.songs.a._v, 1);
 });

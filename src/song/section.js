@@ -28,10 +28,16 @@ export function createSection({
   };
 }
 
+/**
+ * Idempotent upgrade for a raw or already-normalized Section.
+ * P1-6: _v >= 1 (not === 1) is current — a future schema version passes
+ * through unmodified instead of being downgraded to _v:1 by createSection.
+ */
 export function normalizeSection(raw) {
   if (!raw) return null;
-  if (raw._v === 1) return raw;
+  if (raw._v >= 1) return raw;
   return createSection({
+    ...raw,
     name:      raw.name      ?? '',
     kind:      raw.kind      ?? SECTION_KINDS.verse,
     startBar:  raw.start_bar ?? raw.startBar ?? 1,
