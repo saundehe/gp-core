@@ -4,6 +4,28 @@ export const TIERS = Object.freeze({
   perpetual_v1: 'perpetual_v1',
 });
 
+/**
+ * Coerce a stored timestamp field to epoch milliseconds.
+ * Handles the two shapes gp-core sees in the wild: a raw ms number (the
+ * schema's own createLicense/createTrial output) and an ISO-8601 string
+ * (Supabase `timestamptz` columns select as strings — see riffwork's
+ * `_fetchLicense`). Anything else (missing, empty string, unparseable) → null.
+ * Comparison helpers below must never compare a raw field directly; always
+ * route it through toMs first, or a lapsed sub silently reads as Pro forever
+ * (string-vs-number compare → NaN → every `<`/`>` is false).
+ * @param {*} v
+ * @returns {number|null}
+ */
+export function toMs(v) {
+  if (v == null) return null;
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+  if (typeof v === 'string') {
+    const ms = Date.parse(v);
+    return Number.isNaN(ms) ? null : ms;
+  }
+  return null;
+}
+
 export const TRIAL_DURATION_DAYS = 14;
 
 /**
@@ -41,14 +63,18 @@ export function getTierLabel(tier) {
 /**
  * True if the license row represents an active or trialing subscription.
  * A 'trialing' license whose trial window has closed is no longer active.
+ * Fails CLOSED: a trialing row with no parseable trial_ends_at (missing,
+ * null, empty string, malformed) is NOT active — a tampered/malformed row
+ * must not grant permanent Pro (see P1-2, 2026-07-11 sweep).
  * @param {object|null} license
  * @param {number} [nowMs] - injectable clock for testing
  */
 export function isActive(license, nowMs = Date.now()) {
   if (!license) return false;
   if (license.status === STATUS.trialing) {
-    // A trial is active only until its trial_ends_at timestamp passes.
-    return !license.trial_ends_at || license.trial_ends_at > nowMs;
+    const trialEndsMs = toMs(license.trial_ends_at);
+    if (trialEndsMs == null) return false;
+    return trialEndsMs > nowMs;
   }
   return license.status === STATUS.active;
 }
@@ -113,20 +139,24 @@ export function isProFor(license, product, nowMs = Date.now()) {
  * @param {number} [nowMs]
  */
 export function trialDaysRemaining(license, nowMs = Date.now()) {
-  if (!isTrialing(license) || !license.trial_ends_at) return null;
-  const ms = license.trial_ends_at - nowMs;
+  if (!isTrialing(license)) return null;
+  const trialEndsMs = toMs(license.trial_ends_at);
+  if (trialEndsMs == null) return null;
+  const ms = trialEndsMs - nowMs;
   return Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
 }
 
 /**
  * True if a subscription's current_period_end is in the past.
- * Returns false if the license has no period end (e.g. perpetual).
+ * Returns false if the license has no (parseable) period end (e.g. perpetual).
  * @param {object|null} license
  * @param {number} [nowMs]
  */
 export function isExpired(license, nowMs = Date.now()) {
-  if (!license || !license.current_period_end) return false;
-  return license.current_period_end < nowMs;
+  if (!license) return false;
+  const endMs = toMs(license.current_period_end);
+  if (endMs == null) return false;
+  return endMs < nowMs;
 }
 
 /**
@@ -135,8 +165,10 @@ export function isExpired(license, nowMs = Date.now()) {
  * auto-receive major desktop updates without paying the update fee.
  * @param {object|null} license
  * @param {number} currentMajor - current app major version (integer)
+ * @param {number} [nowMs] - injectable clock for testing; accepted for symmetry
+ *   with ownsVersion (this check itself has no clock-dependent branch today).
  */
-export function isVersionLocked(license, currentMajor) {
+export function isVersionLocked(license, currentMajor, nowMs = Date.now()) {
   if (!isPerpetual(license)) return false;
   if (!license.major_version_owned) return false;
   return license.major_version_owned < currentMajor;
@@ -144,10 +176,15 @@ export function isVersionLocked(license, currentMajor) {
 
 /**
  * True if the perpetual license covers currentMajor (owner can run this version's desktop).
+ * Threads nowMs into isActive rather than reading the wall clock directly —
+ * without this, a caller testing under an injected clock elsewhere still gets
+ * a real-time evaluation here, and a trialing-perpetual row can flip mid-render
+ * (P2-4, 2026-07-11 sweep).
  * @param {object|null} license
  * @param {number} currentMajor
+ * @param {number} [nowMs] - injectable clock for testing
  */
-export function ownsVersion(license, currentMajor) {
-  if (!isPerpetual(license) || !isActive(license)) return false;
+export function ownsVersion(license, currentMajor, nowMs = Date.now()) {
+  if (!isPerpetual(license) || !isActive(license, nowMs)) return false;
   return !!license.major_version_owned && license.major_version_owned >= currentMajor;
 }

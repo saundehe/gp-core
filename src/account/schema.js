@@ -1,4 +1,4 @@
-import { STATUS, TIERS, TRIAL_DURATION_DAYS } from './license.js';
+import { STATUS, TIERS, TRIAL_DURATION_DAYS, toMs } from './license.js';
 
 let _c = 0;
 function uid() { return (++_c).toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -37,11 +37,23 @@ export function createTrial(product, nowMs = Date.now()) {
   });
 }
 
-/** Idempotent upgrade for legacy license rows that predate _v. */
+/**
+ * Idempotent upgrade for legacy license rows that predate _v.
+ * Also coerces trial_ends_at/current_period_end to epoch ms (toMs) — the
+ * boundary fix for P1-1: a Supabase `timestamptz` selects as an ISO string,
+ * and every comparison in license.js needs a number. Coercing once here means
+ * a caller who runs rows through normalizeLicense before resolveAccountState
+ * never hits the ISO-string leak, even before the defensive toMs() calls
+ * inside isActive/isExpired/trialDaysRemaining.
+ */
 export function normalizeLicense(raw) {
   if (!raw) return null;
-  if (raw._v >= 1) return { ...raw };
-  return { _v: 1, current_period_end: null, major_version_owned: null, ...raw };
+  const base = raw._v >= 1 ? { ...raw } : { _v: 1, current_period_end: null, major_version_owned: null, ...raw };
+  return {
+    ...base,
+    trial_ends_at:      toMs(base.trial_ends_at),
+    current_period_end: toMs(base.current_period_end),
+  };
 }
 
 /**

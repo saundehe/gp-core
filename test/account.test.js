@@ -4,9 +4,10 @@ import {
   TIERS, PRODUCTS, STATUS, TRIAL_DURATION_DAYS, FREE_CAPS,
   isActive, isPro, isTrialing, isPerpetual, isProFor,
   midiDeviceCap, cloudSongCap, trialDaysRemaining, isExpired,
-  isVersionLocked, ownsVersion, getTierLabel,
+  isVersionLocked, ownsVersion, getTierLabel, toMs,
   createLicense, normalizeLicense, createUser, createTrial,
   FREE_STATE, sessionToLicense, resolveAccountState,
+  createEntitlementCache, verifyEntitlementCache,
 } from '../src/account/index.js';
 
 test('TIERS constants', () => {
@@ -36,8 +37,31 @@ test('isActive - active license', () => {
   assert.ok(isActive(createLicense({ status: STATUS.active, tier: TIERS.monthly })));
 });
 
-test('isActive - trialing license', () => {
-  assert.ok(isActive(createLicense({ status: STATUS.trialing, tier: TIERS.annual })));
+test('isActive - trialing license with a future trial_ends_at', () => {
+  const now = 1_700_000_000_000;
+  const lic = createLicense({ status: STATUS.trialing, tier: TIERS.annual, trial_ends_at: now + 1000 });
+  assert.ok(isActive(lic, now));
+});
+
+// P1-2: a trialing license with no parseable trial_ends_at must fail CLOSED,
+// not grant permanent Pro. This used to be the opposite (fails open) — a
+// trial row with trial_ends_at missing/null/'' read as active forever.
+test('isActive - trialing license with missing trial_ends_at fails closed (P1-2)', () => {
+  assert.ok(!isActive(createLicense({ status: STATUS.trialing, tier: TIERS.annual })));
+});
+
+test('isActive - trialing license with null trial_ends_at fails closed (P1-2)', () => {
+  const lic = createLicense({ status: STATUS.trialing, tier: TIERS.annual, trial_ends_at: null });
+  assert.ok(!isActive(lic));
+});
+
+test('isActive - trialing license with empty-string trial_ends_at fails closed (P1-2)', () => {
+  const lic = createLicense({ status: STATUS.trialing, tier: TIERS.annual, trial_ends_at: '' });
+  assert.ok(!isActive(lic));
+});
+
+test('isPro - trialing license with missing trial_ends_at is not Pro (P1-2, tamper-resistant)', () => {
+  assert.ok(!isPro(createLicense({ status: STATUS.trialing, tier: TIERS.monthly })));
 });
 
 test('isActive - cancelled license', () => {
@@ -507,4 +531,271 @@ test('resolveAccountState - past_due license shows payment-issue label (bug 3)',
   const state = resolveAccountState(user, [lic], PRODUCTS.rigwork, now);
   assert.equal(state.isPro,     false);
   assert.equal(state.tierLabel, 'Pro (monthly), payment issue');
+});
+
+// ── toMs (P1-1) ─────────────────────────────────────────────────────────────
+
+test('toMs - number passes through', () => {
+  assert.equal(toMs(1_700_000_000_000), 1_700_000_000_000);
+});
+
+test('toMs - ISO string parses to epoch ms', () => {
+  assert.equal(toMs('2026-01-01T00:00:00.000Z'), Date.parse('2026-01-01T00:00:00.000Z'));
+});
+
+test('toMs - null/undefined/empty-string/malformed return null', () => {
+  assert.equal(toMs(null), null);
+  assert.equal(toMs(undefined), null);
+  assert.equal(toMs(''), null);
+  assert.equal(toMs('not-a-date'), null);
+  assert.equal(toMs(NaN), null);
+});
+
+// ── ISO-string timestamps (P1-1) ──────────────────────────────────────────────
+// Supabase timestamptz columns select as ISO strings. Every gate must coerce
+// before comparing, or a lapsed sub reads as Pro forever (string vs number
+// compare -> NaN -> every < / > is false) and a valid trial reads as Free.
+
+test('isPro - ISO-string current_period_end in the past is expired, not Pro (P1-1)', () => {
+  const now = 1_700_000_000_000; // 2023-11-14
+  const lic = createLicense({
+    status: STATUS.active, tier: TIERS.monthly,
+    current_period_end: '2020-01-01T00:00:00.000Z', // well before `now`
+  });
+  assert.ok(!isPro(lic, now));
+  assert.ok(isExpired(lic, now));
+});
+
+test('isPro - ISO-string trial_ends_at in the future is a valid trial (P1-1)', () => {
+  const now = 1_700_000_000_000;
+  const future = new Date(now + 5 * 24 * 60 * 60 * 1000).toISOString();
+  const lic = createLicense({ status: STATUS.trialing, tier: TIERS.monthly, trial_ends_at: future });
+  assert.ok(isPro(lic, now));
+  assert.ok(isActive(lic, now));
+});
+
+test('trialDaysRemaining - ISO-string trial_ends_at computes correctly (P1-1)', () => {
+  const now = 1_700_000_000_000;
+  const sevenDaysOut = new Date(now + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const lic = createLicense({ status: STATUS.trialing, tier: TIERS.monthly, trial_ends_at: sevenDaysOut });
+  assert.equal(trialDaysRemaining(lic, now), 7);
+});
+
+test('normalizeLicense - coerces ISO-string timestamps to epoch ms', () => {
+  const raw = createLicense({
+    current_period_end: '2026-01-01T00:00:00.000Z',
+    trial_ends_at: '2026-08-01T00:00:00.000Z',
+  });
+  const n = normalizeLicense(raw);
+  assert.equal(n.current_period_end, Date.parse('2026-01-01T00:00:00.000Z'));
+  assert.equal(n.trial_ends_at,      Date.parse('2026-08-01T00:00:00.000Z'));
+});
+
+// ── sessionToLicense best-row selection (P1-3) ────────────────────────────────
+
+test('sessionToLicense - live trial beats a lapsed active row (P1-3)', () => {
+  const now = 1_700_000_000_000;
+  const lapsedActive = createLicense({
+    product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.monthly,
+    current_period_end: now - 24 * 60 * 60 * 1000,
+  });
+  const liveTrial = createLicense({
+    product: PRODUCTS.rigwork, status: STATUS.trialing, tier: TIERS.monthly,
+    trial_ends_at: now + 7 * 24 * 60 * 60 * 1000,
+  });
+  const result = sessionToLicense([lapsedActive, liveTrial], PRODUCTS.rigwork, now);
+  assert.equal(result.status, STATUS.trialing);
+  assert.ok(isPro(result, now));
+});
+
+test('sessionToLicense - perpetual beats a lapsed monthly (tier tiebreak, P1-3)', () => {
+  const now = 1_700_000_000_000;
+  const lapsedMonthly = createLicense({
+    product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.monthly,
+    current_period_end: now - 1000,
+  });
+  const perpetual = createLicense({
+    product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.perpetual_v1,
+  });
+  const result = sessionToLicense([lapsedMonthly, perpetual], PRODUCTS.rigwork, now);
+  assert.equal(result.tier, TIERS.perpetual_v1);
+});
+
+test('sessionToLicense - two active Pro rows: perpetual outranks annual outranks monthly', () => {
+  const now = 1_700_000_000_000;
+  const monthly   = createLicense({ product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.monthly });
+  const annual    = createLicense({ product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.annual });
+  const perpetual = createLicense({ product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.perpetual_v1 });
+  assert.equal(sessionToLicense([monthly, annual, perpetual], PRODUCTS.rigwork, now).tier, TIERS.perpetual_v1);
+  assert.equal(sessionToLicense([monthly, annual], PRODUCTS.rigwork, now).tier, TIERS.annual);
+});
+
+test('sessionToLicense - among two active-Pro same-tier rows, the later current_period_end wins', () => {
+  const now = 1_700_000_000_000;
+  const soonerEnd = createLicense({
+    product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.monthly,
+    current_period_end: now + 5 * 24 * 60 * 60 * 1000,
+  });
+  const laterEnd = createLicense({
+    product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.monthly,
+    current_period_end: now + 30 * 24 * 60 * 60 * 1000,
+  });
+  const result = sessionToLicense([soonerEnd, laterEnd], PRODUCTS.rigwork, now);
+  assert.equal(result.current_period_end, now + 30 * 24 * 60 * 60 * 1000);
+});
+
+test('sessionToLicense - coerces ISO-string timestamps on the returned row (P1-1 x P1-3)', () => {
+  const now = 1_700_000_000_000;
+  const rows = [{
+    product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.monthly,
+    current_period_end: '2026-01-01T00:00:00.000Z',
+  }];
+  const result = sessionToLicense(rows, PRODUCTS.rigwork, now);
+  assert.equal(typeof result.current_period_end, 'number');
+});
+
+test('resolveAccountState - lapsed active row does not shadow a live trial (P1-3 integration)', () => {
+  const now  = 1_700_000_000_000;
+  const user = { id: 'u1', email: 'heath@gp.com' };
+  const rows = [
+    createLicense({ product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.monthly, current_period_end: now - 1000 }),
+    createLicense({ product: PRODUCTS.rigwork, status: STATUS.trialing, tier: TIERS.monthly, trial_ends_at: now + 7 * 24 * 60 * 60 * 1000 }),
+  ];
+  const state = resolveAccountState(user, rows, PRODUCTS.rigwork, now);
+  assert.equal(state.isPro,   true);
+  assert.equal(state.isTrial, true);
+});
+
+// ── ownsVersion / isVersionLocked clock injection (P2-4) ─────────────────────
+
+test('ownsVersion - threads nowMs into isActive instead of reading the wall clock', () => {
+  const now = 1_700_000_000_000;
+  const lic = createLicense({ status: STATUS.trialing, tier: TIERS.perpetual_v1, major_version_owned: 2, trial_ends_at: now + 1000 });
+  assert.ok(ownsVersion(lic, 2, now));
+  assert.ok(!ownsVersion(lic, 2, now + 2000)); // trial window closed under the injected clock
+});
+
+test('isVersionLocked - accepts an (unused) nowMs param for symmetry with ownsVersion', () => {
+  const lic = createLicense({ status: STATUS.active, tier: TIERS.perpetual_v1, major_version_owned: 1 });
+  assert.ok(isVersionLocked(lic, 2, 1_700_000_000_000));
+  assert.ok(!isVersionLocked(lic, 1, 1_700_000_000_000));
+});
+
+// ── resolveAccountState.trialExpired (P2-5) ───────────────────────────────────
+
+test('resolveAccountState - trialExpired is false during a live trial', () => {
+  const now   = 1_700_000_000_000;
+  const user  = { id: 'u1', email: 'heath@gp.com' };
+  const trial = createTrial(PRODUCTS.rigwork, now);
+  const state = resolveAccountState(user, [trial], PRODUCTS.rigwork, now);
+  assert.equal(state.isTrial,      true);
+  assert.equal(state.trialExpired, false);
+});
+
+test('resolveAccountState - trialExpired is true once the trial window closes (P2-5)', () => {
+  const start = 1_700_000_000_000;
+  const now   = start + 20 * 24 * 60 * 60 * 1000;
+  const user  = { id: 'u1', email: 'heath@gp.com' };
+  const trial = createTrial(PRODUCTS.rigwork, start);
+  const state = resolveAccountState(user, [trial], PRODUCTS.rigwork, now);
+  assert.equal(state.isTrial,      true, 'isTrial stays status-only, unchanged semantics');
+  assert.equal(state.trialExpired, true);
+  assert.equal(state.isPro,        false);
+});
+
+test('resolveAccountState - trialExpired is false for a non-trial license', () => {
+  const now   = 1_700_000_000_000;
+  const user  = { id: 'u1', email: 'heath@gp.com' };
+  const lic   = createLicense({ product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.monthly });
+  const state = resolveAccountState(user, [lic], PRODUCTS.rigwork, now);
+  assert.equal(state.trialExpired, false);
+});
+
+test('FREE_STATE includes trialExpired: false', () => {
+  assert.equal(FREE_STATE.trialExpired, false);
+});
+
+// ── Offline entitlement cache (G1) ────────────────────────────────────────────
+
+test('createEntitlementCache - shape and clock stamping', () => {
+  const now = 1_700_000_000_000;
+  const lic = createLicense({ status: STATUS.active, tier: TIERS.monthly });
+  const cache = createEntitlementCache(lic, now);
+  assert.equal(cache._v, 1);
+  assert.equal(cache.verifiedAt, now);
+  assert.equal(cache.maxSeenClock, now);
+  assert.equal(cache.license.tier, TIERS.monthly);
+});
+
+test('createEntitlementCache - coerces ISO-string license timestamps via normalizeLicense', () => {
+  const now = 1_700_000_000_000;
+  const lic = { status: STATUS.active, tier: TIERS.monthly, current_period_end: '2026-01-01T00:00:00.000Z' };
+  const cache = createEntitlementCache(lic, now);
+  assert.equal(cache.license.current_period_end, Date.parse('2026-01-01T00:00:00.000Z'));
+});
+
+test('verifyEntitlementCache - valid within the grace window', () => {
+  const now = 1_700_000_000_000;
+  const lic = createLicense({ status: STATUS.active, tier: TIERS.monthly });
+  const cache = createEntitlementCache(lic, now);
+  const result = verifyEntitlementCache(cache, { nowMs: now + 5 * 24 * 60 * 60 * 1000, graceDays: 30 });
+  assert.equal(result.valid, true);
+  assert.equal(result.license.tier, TIERS.monthly);
+  assert.equal(result.graceRemaining, 25);
+  assert.equal(result.reason, null);
+});
+
+test('verifyEntitlementCache - fails closed on a missing/malformed cache', () => {
+  assert.equal(verifyEntitlementCache(null).valid, false);
+  assert.equal(verifyEntitlementCache(undefined).valid, false);
+  assert.equal(verifyEntitlementCache({}).valid, false);
+  assert.equal(verifyEntitlementCache({ license: {}, verifiedAt: 'nope', maxSeenClock: 1 }).valid, false);
+  assert.equal(verifyEntitlementCache(null).reason, 'malformed-cache');
+});
+
+test('verifyEntitlementCache - fails closed on clock rollback', () => {
+  const now = 1_700_000_000_000;
+  const lic = createLicense({ status: STATUS.active, tier: TIERS.monthly });
+  const cache = createEntitlementCache(lic, now);
+  const result = verifyEntitlementCache(cache, { nowMs: now - 1000, graceDays: 30 });
+  assert.equal(result.valid, false);
+  assert.equal(result.reason, 'clock-rollback');
+  assert.equal(result.license, null);
+});
+
+test('verifyEntitlementCache - grace expiry boundary: exactly graceDays out fails closed', () => {
+  const now = 1_700_000_000_000;
+  const lic = createLicense({ status: STATUS.active, tier: TIERS.monthly });
+  const cache = createEntitlementCache(lic, now);
+  const exactlyAtBoundary = now + 30 * 24 * 60 * 60 * 1000;
+  const result = verifyEntitlementCache(cache, { nowMs: exactlyAtBoundary, graceDays: 30 });
+  assert.equal(result.valid, false);
+  assert.equal(result.reason, 'grace-expired');
+  assert.equal(result.graceRemaining, 0);
+});
+
+test('verifyEntitlementCache - grace expiry boundary: 1ms before the boundary still valid', () => {
+  const now = 1_700_000_000_000;
+  const lic = createLicense({ status: STATUS.active, tier: TIERS.monthly });
+  const cache = createEntitlementCache(lic, now);
+  const justBeforeBoundary = now + 30 * 24 * 60 * 60 * 1000 - 1;
+  const result = verifyEntitlementCache(cache, { nowMs: justBeforeBoundary, graceDays: 30 });
+  assert.equal(result.valid, true);
+});
+
+test('verifyEntitlementCache - default graceDays is 30 when omitted', () => {
+  const now = 1_700_000_000_000;
+  const lic = createLicense({ status: STATUS.active, tier: TIERS.monthly });
+  const cache = createEntitlementCache(lic, now);
+  assert.equal(verifyEntitlementCache(cache, { nowMs: now + 29 * 24 * 60 * 60 * 1000 }).valid, true);
+  assert.equal(verifyEntitlementCache(cache, { nowMs: now + 31 * 24 * 60 * 60 * 1000 }).valid, false);
+});
+
+test('verifyEntitlementCache - a valid cached license feeds isPro correctly', () => {
+  const now = 1_700_000_000_000;
+  const lic = createLicense({ status: STATUS.active, tier: TIERS.perpetual_v1 });
+  const cache = createEntitlementCache(lic, now);
+  const { valid, license } = verifyEntitlementCache(cache, { nowMs: now + 100 * 24 * 60 * 60 * 1000, graceDays: 365 });
+  assert.ok(valid);
+  assert.ok(isPro(license, now + 100 * 24 * 60 * 60 * 1000));
 });
