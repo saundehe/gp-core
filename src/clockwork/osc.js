@@ -23,7 +23,7 @@ export function createOscMessage({ address = '/', args = [] } = {}) {
   return {
     _v: 1,
     address,
-    args: args.map(a => a._v === 1 ? a : createOscArg(a)),
+    args: (args ?? []).filter(a => a && typeof a === 'object').map(a => a._v >= 1 ? a : createOscArg(a)),
   };
 }
 
@@ -41,9 +41,13 @@ export function createOscTarget({
   return { _v: 1, id, host, port, label, ...rest };
 }
 
+/**
+ * Idempotent upgrade for a raw or already-normalized OscTarget.
+ * P1-6: _v >= 1 is current. P2-2: always returns a fresh object.
+ */
 export function normalizeOscTarget(raw) {
   if (!raw) return null;
-  if (raw._v === 1) return raw;
+  if (raw._v >= 1) return { ...raw };
   return createOscTarget(raw);
 }
 

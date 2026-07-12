@@ -64,9 +64,11 @@ test('createOscTarget with props', () => {
   assert.equal(t.label, 'Notch');
 });
 
-test('normalizeOscTarget - already _v:1 passes through', () => {
+test('normalizeOscTarget - already _v:1 returns a fresh, value-equal copy (P2-2)', () => {
   const t = createOscTarget({ id: 'x' });
-  assert.strictEqual(normalizeOscTarget(t), t);
+  const n = normalizeOscTarget(t);
+  assert.notStrictEqual(n, t);
+  assert.deepEqual(n, t);
 });
 
 test('normalizeOscTarget - null returns null', () => {
@@ -108,9 +110,18 @@ test('createClickTrack preserves unknown fields', () => {
   assert.equal(ct.humanize, 0.05);
 });
 
-test('normalizeClickTrack - already _v:1 passes through', () => {
+test('normalizeClickTrack - already _v:1 returns a fresh, value-equal copy (P2-2)', () => {
   const ct = createClickTrack({ tempo: 100 });
-  assert.strictEqual(normalizeClickTrack(ct), ct);
+  const n = normalizeClickTrack(ct);
+  assert.notStrictEqual(n, ct);
+  assert.deepEqual(n, ct);
+});
+
+test('normalizeClickTrack - _v greater than current is preserved, not downgraded (P1-6)', () => {
+  const futureRow = { _v: 2, tempo: 140, newField: 'x' };
+  const n = normalizeClickTrack(futureRow);
+  assert.equal(n._v, 2);
+  assert.equal(n.newField, 'x');
 });
 
 test('normalizeClickTrack - null returns null', () => {
@@ -188,9 +199,24 @@ test('createClockCue preserves already-normalized osc messages', () => {
   assert.strictEqual(c.osc_messages[0], m);
 });
 
-test('normalizeClockCue - already _v:1 passes through', () => {
+test('normalizeClockCue - already _v:1 returns a fresh, value-equal copy (P2-2/P1-5)', () => {
   const c = createClockCue({ bar: 5 });
-  assert.strictEqual(normalizeClockCue(c), c);
+  const n = normalizeClockCue(c);
+  assert.notStrictEqual(n, c);
+  assert.deepEqual(n, c);
+});
+
+test('normalizeClockCue - backfills osc_messages array and numeric bar even when _v is already present (P1-5)', () => {
+  const n = normalizeClockCue({ _v: 1, bar: '9' });
+  assert.equal(n.bar, 9);
+  assert.deepEqual(n.osc_messages, []);
+});
+
+test('normalizeClockCue - _v greater than current is preserved, not downgraded (P1-6)', () => {
+  const futureRow = { _v: 2, bar: 5, osc_messages: [], newField: 'x' };
+  const n = normalizeClockCue(futureRow);
+  assert.equal(n._v, 2);
+  assert.equal(n.newField, 'x');
 });
 
 test('normalizeClockCue - null returns null', () => {
@@ -248,6 +274,27 @@ test('removeClockCue - removes cue at bar', () => {
 test('removeClockCue - no-op when bar absent', () => {
   const track = createClockTrack([createClockCue({ bar: 1 })]);
   assert.equal(removeClockCue(track, 99).length, 1);
+});
+
+// ── P1-5: backfill prevents a truncated cue from crashing the sidecar's OSC loop ──
+
+test('createClockTrack - a cue with no osc_messages key backfills to [] instead of crashing a consumer iterating it', () => {
+  const track = createClockTrack([{ _v: 1, bar: 1 }]);
+  assert.equal(track.length, 1);
+  assert.deepEqual(track[0].osc_messages, []);
+  assert.doesNotThrow(() => { for (const m of track[0].osc_messages) { /* sidecar-style iteration */ } });
+});
+
+// ── P2-1: salvage — one corrupt cue doesn't nuke the whole ClockTrack ────────
+
+test('createClockTrack - drops a null/non-object cue entry and keeps the rest', () => {
+  const track = createClockTrack([null, { bar: 9, note: 'chorus' }, 42]);
+  assert.equal(track.length, 1);
+  assert.equal(track[0].note, 'chorus');
+});
+
+test('createClockTrack - null cues array does not throw', () => {
+  assert.deepEqual(createClockTrack(null), []);
 });
 
 // ── clockCuesUpTo + resolveTempoAt ────────────────────────────────────────────

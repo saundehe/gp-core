@@ -34,10 +34,16 @@ export function createClickTrack({
   };
 }
 
+/**
+ * Idempotent upgrade for a raw or already-normalized ClickTrack.
+ * P1-6: _v >= 1 is current (never downgrades a newer row). P2-2: always
+ * returns a fresh object.
+ */
 export function normalizeClickTrack(raw) {
   if (!raw) return null;
-  if (raw._v === 1) return raw;
+  if (raw._v >= 1) return { ...raw };
   return createClickTrack({
+    ...raw,
     tempo:       raw.tempo        ?? 120,
     timeSig:     raw.time_sig     ?? raw.timeSig     ?? '4/4',
     subdivision: raw.subdivision  ?? 4,

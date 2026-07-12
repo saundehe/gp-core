@@ -23,18 +23,36 @@ export function createClockCue({
   return {
     _v: 1,
     bar,
-    osc_messages:  oscMessages.map(m => m._v === 1 ? m : createOscMessage(m)),
-    tempo_change:  tempoChange ? (tempoChange._v === 1 ? tempoChange : createTempoChange(tempoChange)) : null,
+    osc_messages:  (oscMessages ?? []).filter(m => m && typeof m === 'object').map(m => m._v >= 1 ? m : createOscMessage(m)),
+    tempo_change:  tempoChange ? (tempoChange._v >= 1 ? tempoChange : createTempoChange(tempoChange)) : null,
     target_id:     targetId,
     note,
     ...rest,
   };
 }
 
+/**
+ * Idempotent upgrade AND backfill for a raw or already-normalized ClockCue.
+ * Mirrors normalizeRigCue's fix (see rig-track.js): P1-6 treats _v >= 1 as
+ * current instead of exact-matching _v === 1 (never downgrades a newer cue),
+ * and P1-5 backfills `osc_messages` to an array + `bar` to a number even on
+ * the fast path — a truncated/hand-edited cue can decode to `{_v:1, bar:1}`
+ * with no `osc_messages` key, and the Tauri sidecar's OSC-firing loop
+ * iterates it unconditionally.
+ */
 export function normalizeClockCue(raw) {
   if (!raw) return null;
-  if (raw._v === 1) return raw;
+  if (raw._v >= 1) {
+    return {
+      ...raw,
+      bar: typeof raw.bar === 'number' && !Number.isNaN(raw.bar) ? raw.bar : (Number(raw.bar) || 1),
+      osc_messages: Array.isArray(raw.osc_messages)
+        ? raw.osc_messages.map(m => (m && m._v >= 1) ? m : createOscMessage(m ?? {}))
+        : [],
+    };
+  }
   return createClockCue({
+    ...raw,
     bar:          raw.bar              ?? 1,
     oscMessages:  raw.osc_messages     ?? raw.oscMessages   ?? [],
     tempoChange:  raw.tempo_change     ?? raw.tempoChange   ?? null,
@@ -44,11 +62,14 @@ export function normalizeClockCue(raw) {
 }
 
 /**
- * Build a sorted ClockTrack (array of ClockCues) from raw or normalized cues.
+ * Build a sorted, backfilled ClockTrack (array of ClockCues) from raw or
+ * normalized cues. Non-object entries are dropped (P2-1) rather than
+ * crashing the decode.
  */
 export function createClockTrack(cues = []) {
-  return cues
-    .map(c => c._v === 1 ? c : createClockCue(c))
+  return (cues ?? [])
+    .filter(c => c && typeof c === 'object')
+    .map(c => normalizeClockCue(c))
     .sort((a, b) => a.bar - b.bar);
 }
 
@@ -56,7 +77,7 @@ export function createClockTrack(cues = []) {
  * Upsert a cue at cue.bar in an existing ClockTrack. Returns a new sorted array.
  */
 export function upsertClockCue(track, cue) {
-  const c = cue._v === 1 ? cue : createClockCue(cue);
+  const c = normalizeClockCue(cue) ?? createClockCue();
   return [...track.filter(x => x.bar !== c.bar), c].sort((a, b) => a.bar - b.bar);
 }
 
