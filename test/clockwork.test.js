@@ -212,6 +212,22 @@ test('normalizeClockCue - backfills osc_messages array and numeric bar even when
   assert.deepEqual(n.osc_messages, []);
 });
 
+test('normalizeClockCue - backfills args on a kept _v:1 osc_message instead of leaving it missing', () => {
+  // Fix: the fast-path map kept any message already carrying _v:1 as-is, even
+  // though createOscMessage guarantees args:[] and the Tauri sidecar's
+  // OSC-firing loop iterates msg.args unconditionally — same one-level-deep
+  // gap as the ramp_bars fix in rig-track.js.
+  const n = normalizeClockCue({ _v: 1, bar: 1, osc_messages: [{ _v: 1, address: '/notch/scene/2' }] });
+  assert.deepEqual(n.osc_messages[0].args, []);
+  assert.doesNotThrow(() => { for (const a of n.osc_messages[0].args) { /* sidecar-style iteration */ } });
+});
+
+test('normalizeClockCue - walks a legacy-shaped tempo_change on the _v:1 fast path too', () => {
+  const n = normalizeClockCue({ _v: 1, bar: 1, tempo_change: { tempo: 160 } });
+  assert.equal(n.tempo_change._v, 1);
+  assert.equal(n.tempo_change.tempo, 160);
+});
+
 test('normalizeClockCue - _v greater than current is preserved, not downgraded (P1-6)', () => {
   const futureRow = { _v: 2, bar: 5, osc_messages: [], newField: 'x' };
   const n = normalizeClockCue(futureRow);

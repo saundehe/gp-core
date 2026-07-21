@@ -179,6 +179,22 @@ test('normalizePart - null returns null', () => {
   assert.equal(normalizePart(null), null);
 });
 
+test('normalizePart - _v:1 fast path drops a null note instead of keeping it', () => {
+  // Fix: notes were mapped through normalizeNote (which returns null for a
+  // falsy entry) but the null was kept in the output array, unlike every
+  // other collection normalizer in this repo (P2-1 pattern). A shared part
+  // link that decodes to {_v:1, notes:[null, {...}]} used to "succeed" and
+  // poison any consumer doing notes.map(n => n.pitch).
+  const r = normalizePart({ _v: 1, notes: [null, { t: 2, midi: 64 }] });
+  assert.equal(r.notes.length, 1);
+  assert.equal(r.notes[0].pitch, 64);
+});
+
+test('normalizePart - _v:1 fast path with non-array notes does not throw', () => {
+  const r = normalizePart({ _v: 1, notes: 'not-an-array' });
+  assert.deepEqual(r.notes, []);
+});
+
 // ── PartSet ───────────────────────────────────────────────────────────────────
 
 test('createPartSet defaults', () => {

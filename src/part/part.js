@@ -84,10 +84,15 @@ export function normalizePart(raw, ctx = {}) {
   if (!raw) return null;
 
   if (raw._v >= 1) {
-    // Already normalized — return a copy, normalizing any legacy notes
+    // Already normalized — return a copy, normalizing any legacy notes.
+    // Guard non-array `notes` (a hand-edited/truncated shared Part link can
+    // decode to a non-array truthy value) and filter out nulls: normalizeNote
+    // returns null for a falsy entry, and every other collection normalizer
+    // in this repo drops corrupt slots (P2-1 pattern) instead of keeping them
+    // — an un-filtered null poisons any consumer that reads `.pitch` off it.
     return {
       ...raw,
-      notes: (raw.notes || []).map(normalizeNote),
+      notes: (Array.isArray(raw.notes) ? raw.notes : []).map(normalizeNote).filter(Boolean),
     };
   }
 
@@ -115,6 +120,8 @@ export function normalizePart(raw, ctx = {}) {
     timeSignature: [4, 4],
     bars: ctx.bars ?? 4,
     ppq: DEFAULT_PPQ,
-    notes: (raw._notes || raw.notes || []).map(normalizeNote),
+    notes: (Array.isArray(raw._notes) ? raw._notes : (Array.isArray(raw.notes) ? raw.notes : []))
+      .map(normalizeNote)
+      .filter(Boolean),
   };
 }

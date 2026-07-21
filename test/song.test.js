@@ -77,6 +77,34 @@ test('normalizeSong - legacy object without _v gets upgraded', () => {
   assert.equal(s.tempo, 80);
 });
 
+test('normalizeSong - _v:1 fast path still normalizes a legacy-shaped nested rig_track cue', () => {
+  // Fix: normalizeSong's _v>=1 branch used to be a bare shallow copy — it
+  // never walked sections/parts/rig_track/clock_track through their own
+  // normalizers, unlike every sibling _v:1 fast path in the Show File chain
+  // (normalizeSetlist, normalizeShowFileSongEntry, normalizeRigCue). A
+  // decoded/hand-edited song carrying a top-level _v:1 with a bare
+  // `{bar:1}` rig_track cue used to reach interpolateRigTrack with no
+  // `automations` array and throw. It now gets backfilled here too.
+  const raw = { _v: 1, title: 'Poisoned', rig_track: [{ bar: 1 }] };
+  const s = normalizeSong(raw);
+  assert.equal(s.rig_track.length, 1);
+  assert.deepEqual(s.rig_track[0].automations, []);
+  assert.doesNotThrow(() => interpolateRigTrack(s.rig_track, 2));
+});
+
+test('normalizeSong - _v:1 fast path normalizes sections and parts too', () => {
+  const raw = {
+    _v: 1,
+    sections: [{ name: 'Verse', start_bar: 1, end_bar: 8 }],
+    parts:    [{ type: 'bass', _notes: [{ t: 0, midi: 40 }] }],
+  };
+  const s = normalizeSong(raw);
+  assert.equal(s.sections[0]._v, 1);
+  assert.equal(s.sections[0].name, 'Verse');
+  assert.equal(s.parts[0]._v, 1);
+  assert.equal(s.parts[0].notes[0].pitch, 40);
+});
+
 // ── Section ───────────────────────────────────────────────────────────────────
 
 test('SECTION_KINDS contains expected values', () => {
@@ -480,6 +508,21 @@ test('interpolateRigTrack - ramp-onto-ramp on different keys is unaffected (no c
   const byCC = Object.fromEntries(state.map(e => [e.cc, e.value]));
   assert.equal(byCC[11], 0); // t=0 at the new ramp's own start bar -> from(0) + (20-0)*0 = 0
   assert.ok(byCC[7] > 0 && byCC[7] < 100);
+});
+
+test('interpolateRigTrack - automation with _v:1 but missing ramp_bars resolves as instant, not NaN', () => {
+  // Fix: a hand-edited/truncated automation like {_v:1, cc:7, value:100} (no
+  // ramp_bars) survives normalizeRigCue's fast-path map untouched. The old
+  // code checked `auto.ramp_bars === 0` (false for undefined), computed
+  // rampEndBar = cue.bar + undefined = NaN, and every downstream comparison/
+  // interpolation involving it stayed NaN — value:NaN handed to the MIDI send
+  // layer. interpolateRigTrack now treats a non-finite ramp_bars as 0.
+  const track = createRigTrack([{ _v: 1, bar: 1, automations: [{ _v: 1, cc: 7, value: 100 }] }]);
+  const state = interpolateRigTrack(track, 2);
+  assert.equal(state.length, 1);
+  assert.equal(state[0].cc, 7);
+  assert.equal(state[0].value, 100);
+  assert.ok(!Number.isNaN(state[0].value));
 });
 
 // ── createSong with clock_track ───────────────────────────────────────────────

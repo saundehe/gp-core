@@ -184,6 +184,31 @@ test('detectChord returns null below minMatch threshold', () => {
   assert.equal(detectChord([60, 64, 67], 1.5), null);
 });
 
+test('detectChord identifies a 7th chord instead of misreading its triad subset', () => {
+  // Fix: every 7th quality contains its own triad as a subset, so the old
+  // chord-coverage-only score gave the triad the same perfect 1.0 as the 7th
+  // and the fewer-tones tie-break always kept the triad — 7th chords were an
+  // unreachable output, and the unaccounted extra note let the wrong ROOT win
+  // (A-C-E-G / Am7 used to detect as plain C major).
+  const result = detectChord([57, 60, 64, 67]);  // A C E G = Am7
+  assert.ok(result !== null);
+  assert.equal(result.rootName, 'A');
+  assert.equal(result.quality, 'min7');
+  assert.equal(result.name, 'Am7');
+});
+
+test('detectChord identifies dom7 and maj7 correctly', () => {
+  const dom7 = detectChord([48, 52, 55, 58]);  // C E G Bb = C7
+  assert.ok(dom7 !== null);
+  assert.equal(dom7.rootName, 'C');
+  assert.equal(dom7.quality, 'dom7');
+
+  const maj7 = detectChord([48, 52, 55, 59]);  // C E G B = Cmaj7
+  assert.ok(maj7 !== null);
+  assert.equal(maj7.rootName, 'C');
+  assert.equal(maj7.quality, 'maj7');
+});
+
 // ── Fretboard ─────────────────────────────────────────────────────────────────
 
 test('GUITAR_TUNINGS standard has 6 strings', () => {

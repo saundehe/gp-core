@@ -46,9 +46,23 @@ export function normalizeClockCue(raw) {
     return {
       ...raw,
       bar: typeof raw.bar === 'number' && !Number.isNaN(raw.bar) ? raw.bar : (Number(raw.bar) || 1),
+      // Backfill each kept message's `args`, not just the outer array: a
+      // message that already carries _v:1 (e.g. `{_v:1, address:'/x'}` from a
+      // truncated/hand-edited cue) used to pass through untouched with no
+      // `args` key, even though createOscMessage guarantees args:[] and the
+      // Tauri sidecar's OSC-firing loop iterates msg.args unconditionally —
+      // same one-level-deep gap as the ramp_bars fix in rig-track.js.
       osc_messages: Array.isArray(raw.osc_messages)
-        ? raw.osc_messages.map(m => (m && m._v >= 1) ? m : createOscMessage(m ?? {}))
+        ? raw.osc_messages.map(m => (m && m._v >= 1)
+            ? { ...m, args: Array.isArray(m.args) ? m.args : [] }
+            : createOscMessage(m ?? {}))
         : [],
+      // Also walk tempo_change on the fast path, mirroring createClockCue's
+      // own handling — an already-_v:1 cue can still carry a legacy-shaped or
+      // corrupt tempo_change that previously passed through unnormalized.
+      tempo_change: raw.tempo_change
+        ? (raw.tempo_change._v >= 1 ? raw.tempo_change : createTempoChange(raw.tempo_change))
+        : null,
     };
   }
   return createClockCue({

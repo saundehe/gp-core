@@ -47,7 +47,20 @@ export function detectChord(midiNotes, minMatch = 0.75) {
     for (const [quality, intervals] of Object.entries(CHORD_INTERVALS)) {
       const chordPcs = intervals.map(iv => (r + iv) % 12);
       const matched = chordPcs.filter(pc => pcs.has(pc)).length;
-      const score = matched / chordPcs.length;
+      // Score by BOTH how much of the candidate chord the input covers
+      // (matched/chordPcs.length) AND how much of the input the candidate
+      // explains (matched/pcs.size). The second factor is required: every 7th
+      // quality (dom7/maj7/min7/m7b5/dim7) contains its own triad as a
+      // subset, so scoring on chord coverage alone gives the triad the same
+      // perfect 1.0 as the 7th whenever the 7th matches, and the tie-break
+      // (prefer fewer chord tones) then always keeps the triad — 7th chords
+      // were unreachable outputs. Worse, unexplained input notes went
+      // unpenalized, so the wrong root could win outright (A-C-E-G / Am7
+      // used to be misdetected as plain C major, since C-E-G alone already
+      // scored 1.0 and simply ignored the A). Multiplying by input coverage
+      // fixes both: only a candidate that accounts for the full input can
+      // reach 1.0.
+      const score = (matched / chordPcs.length) * (matched / pcs.size);
       // Prefer higher score; on tie prefer simpler chord (fewer tones)
       if (score > bestScore || (score === bestScore && best && intervals.length < CHORD_INTERVALS[best.quality].length)) {
         bestScore = score;

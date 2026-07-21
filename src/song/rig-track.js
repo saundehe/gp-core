@@ -119,11 +119,18 @@ export function interpolateRigTrack(cues, bar) {
         ramps.delete(key);
       }
 
-      if (auto.ramp_bars === 0) {
+      // Guard against a hand-edited/truncated automation that already carries
+      // _v:1 (so normalizeRigCue's fast-path map leaves it untouched) but has
+      // a missing/non-numeric ramp_bars — without this, `cue.bar + undefined`
+      // is NaN, every downstream comparison/interpolation involving it stays
+      // NaN, and the resolved CC value handed to the MIDI send layer is NaN.
+      const rampBars = Number.isFinite(auto.ramp_bars) ? auto.ramp_bars : 0;
+
+      if (rampBars === 0) {
         settled.set(key, auto.value);
         ramps.delete(key);
       } else {
-        const rampEndBar = cue.bar + auto.ramp_bars;
+        const rampEndBar = cue.bar + rampBars;
         if (bar >= rampEndBar) {
           settled.set(key, auto.value);
           ramps.delete(key);
