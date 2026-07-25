@@ -139,9 +139,20 @@ test('createSection preserves unknown fields', () => {
   assert.equal(sec.color, '#f00');
 });
 
-test('normalizeSection - already _v:1 passes through', () => {
+test('normalizeSection - already _v:1 passes through as a fresh copy', () => {
   const sec = createSection({ name: 'Intro' });
-  assert.strictEqual(normalizeSection(sec), sec);
+  const n = normalizeSection(sec);
+  assert.notStrictEqual(n, sec);   // fresh object: mutating it must not touch the source
+  assert.deepEqual(n, sec);        // ...but unmodified in content
+});
+
+test('normalizeSection - fast-path copy does not alias the source', () => {
+  const sec = createSection({ name: 'Intro', tags: ['a'] });
+  const n = normalizeSection(sec);
+  n.end_bar = 99;
+  n.tags.push('b');
+  assert.equal(sec.end_bar, 4);        // source untouched
+  assert.deepEqual(sec.tags, ['a']);   // tags array copied too
 });
 
 test('normalizeSection - null returns null', () => {

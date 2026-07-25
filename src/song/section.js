@@ -35,7 +35,11 @@ export function createSection({
  */
 export function normalizeSection(raw) {
   if (!raw) return null;
-  if (raw._v >= 1) return raw;
+  // Fresh copy, not the caller's own object: every other normalizer returns {...raw}
+  // so callers cannot mutate the source, and normalizeSong's fast path documents that
+  // contract. Aliasing meant an editor writing section.end_bar also mutated the
+  // cached raw payload, breaking undo/dirty-tracking and re-normalization.
+  if (raw._v >= 1) return { ...raw, tags: Array.isArray(raw.tags) ? [...raw.tags] : raw.tags };
   return createSection({
     ...raw,
     name:      raw.name      ?? '',

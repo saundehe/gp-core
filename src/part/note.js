@@ -34,7 +34,11 @@ export function createNote(props = {}) {
 /** Idempotent upgrade for bare note objects (e.g. from Conjure's {t,dur,midi,vel}). */
 export function normalizeNote(raw) {
   if (!raw) return null;
-  if (raw._v >= 1) return { ...raw };
+  // Backfill on the fast path too: a truncated/hand-edited share link can decode to
+  // {_v:1, pitch:60} with no onset/dur, and consumers compute note.onset + note.dur
+  // unconditionally, emitting NaN into the timing math. Spread last so present keys
+  // always win. Same one-level-deep gap already closed for ramp_bars and osc args.
+  if (raw._v >= 1) return { pitch: 60, onset: 0, dur: DEFAULT_PPQ, vel: 80, ...raw };
   // Map Conjure's field names: t→onset, midi→pitch
   return {
     _v: 1,

@@ -25,7 +25,12 @@ export function normalizePartSet(raw, ctx = {}) {
   if (raw._v >= 1) {
     return {
       ...raw,
-      parts: (raw.parts || []).map(p => normalizePart(p, ctx)),
+      // Array.isArray guards a truthy non-array (parts:{}), and filter(Boolean) drops
+    // the nulls normalizePart returns for corrupt/falsy slots - otherwise a stored
+    // {parts:[valid, null]} survives and every consumer doing parts.map(p => p.notes)
+    // throws on null. Mirrors part.js, and the guard already applied to setlist
+    // entries, rig cues, clock cues and showfile sections.
+    parts: (Array.isArray(raw.parts) ? raw.parts : []).map(p => normalizePart(p, ctx)).filter(Boolean),
     };
   }
 
@@ -34,7 +39,12 @@ export function normalizePartSet(raw, ctx = {}) {
     id: uid(),
     name: raw.name ?? '',
     source: raw.source ?? null,
-    parts: (raw.parts || []).map(p => normalizePart(p, ctx)),
+    // Array.isArray guards a truthy non-array (parts:{}), and filter(Boolean) drops
+    // the nulls normalizePart returns for corrupt/falsy slots - otherwise a stored
+    // {parts:[valid, null]} survives and every consumer doing parts.map(p => p.notes)
+    // throws on null. Mirrors part.js, and the guard already applied to setlist
+    // entries, rig cues, clock cues and showfile sections.
+    parts: (Array.isArray(raw.parts) ? raw.parts : []).map(p => normalizePart(p, ctx)).filter(Boolean),
   };
 }
 

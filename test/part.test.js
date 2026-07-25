@@ -226,6 +226,38 @@ test('normalizePartSet - null returns null', () => {
   assert.equal(normalizePartSet(null), null);
 });
 
+test('normalizePartSet - drops a null part instead of keeping it', () => {
+  // Same P2-1 gap as normalizePart's notes, on the one collection normalizer
+  // that was missed: a stored {_v:1, parts:[valid, null]} used to survive and
+  // crash any consumer doing parts.map(p => p.notes...).
+  const r = normalizePartSet({ _v: 1, parts: [createPart(), null] });
+  assert.equal(r.parts.length, 1);
+  assert.equal(r.parts[0]._v, 1);
+});
+
+test('normalizePartSet - non-array parts does not throw', () => {
+  assert.deepEqual(normalizePartSet({ _v: 1, parts: {} }).parts, []);
+  assert.deepEqual(normalizePartSet({ parts: 'nope' }).parts, []);
+});
+
+test('normalizeNote - _v:1 fast path backfills missing timing fields', () => {
+  // A truncated share link can decode to {_v:1, pitch:60} with no onset/dur;
+  // consumers compute note.onset + note.dur unconditionally and got NaN.
+  const r = normalizeNote({ _v: 1, pitch: 60 });
+  assert.equal(r.onset, 0);
+  assert.ok(Number.isFinite(r.dur));
+  assert.ok(Number.isFinite(r.onset + r.dur));
+  assert.equal(r.vel, 80);
+});
+
+test('normalizeNote - _v:1 backfill never overwrites present values', () => {
+  const r = normalizeNote({ _v: 1, pitch: 42, onset: 960, dur: 240, vel: 12 });
+  assert.equal(r.pitch, 42);
+  assert.equal(r.onset, 960);
+  assert.equal(r.dur, 240);
+  assert.equal(r.vel, 12);
+});
+
 test('conjureJamToPartSet produces a PartSet', () => {
   const jam = {
     bass: [{ t: 0, midi: 43, dur: 4, vel: 90 }],
