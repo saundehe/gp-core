@@ -101,6 +101,21 @@ test('normalizeBoard runs the device map even when board._v is already present (
   assert.doesNotThrow(() => board.devices[0].boardIds.includes('x'));
 });
 
+test('normalizeGearItem and normalizeBoard preserve a future _v (P1-6 forward-compat)', () => {
+  // Fix: both used to unconditionally stamp _v:1, silently downgrading a
+  // future-versioned row (_v:2+) synced down from Supabase, risking
+  // double-migration on the next two-way sync. Mirrors normalizeRigCue et al.
+  const futureItem = { id: 'x', name: 'Future Pedal', _v: 2, newField: 'from v2' };
+  const normalizedItem = normalizeGearItem(futureItem);
+  assert.equal(normalizedItem._v, 2);
+  assert.equal(normalizedItem.newField, 'from v2');
+
+  const futureBoard = { id: 'b1', name: 'Future Rig', _v: 2, devices: [futureItem] };
+  const normalizedBoard = normalizeBoard(futureBoard);
+  assert.equal(normalizedBoard._v, 2);
+  assert.equal(normalizedBoard.devices[0]._v, 2);
+});
+
 test('normalizeGearItem returns null for falsy input instead of the falsy value verbatim', () => {
   assert.equal(normalizeGearItem(null), null);
   assert.equal(normalizeGearItem(undefined), null);

@@ -118,12 +118,16 @@ export function createBoard(props = {}) {
  * createGearItem, and consumers do `item.presets.map` / `item.boardIds.includes`
  * unconditionally.
  * Consumers call this on data loaded from localStorage / Supabase before using it.
+ *
+ * P1-6: _v >= 1 (not === 1) is preserved so a future schema version (_v: 2+)
+ * synced down from Supabase survives this pass instead of being stamped back
+ * to _v:1, which would risk double-migrating it on the next two-way sync.
  */
 export function normalizeGearItem(item) {
   if (!item) return null;
   return {
     ...item,
-    _v: 1,
+    _v: (typeof item._v === 'number' && item._v >= 1) ? item._v : 1,
     boardIds: item.boardIds || [],
     boardId: item.boardId ?? item.boardIds?.[0] ?? null,
     customParams: item.customParams || [],
@@ -146,12 +150,15 @@ export function normalizeGearItem(item) {
  * crash on `.map`), and non-object slots (null, a stray string) are dropped
  * before normalizeGearItem runs, rather than being mapped through it and
  * left as null/garbage entries for `item.presets.map` etc. to crash on later.
+ *
+ * P1-6: board._v >= 1 (not === 1) is preserved, mirroring normalizeGearItem,
+ * so a future-versioned board is not silently downgraded to _v:1.
  */
 export function normalizeBoard(board) {
   if (!board) return board;
   return {
     ...board,
-    _v: 1,
+    _v: (typeof board._v === 'number' && board._v >= 1) ? board._v : 1,
     devices: Array.isArray(board.devices)
       ? board.devices.filter(d => d && typeof d === 'object').map(normalizeGearItem)
       : [],
