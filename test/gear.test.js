@@ -101,6 +101,32 @@ test('normalizeBoard runs the device map even when board._v is already present (
   assert.doesNotThrow(() => board.devices[0].boardIds.includes('x'));
 });
 
+test('normalizeGearItem returns null for falsy input instead of the falsy value verbatim', () => {
+  assert.equal(normalizeGearItem(null), null);
+  assert.equal(normalizeGearItem(undefined), null);
+  assert.equal(normalizeGearItem(0), null);
+  assert.equal(normalizeGearItem(''), null);
+});
+
+test('normalizeBoard drops null/corrupt devices instead of leaving them in the array', () => {
+  // Fix: normalizeBoard used to map board.devices with no null filter and
+  // no Array.isArray guard. A corrupt/hand-edited board with a null slot in
+  // devices produced a null entry in the normalized array (crashing any
+  // consumer doing device.presets.map on it), and a truthy non-array
+  // `devices` bypassed the `|| []` fallback and crashed on `.map` itself.
+  const corrupt = { id: 'b1', name: 'My Rig', devices: [null, { id: 'd1', name: 'DS-1' }, 'garbage'] };
+  const board = normalizeBoard(corrupt);
+  assert.equal(board.devices.length, 1);
+  assert.equal(board.devices[0].name, 'DS-1');
+  assert.doesNotThrow(() => board.devices.forEach(d => d.presets.map(p => p)));
+});
+
+test('normalizeBoard - non-array devices does not throw and yields an empty array', () => {
+  const corrupt = { id: 'b1', name: 'My Rig', devices: 'not-an-array' };
+  const board = normalizeBoard(corrupt);
+  assert.deepEqual(board.devices, []);
+});
+
 test('starterPresets have required fields', () => {
   for (const [key, def] of Object.entries(deviceDefs)) {
     for (const sp of (def.starterPresets || [])) {

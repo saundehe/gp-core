@@ -92,9 +92,15 @@ export function normalizeSetlist(raw) {
   if (raw._v >= 1) {
     return {
       ...raw,
-      entries: (raw.entries ?? [])
-        .filter(e => e && typeof e === 'object')
-        .map(e => normalizeSetlistEntry(e) ?? createSetlistEntry()),
+      // Array.isArray guard (not just `?? []`): a corrupt/hand-edited setlist
+      // can carry a truthy non-array `entries` (an object, a string), which
+      // `?? []` lets straight through to `.filter`, throwing instead of
+      // salvaging the rest of the setlist (mirrors normalizeSong's guard).
+      entries: Array.isArray(raw.entries)
+        ? raw.entries
+            .filter(e => e && typeof e === 'object')
+            .map(e => normalizeSetlistEntry(e) ?? createSetlistEntry())
+        : [],
     };
   }
   return createSetlist({
@@ -125,11 +131,18 @@ export function removeSetlistEntry(entries, idx) {
 
 /**
  * Move entry at `fromIdx` to `toIdx`. Returns a new entries array.
+ * `toIdx` is clamped into [0, entries.length - 1]. An out-of-range value
+ * (negative, or >= length) used to splice at that raw index unchecked: a
+ * negative toIdx spliced from the end of the array instead of moving the
+ * entry to the front. Clamping means toIdx < 0 moves to the front and
+ * toIdx >= length moves to the end, matching what a caller almost certainly
+ * meant.
  */
 export function moveSetlistEntry(entries, fromIdx, toIdx) {
   if (fromIdx === toIdx || fromIdx < 0 || fromIdx >= entries.length) return entries;
+  const clampedToIdx = Math.max(0, Math.min(toIdx, entries.length - 1));
   const result = [...entries];
   const [moved] = result.splice(fromIdx, 1);
-  result.splice(toIdx, 0, moved);
+  result.splice(clampedToIdx, 0, moved);
   return result;
 }

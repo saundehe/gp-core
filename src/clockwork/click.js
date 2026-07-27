@@ -58,11 +58,21 @@ export function normalizeClickTrack(raw) {
 /**
  * A tempo or time-sig change anchored to a bar number.
  * Embedded in a ClockCue so the sidecar knows to re-sync at that bar.
+ *
+ * Accepts both the camelCase param (timeSig) and the stored snake_case field
+ * (time_sig): createClockCue calls this directly on a stored tempo_change
+ * object (`createTempoChange(raw.tempo_change)`), which carries time_sig, not
+ * timeSig. Also preserves unknown fields via ...rest: this was the only
+ * factory in the spine with no ...rest, so round-tripping a stored tempo
+ * change through it silently dropped time_sig (and anything else), nulling
+ * the meter on save even though nothing about the change was edited.
  */
 export function createTempoChange({
   bar = 1,
   tempo = null,         // null = no change
   timeSig = null,       // null = no change
+  time_sig,             // absorbed only, accepts the stored alias, prevents ...rest from clobbering time_sig below
+  ...rest
 } = {}) {
-  return { _v: 1, bar, tempo, time_sig: timeSig };
+  return { _v: 1, bar, tempo, time_sig: time_sig ?? timeSig, ...rest };
 }

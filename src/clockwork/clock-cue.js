@@ -15,8 +15,11 @@ import { createTempoChange } from './click.js';
 export function createClockCue({
   bar = 1,
   oscMessages = [],
+  osc_messages,          // absorbed only, prevents ...rest from clobbering the normalized osc_messages below
   tempoChange = null,
-  targetId = null,      // which OscTarget to send oscMessages to (null = all)
+  tempo_change,          // absorbed only, prevents ...rest from clobbering the normalized tempo_change below
+  targetId = null,       // which OscTarget to send oscMessages to (null = all)
+  target_id,             // absorbed only, prevents ...rest from clobbering target_id below
   note = '',
   ...rest
 } = {}) {

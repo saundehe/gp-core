@@ -153,6 +153,23 @@ test('createTempoChange with props', () => {
   assert.equal(tc.time_sig, '5/4');
 });
 
+test('createTempoChange - round-trips a stored (snake_case) tempo change without nulling time_sig', () => {
+  // Regression: createTempoChange only destructured camelCase `timeSig` with
+  // no `...rest`, so re-saving an already-stored tempo change (which carries
+  // `time_sig`, not `timeSig`) nulled the meter and silently dropped any
+  // other unknown field it carried.
+  const stored = { _v: 1, bar: 17, tempo: 160, time_sig: '5/4' };
+  const tc = createTempoChange(stored);
+  assert.equal(tc.bar,      17);
+  assert.equal(tc.tempo,    160);
+  assert.equal(tc.time_sig, '5/4');
+});
+
+test('createTempoChange - preserves unknown fields (SCHEMA_RULES preserve-unknown-on-write)', () => {
+  const tc = createTempoChange({ bar: 5, tempo: 100, timeSig: '3/4', clickAccent: 'strong' });
+  assert.equal(tc.clickAccent, 'strong');
+});
+
 // ── ClockCue ──────────────────────────────────────────────────────────────────
 
 test('createClockCue defaults', () => {
@@ -244,6 +261,29 @@ test('normalizeClockCue - snake_case source fields', () => {
   const c = normalizeClockCue(raw);
   assert.equal(c._v,       1);
   assert.equal(c.target_id, 'td');
+});
+
+test('createClockCue - trailing ...rest cannot reclobber normalized osc_messages/tempo_change/target_id', () => {
+  // Regression for the P1-5/legacy-path bug: normalizeClockCue's legacy branch
+  // calls createClockCue({...raw, oscMessages: raw.osc_messages, ...}). The
+  // merged props object carries BOTH the camelCase alias AND raw's original
+  // snake_case keys. If createClockCue's destructure doesn't also absorb the
+  // snake_case names, they fall into ...rest and, since ...rest is spread
+  // LAST in the return object, overwrite the normalized osc_messages/
+  // tempo_change/target_id with the raw, un-backfilled values.
+  const raw = {
+    bar: 5,
+    osc_messages: [{ address: '/notch/scene/2' }], // no args key, must be backfilled to []
+    tempo_change: { tempo: 140 },                  // legacy-shaped, must be normalized
+    target_id: 'notch-1',
+  };
+  const c = normalizeClockCue(raw);
+  assert.equal(c._v, 1);
+  assert.equal(c.osc_messages.length, 1);
+  assert.deepEqual(c.osc_messages[0].args, []);
+  assert.equal(c.tempo_change._v, 1);
+  assert.equal(c.tempo_change.tempo, 140);
+  assert.equal(c.target_id, 'notch-1');
 });
 
 // ── ClockTrack ────────────────────────────────────────────────────────────────

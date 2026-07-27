@@ -120,7 +120,7 @@ export function createBoard(props = {}) {
  * Consumers call this on data loaded from localStorage / Supabase before using it.
  */
 export function normalizeGearItem(item) {
-  if (!item) return item;
+  if (!item) return null;
   return {
     ...item,
     _v: 1,
@@ -140,12 +140,20 @@ export function normalizeGearItem(item) {
  * leaving `item.presets.map` / `item.boardIds.includes` to crash downstream —
  * the exact hole normalizeGearItem's own "backfill even when _v present" fix
  * was for.
+ *
+ * P2-1: `board.devices` is guarded with Array.isArray (a truthy non-array,
+ * e.g. a corrupt/hand-edited board, used to bypass the `|| []` fallback and
+ * crash on `.map`), and non-object slots (null, a stray string) are dropped
+ * before normalizeGearItem runs, rather than being mapped through it and
+ * left as null/garbage entries for `item.presets.map` etc. to crash on later.
  */
 export function normalizeBoard(board) {
   if (!board) return board;
   return {
     ...board,
     _v: 1,
-    devices: (board.devices || []).map(normalizeGearItem),
+    devices: Array.isArray(board.devices)
+      ? board.devices.filter(d => d && typeof d === 'object').map(normalizeGearItem)
+      : [],
   };
 }

@@ -1,8 +1,8 @@
 import { encodeB64url, decodeB64url } from '../codec.js';
 
 export function createRigAutomation({
-  cc,
-  value,
+  cc = 0,
+  value = 0,
   rampBars = 0,
   deviceId = null,
   ...rest
@@ -54,8 +54,14 @@ export function normalizeRigCue(raw) {
     return {
       ...raw,
       bar: typeof raw.bar === 'number' && !Number.isNaN(raw.bar) ? raw.bar : (Number(raw.bar) || 1),
+      // Drop non-object slots (P2-1) exactly like createRigCue's own filter,
+      // instead of mapping a null slot through `createRigAutomation(a ?? {})`.
+      // With no defaults, that used to produce cc:undefined/value:undefined,
+      // which interpolateRigTrack then resolved into a NaN CC at show time.
       automations: Array.isArray(raw.automations)
-        ? raw.automations.map(a => (a && a._v >= 1) ? a : createRigAutomation(a ?? {}))
+        ? raw.automations
+            .filter(a => a && typeof a === 'object')
+            .map(a => a._v >= 1 ? a : createRigAutomation(a))
         : [],
     };
   }
@@ -102,6 +108,12 @@ export function interpolateRigTrack(cues, bar) {
   for (const cue of cues) {
     if (cue.bar > bar) break;
     for (const auto of cue.automations) {
+      // Skip an automation whose resolved cc isn't a finite number. A
+      // hand-edited/truncated cue that already carries _v:1 (so
+      // normalizeRigCue's fast path leaves it untouched) can still have a
+      // missing/non-numeric cc, and without this guard it resolves into a
+      // "deviceId:undefined" key and a NaN CC handed to the MIDI send layer.
+      if (!Number.isFinite(auto.cc)) continue;
       const key = `${auto.device_id ?? ''}:${auto.cc}`;
       let fromValue = settled.get(key) ?? 0;
 

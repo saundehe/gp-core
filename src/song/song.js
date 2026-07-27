@@ -17,11 +17,14 @@ export function createSong({
   scale = 'major',
   tempo = 120,
   timeSignature = '4/4',
+  time_sig,        // absorbed only, prevents ...rest from clobbering the time_sig below
   bars = 0,
   sections = [],
   parts = [],
   rigTrack = [],
+  rig_track,       // absorbed only, prevents ...rest from clobbering the rig_track below
   clockTrack = [],
+  clock_track,     // absorbed only, prevents ...rest from clobbering the clock_track below
   ...rest
 } = {}) {
   return {
@@ -68,5 +71,32 @@ export function normalizeSong(raw) {
       clock_track: Array.isArray(raw.clock_track) ? createClockTrack(raw.clock_track) : [],
     };
   }
-  return createSong(raw);
+  // LEGACY (pre-_v) path: mirror the _v >= 1 fast path above rather than
+  // handing raw straight to createSong. createSong does not itself walk
+  // sections/parts/rig_track/clock_track through their normalizers, so a bare
+  // createSong(raw) let raw section/part objects and un-normalized rig/clock
+  // tracks straight through, and (since createSong's destructure didn't
+  // absorb the snake_case aliases) raw.time_sig/rig_track/clock_track fell
+  // into createSong's own ...rest and clobbered the camelCase-mapped values
+  // spread earlier in its return object (same class of bug as P1-5 in
+  // clock-cue.js's createClockCue).
+  return createSong({
+    ...raw,
+    title:         raw.title         ?? 'Untitled',
+    artist:        raw.artist        ?? '',
+    kind:          raw.kind          ?? SONG_KINDS.original,
+    key:           raw.key           ?? 'C',
+    scale:         raw.scale         ?? 'major',
+    tempo:         raw.tempo         ?? 120,
+    timeSignature: raw.time_sig      ?? raw.timeSignature ?? '4/4',
+    bars:          raw.bars          ?? 0,
+    sections: Array.isArray(raw.sections)
+      ? raw.sections.filter(s => s && typeof s === 'object').map(s => normalizeSection(s))
+      : [],
+    parts: Array.isArray(raw.parts)
+      ? raw.parts.filter(p => p && typeof p === 'object').map(p => normalizePart(p))
+      : [],
+    rigTrack:   createRigTrack(raw.rig_track ?? raw.rigTrack ?? []),
+    clockTrack: createClockTrack(raw.clock_track ?? raw.clockTrack ?? []),
+  });
 }

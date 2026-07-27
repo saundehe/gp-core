@@ -105,6 +105,33 @@ test('normalizeSong - _v:1 fast path normalizes sections and parts too', () => {
   assert.equal(s.parts[0].notes[0].pitch, 40);
 });
 
+test('normalizeSong - LEGACY (no _v) branch normalizes nested sections/parts/rig_track/clock_track too', () => {
+  // Fix: the legacy branch used to be a bare `createSong(raw)`, which neither
+  // walked nested collections through their normalizers nor mapped raw's
+  // snake_case fields to createSong's camelCase params, leaving raw
+  // section/part objects and un-normalized rig_track/clock_track arrays to
+  // reach the sidecar/interpolator untouched.
+  const raw = {
+    title: 'Legacy Song',
+    time_sig: '3/4',
+    sections: [{ name: 'Verse', start_bar: 1, end_bar: 8 }],
+    parts:    [{ type: 'bass', _notes: [{ t: 0, midi: 40 }] }],
+    rig_track:   [{ bar: 1 }],
+    clock_track: [{ bar: 1 }],
+  };
+  const s = normalizeSong(raw);
+  assert.equal(s._v, 1);
+  assert.equal(s.time_sig, '3/4');
+  assert.equal(s.sections[0]._v, 1);
+  assert.equal(s.sections[0].name, 'Verse');
+  assert.equal(s.parts[0]._v, 1);
+  assert.equal(s.parts[0].notes[0].pitch, 40);
+  assert.equal(s.rig_track[0]._v, 1);
+  assert.deepEqual(s.rig_track[0].automations, []);
+  assert.equal(s.clock_track[0]._v, 1);
+  assert.deepEqual(s.clock_track[0].osc_messages, []);
+});
+
 // ── Section ───────────────────────────────────────────────────────────────────
 
 test('SECTION_KINDS contains expected values', () => {
@@ -249,6 +276,23 @@ test('normalizeRigCue - snake_case source fields', () => {
   assert.equal(c.preset_id, 'p1');
 });
 
+test('normalizeRigCue - _v:1 fast path drops a null automation slot instead of turning it into a NaN CC', () => {
+  // Fix: the fast path used to map a null slot through
+  // `createRigAutomation(a ?? {})`, and with createRigAutomation having no
+  // cc/value defaults that produced cc:undefined, which interpolateRigTrack
+  // then resolved into a NaN CC. Now dropped like createRigCue's own filter.
+  const raw = { _v: 1, bar: 1, automations: [null, { cc: 74, value: 100 }, 'garbage'] };
+  const c = normalizeRigCue(raw);
+  assert.equal(c.automations.length, 1);
+  assert.equal(c.automations[0].cc, 74);
+});
+
+test('createRigAutomation - safe defaults for cc/value instead of undefined', () => {
+  const a = createRigAutomation();
+  assert.equal(a.cc,    0);
+  assert.equal(a.value, 0);
+});
+
 // ── RigTrack ──────────────────────────────────────────────────────────────────
 
 test('createRigTrack returns sorted cues', () => {
@@ -359,6 +403,14 @@ test('interpolateRigTrack - ramp completed gives target value', () => {
   // bar 13 = rampEndBar; bar 15 > rampEndBar → settled at 127
   assert.equal(interpolateRigTrack(track, 13).find(e => e.cc === 11).value, 127);
   assert.equal(interpolateRigTrack(track, 15).find(e => e.cc === 11).value, 127);
+});
+
+test('interpolateRigTrack - skips an automation whose cc is not a finite number instead of resolving a NaN CC', () => {
+  const track = [
+    { bar: 1, automations: [{ _v: 1, cc: undefined, value: 50, ramp_bars: 0, device_id: null }] },
+  ];
+  const state = interpolateRigTrack(track, 1);
+  assert.deepEqual(state, []);
 });
 
 test('interpolateRigTrack - deviceId is passed through', () => {
@@ -688,6 +740,15 @@ test('normalizeSetlist - _v greater than current is preserved, not downgraded (P
   assert.equal(n.newField, 'x');
 });
 
+test('normalizeSetlist - a truthy non-array entries does not throw, salvages as empty', () => {
+  // Fix: the _v>=1 fast path used `(raw.entries ?? [])`, which lets a truthy
+  // non-array (a corrupt/hand-edited object) straight through to `.filter`,
+  // throwing instead of salvaging the rest of the setlist.
+  assert.doesNotThrow(() => normalizeSetlist({ _v: 1, name: 'Corrupt', entries: { not: 'an array' } }));
+  const n = normalizeSetlist({ _v: 1, name: 'Corrupt', entries: 'garbage' });
+  assert.deepEqual(n.entries, []);
+});
+
 // ── P2-1: salvage decode — a null setlist entry doesn't nuke the whole setlist ──
 
 test('createSetlist - drops a null entry and keeps the rest', () => {
@@ -758,6 +819,18 @@ test('moveSetlistEntry - no-op when same index', () => {
   const entries = ['a', 'b'].map(id => createSetlistEntry({ songId: id }));
   const updated = moveSetlistEntry(entries, 0, 0);
   assert.deepEqual(updated.map(e => e.song_id), ['a', 'b']);
+});
+
+test('moveSetlistEntry - negative toIdx clamps to the front instead of splicing from the end', () => {
+  const entries = ['a', 'b', 'c', 'd'].map(id => createSetlistEntry({ songId: id }));
+  const updated = moveSetlistEntry(entries, 3, -1);
+  assert.deepEqual(updated.map(e => e.song_id), ['d', 'a', 'b', 'c']);
+});
+
+test('moveSetlistEntry - toIdx >= length clamps to the end', () => {
+  const entries = ['a', 'b', 'c', 'd'].map(id => createSetlistEntry({ songId: id }));
+  const updated = moveSetlistEntry(entries, 0, 99);
+  assert.deepEqual(updated.map(e => e.song_id), ['b', 'c', 'd', 'a']);
 });
 
 // ── ShowFileRw ────────────────────────────────────────────────────────────────
@@ -942,6 +1015,15 @@ test('normalizeShowFileSongEntry - _v:1 top level with legacy-shaped nested song
 
 test('normalizeShowFileSongEntry - null returns null', () => {
   assert.equal(normalizeShowFileSongEntry(null), null);
+});
+
+test('normalizeShowFileSongEntry - a truthy non-array sections does not throw, salvages as empty', () => {
+  // Fix: the _v>=1 fast path used `(raw.sections ?? [])`, which lets a truthy
+  // non-array (a corrupt/hand-edited object) straight through to `.filter`,
+  // throwing instead of salvaging the rest of the entry.
+  assert.doesNotThrow(() => normalizeShowFileSongEntry({ _v: 1, song: null, rw: null, sections: { not: 'an array' } }));
+  const n = normalizeShowFileSongEntry({ _v: 1, song: null, rw: null, sections: 'garbage' });
+  assert.deepEqual(n.sections, []);
 });
 
 test('normalizeShowFileSongEntry - legacy partial object upgrades cleanly', () => {
@@ -1149,6 +1231,32 @@ test('encodeShowFile + decodeShowFile round-trip - zero rig data show still deco
 
 test('decodeShowFile - returns null on garbage input', () => {
   assert.equal(decodeShowFile('not-valid-base64!!!'), null);
+});
+
+// ── shape guard: reject non-object decoded payloads ────────────────────────
+
+test('normalizeShowFile - rejects a non-object raw instead of fabricating an empty Show File', () => {
+  // Before the fix: `!raw` only catches null/undefined/falsy. An array is
+  // truthy, so a decoded JSON array fell into the LEGACY branch and
+  // `createShowFile({...raw})` spread it (array/string spread as
+  // numeric-keyed junk properties) into a valid-looking empty Show File
+  // instead of being refused as garbage.
+  assert.equal(normalizeShowFile(['not', 'a', 'show', 'file']), null);
+  assert.equal(normalizeShowFile('just a string'), null);
+  assert.equal(normalizeShowFile(42), null);
+  assert.equal(normalizeShowFile(true), null);
+});
+
+test('decodeShowFile - a decoded non-object payload (array/string/number) decodes to null', () => {
+  assert.equal(decodeShowFile(encodeShowFile(['not', 'a', 'show', 'file'])), null);
+  assert.equal(decodeShowFile(encodeShowFile('just a string')), null);
+  assert.equal(decodeShowFile(encodeShowFile(42)), null);
+});
+
+test('describeShowFileDecodeError - a decoded non-object payload reports malformed', () => {
+  assert.equal(describeShowFileDecodeError(encodeShowFile(['not', 'a', 'show', 'file'])), 'malformed');
+  assert.equal(describeShowFileDecodeError(encodeShowFile('just a string')), 'malformed');
+  assert.equal(describeShowFileDecodeError(encodeShowFile(42)), 'malformed');
 });
 
 // ── P1-6: forward-compat — refuse a Show File newer than this code understands ──

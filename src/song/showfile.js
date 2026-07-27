@@ -148,9 +148,15 @@ export function normalizeShowFileSongEntry(raw) {
       ...raw,
       song:     raw.song ? normalizeSong(raw.song) : createSong(),
       rw:       raw.rw   ? normalizeShowFileRw(raw.rw) : createShowFileRw(),
-      sections: (raw.sections ?? [])
-        .filter(s => s === null || (s && typeof s === 'object'))
-        .map(s => normalizeShowFileSection(s) ?? createShowFileSection()),
+      // Array.isArray guard (not just `?? []`): a corrupt/hand-edited entry
+      // can carry a truthy non-array `sections` (an object, a string), which
+      // `?? []` lets straight through to `.filter`, throwing instead of
+      // salvaging the rest of the entry (mirrors normalizeSong's guard).
+      sections: Array.isArray(raw.sections)
+        ? raw.sections
+            .filter(s => s === null || (s && typeof s === 'object'))
+            .map(s => normalizeShowFileSection(s) ?? createShowFileSection())
+        : [],
     };
   }
   return createShowFileSongEntry({
@@ -250,9 +256,17 @@ export const SHOWFILE_VERSION = 1;
  * (decodeShowFile accepts arbitrary base64 from a URL hash) carrying a
  * top-level _v:1 must not bypass nested normalization, and must not hand back
  * the caller's own object.
+ *
+ * Shape guard: decodeB64url can hand back ANY valid JSON value (an array, a
+ * string, a number, `true`), not just a plain object. Without this check, a
+ * non-object raw (e.g. a decoded JSON array, which is truthy) fell straight
+ * into the LEGACY branch below, `createShowFile({...raw, ...})` spread it
+ * (an array/string spreads as numeric-keyed junk properties), and fabricated
+ * a valid-looking, empty Show File instead of refusing garbage input.
  */
 export function normalizeShowFile(raw) {
   if (!raw) return null;
+  if (typeof raw !== 'object' || Array.isArray(raw)) return null;
   if (typeof raw._v === 'number' && raw._v > SHOWFILE_VERSION) return null;
   if (raw._v >= 1) {
     return {
@@ -318,7 +332,12 @@ export function describeShowFileDecodeError(str) {
   } catch {
     return 'malformed';
   }
-  if (raw && typeof raw === 'object' && typeof raw._v === 'number' && raw._v > SHOWFILE_VERSION) {
+  // Mirror normalizeShowFile's shape guard: a decoded array/string/number/etc.
+  // is not a Show File and would be refused by normalizeShowFile, so it must
+  // be reported as malformed here too rather than falling through to `null`
+  // ("would decode fine").
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return 'malformed';
+  if (typeof raw._v === 'number' && raw._v > SHOWFILE_VERSION) {
     return 'newer-version';
   }
   return null;
