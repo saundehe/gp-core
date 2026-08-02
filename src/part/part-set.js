@@ -34,9 +34,14 @@ export function normalizePartSet(raw, ctx = {}) {
     };
   }
 
+  // ...raw and `raw.id ?? uid()`: the legacy branch used to mint a fresh id and drop
+  // every field outside {id, name, source, parts}, including the PartSet's Supabase row
+  // key - so a normalize-and-resave inserted a duplicate row instead of updating the
+  // original, and anything referencing the old id pointed at an orphan.
   return {
+    ...raw,
     _v: 1,
-    id: uid(),
+    id: raw.id ?? uid(),
     name: raw.name ?? '',
     source: raw.source ?? null,
     // Array.isArray guards a truthy non-array (parts:{}), and filter(Boolean) drops

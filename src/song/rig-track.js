@@ -114,6 +114,10 @@ export function interpolateRigTrack(cues, bar) {
       // missing/non-numeric cc, and without this guard it resolves into a
       // "deviceId:undefined" key and a NaN CC handed to the MIDI send layer.
       if (!Number.isFinite(auto.cc)) continue;
+      // Same reasoning for the VALUE: a truncated payload can carry {_v:1, cc:7}
+      // with no value key at all, and an undefined/NaN value reached the MIDI send
+      // layer verbatim (throw, or garbage to the device mid-set).
+      if (!Number.isFinite(auto.value)) continue;
       const key = `${auto.device_id ?? ''}:${auto.cc}`;
       let fromValue = settled.get(key) ?? 0;
 

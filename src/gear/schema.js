@@ -128,10 +128,13 @@ export function normalizeGearItem(item) {
   return {
     ...item,
     _v: (typeof item._v === 'number' && item._v >= 1) ? item._v : 1,
-    boardIds: item.boardIds || [],
-    boardId: item.boardId ?? item.boardIds?.[0] ?? null,
-    customParams: item.customParams || [],
-    presets: item.presets || [],
+    // Array.isArray, not `|| []`: a truthy non-array (an object or string written by a
+    // partial two-way sync) sailed straight through, and item.boardIds?.[0] then indexed
+    // a string and fabricated a bogus boardId, hiding the item from every real board.
+    boardIds: Array.isArray(item.boardIds) ? item.boardIds : [],
+    boardId: item.boardId ?? (Array.isArray(item.boardIds) ? item.boardIds[0] : undefined) ?? null,
+    customParams: Array.isArray(item.customParams) ? item.customParams : [],
+    presets: Array.isArray(item.presets) ? item.presets : [],
   };
 }
 
@@ -155,12 +158,16 @@ export function normalizeGearItem(item) {
  * so a future-versioned board is not silently downgraded to _v:1.
  */
 export function normalizeBoard(board) {
-  if (!board) return board;
+  if (!board) return null;
   return {
     ...board,
     _v: (typeof board._v === 'number' && board._v >= 1) ? board._v : 1,
     devices: Array.isArray(board.devices)
       ? board.devices.filter(d => d && typeof d === 'object').map(normalizeGearItem)
       : [],
+    // createBoard guarantees this array too, but normalizeBoard never backfilled it -
+    // an older or hand-synced board with no pedalboards key passed through and the
+    // layout renderer's board.pedalboards.map() blanked the rig editor.
+    pedalboards: Array.isArray(board.pedalboards) ? board.pedalboards : [],
   };
 }

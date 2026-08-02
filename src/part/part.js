@@ -103,6 +103,10 @@ export function normalizePart(raw, ctx = {}) {
     bass: PART_KINDS.bass,
     chords: PART_KINDS.chord,
     percussion: PART_KINDS.rhythmic,
+    // conjureJamToPartSet's jam object keys the drum layer 'drums', not 'percussion',
+    // so the lookup missed and drum layers fell through to melodic - MIDI 36/38/42
+    // rendered as note names on a pitched staff instead of Kick/Snare/Hi-Hat.
+    drums: PART_KINDS.rhythmic,
   };
 
   const rootIndex = ctx.rootIndex ?? 0;
@@ -111,7 +115,7 @@ export function normalizePart(raw, ctx = {}) {
 
   return {
     _v: 1,
-    id: uid(),
+    id: raw.id ?? uid(),   // preserve an existing identity rather than minting an orphan
     name: raw.name ?? raw.type ?? '',
     kind: kindMap[raw.type] ?? PART_KINDS.melodic,
     tempo: ctx.tempo ?? 120,

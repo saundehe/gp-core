@@ -41,7 +41,21 @@ export function createClickTrack({
  */
 export function normalizeClickTrack(raw) {
   if (!raw) return null;
-  if (raw._v >= 1) return { ...raw };
+  // The fast path used to return raw as-is with no field guarantees, unlike normalizeNote
+  // and normalizeClockCue: a truncated {_v:1, tempo:140} left subdivision undefined, so
+  // the sidecar computed NaN and midi_clock came back falsy - no clock at downbeat.
+  // Defaults first so present keys still win.
+  if (raw._v >= 1) return {
+    tempo:       120,
+    time_sig:    '4/4',
+    subdivision: 4,
+    accent_vel:  127,
+    beat_vel:    80,
+    midi_clock:  true,
+    midi_port:   null,
+    count_in:    0,
+    ...raw,
+  };
   return createClickTrack({
     ...raw,
     tempo:       raw.tempo        ?? 120,

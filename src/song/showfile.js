@@ -168,6 +168,14 @@ export function normalizeShowFileSongEntry(raw) {
   });
 }
 
+// Plain `out[songId] = ...` on a '__proto__' key hits Object.prototype's setter instead
+// of creating a property: the song silently vanishes AND every later lookup for an
+// unmapped song_id resolves up the injected prototype chain instead of returning
+// undefined. A shared #show= link is untrusted input, so define the property instead.
+function setSong(out, songId, value) {
+  Object.defineProperty(out, songId, { value, writable: true, enumerable: true, configurable: true });
+}
+
 // Used by createShowFile: builds fresh entries for raw (non-_v) input, and
 // preserves already-normalized entries as-is (createShowFile is a "create",
 // not a "normalize", call — see normalizeShowFileSongsMapDeep below for the
@@ -177,7 +185,7 @@ function normalizeShowFileSongsMap(songs) {
   for (const [songId, entry] of Object.entries(songs || {})) {
     // P2-1: a null/non-object entry falls back to a fresh placeholder instead
     // of throwing inside createShowFileSongEntry's destructure.
-    out[songId] = (entry && entry._v >= 1) ? entry : createShowFileSongEntry(entry ?? {});
+    setSong(out, songId, (entry && entry._v >= 1) ? entry : createShowFileSongEntry(entry ?? {}));
   }
   return out;
 }
@@ -188,7 +196,7 @@ function normalizeShowFileSongsMap(songs) {
 function normalizeShowFileSongsMapDeep(songs) {
   const out = {};
   for (const [songId, entry] of Object.entries(songs || {})) {
-    out[songId] = normalizeShowFileSongEntry(entry) ?? createShowFileSongEntry();
+    setSong(out, songId, normalizeShowFileSongEntry(entry) ?? createShowFileSongEntry());
   }
   return out;
 }
