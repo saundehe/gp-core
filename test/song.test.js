@@ -672,6 +672,21 @@ test('normalizeSetlistEntry - null returns null', () => {
   assert.equal(normalizeSetlistEntry(null), null);
 });
 
+test('normalizeSetlistEntry - _v:1 fast path backfills missing fields (mirrors normalizeNote)', () => {
+  // A truncated {_v:1, song_id} used to pass through bare, and consumers
+  // computing key + transpose / tempo * tempo_mult emitted NaN.
+  const n = normalizeSetlistEntry({ _v: 1, song_id: 'x' });
+  assert.equal(n.transpose,  0);
+  assert.equal(n.tempo_mult, 1.0);
+  assert.equal(n.song_title, '');
+  assert.equal(n.key,        null);
+  assert.equal(n.notes,      '');
+  // present keys still win over the defaults
+  const kept = normalizeSetlistEntry({ _v: 1, transpose: -2, tempo_mult: 0.5 });
+  assert.equal(kept.transpose,  -2);
+  assert.equal(kept.tempo_mult, 0.5);
+});
+
 test('normalizeSetlistEntry - snake_case source fields', () => {
   const raw = { song_id: 'abc', song_title: 'Riff', tempo_mult: 0.9, transpose: 2 };
   const e = normalizeSetlistEntry(raw);
@@ -933,6 +948,16 @@ test('normalizeShowFileSection - _v greater than current is preserved, not downg
 
 test('normalizeShowFileSection - null returns null', () => {
   assert.equal(normalizeShowFileSection(null), null);
+});
+
+test('normalizeShowFileSection - _v:1 fast path backfills tracks (createShowFileSection guarantees [])', () => {
+  // A truncated {_v:1, name} used to decode with tracks undefined and
+  // consumers iterating section.tracks threw.
+  const n = normalizeShowFileSection({ _v: 1, name: 'Chorus' });
+  assert.deepEqual(n.tracks, []);
+  // non-array junk is replaced, a real array passes through
+  assert.deepEqual(normalizeShowFileSection({ _v: 1, tracks: 'junk' }).tracks, []);
+  assert.deepEqual(normalizeShowFileSection({ _v: 1, tracks: ['click'] }).tracks, ['click']);
 });
 
 test('normalizeShowFileSection - snake_case rw_bar and partial legacy object', () => {
@@ -1335,9 +1360,14 @@ test('encodeShowFile + decodeShowFile round-trip - a null setlist entry salvages
 test('createShowFileSongEntry - null sections entry and explicit null sections do not throw (P2-1)', () => {
   assert.doesNotThrow(() => createShowFileSongEntry({ sections: null }));
   assert.deepEqual(createShowFileSongEntry({ sections: null }).sections, []);
-  const entry = createShowFileSongEntry({ sections: [null, { name: 'Verse' }] });
-  assert.equal(entry.sections.length, 1);
-  assert.equal(entry.sections[0].name, 'Verse');
+  // A null slot is kept as a placeholder, not dropped: sections mirror
+  // song.sections by index, so dropping it would shift every later section's
+  // scene/preset off by one. Non-object junk (a string) is still dropped.
+  const entry = createShowFileSongEntry({ sections: [null, { name: 'Verse' }, 'junk'] });
+  assert.equal(entry.sections.length, 2);
+  assert.equal(entry.sections[0]._v, 1);
+  assert.equal(entry.sections[0].name, '');
+  assert.equal(entry.sections[1].name, 'Verse');
 });
 
 test('createSetlist - explicit null entries in createShowFile songs map does not throw (P2-1)', () => {

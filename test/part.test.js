@@ -179,6 +179,36 @@ test('normalizePart - null returns null', () => {
   assert.equal(normalizePart(null), null);
 });
 
+test('normalizePart - legacy (pre-_v) part keeps its own tempo/key/scale/bars/ppq/timeSignature', () => {
+  // Fix: the legacy branch sourced these entirely from ctx/defaults and
+  // hardcoded timeSignature + ppq, destroying a legacy Part's own musical
+  // context. A ppq mismatch (96 forced to DEFAULT_PPQ 4) reinterprets every
+  // note's tick timing 24x wrong.
+  const raw = {
+    tempo: 66, key: 'D#', scale: SCALE_NAMES.phrygian,
+    timeSignature: [7, 8], bars: 12, ppq: 96,
+    notes: [{ t: 96, midi: 39 }],
+  };
+  const r = normalizePart(raw, { rootIndex: 7, scaleName: 'Major', tempo: 140, bars: 4 });
+  assert.equal(r.tempo, 66);
+  assert.equal(r.key, 'D#');
+  assert.equal(r.scale, SCALE_NAMES.phrygian);
+  assert.deepEqual(r.timeSignature, [7, 8]);
+  assert.equal(r.bars, 12);
+  assert.equal(r.ppq, 96);
+  assert.equal(r.notes[0].onset, 96);
+});
+
+test('normalizePart - Conjure layer (no own fields) still takes ctx/defaults', () => {
+  const r = normalizePart({ type: 'lead', _notes: [] }, { rootIndex: 2, scaleName: 'Dorian', tempo: 132, bars: 8 });
+  assert.equal(r.tempo, 132);
+  assert.equal(r.key, 'D');
+  assert.equal(r.scale, SCALE_NAMES.dorian);
+  assert.deepEqual(r.timeSignature, [4, 4]);
+  assert.equal(r.bars, 8);
+  assert.equal(r.ppq, DEFAULT_PPQ);
+});
+
 test('normalizePart - _v:1 fast path drops a null note instead of keeping it', () => {
   // Fix: notes were mapped through normalizeNote (which returns null for a
   // falsy entry) but the null was kept in the output array, unlike every

@@ -110,20 +110,26 @@ export function normalizePart(raw, ctx = {}) {
   };
 
   const rootIndex = ctx.rootIndex ?? 0;
-  const key = NOTE_NAMES[rootIndex % 12] ?? 'C';
-  const scale = SCALE_NAME_MAP[ctx.scaleName] ?? SCALE_NAMES.natural_minor;
+  // Prefer the raw part's own fields over ctx/defaults: this branch also
+  // catches a legacy (pre-_v) Part that already carries tempo/key/scale/bars/
+  // ppq/timeSignature, and sourcing those from ctx/defaults destroyed them —
+  // a ppq mismatch alone reinterprets every note's tick timing (e.g. a ppq:96
+  // part forced to DEFAULT_PPQ plays 24x wrong). Conjure layers carry none of
+  // these fields, so that path is unaffected.
+  const key = raw.key ?? NOTE_NAMES[rootIndex % 12] ?? 'C';
+  const scale = raw.scale ?? SCALE_NAME_MAP[ctx.scaleName] ?? SCALE_NAMES.natural_minor;
 
   return {
     _v: 1,
     id: raw.id ?? uid(),   // preserve an existing identity rather than minting an orphan
     name: raw.name ?? raw.type ?? '',
     kind: kindMap[raw.type] ?? PART_KINDS.melodic,
-    tempo: ctx.tempo ?? 120,
+    tempo: raw.tempo ?? ctx.tempo ?? 120,
     key,
     scale,
-    timeSignature: [4, 4],
-    bars: ctx.bars ?? 4,
-    ppq: DEFAULT_PPQ,
+    timeSignature: Array.isArray(raw.timeSignature) ? raw.timeSignature : [4, 4],
+    bars: raw.bars ?? ctx.bars ?? 4,
+    ppq: raw.ppq ?? DEFAULT_PPQ,
     notes: (Array.isArray(raw._notes) ? raw._notes : (Array.isArray(raw.notes) ? raw.notes : []))
       .map(normalizeNote)
       .filter(Boolean),

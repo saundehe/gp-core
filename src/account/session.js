@@ -65,7 +65,10 @@ function compareLicenseRows(a, b, nowMs) {
  */
 export function sessionToLicense(licenseRows, product, nowMs = Date.now()) {
   if (!licenseRows?.length) return null;
-  const rows = licenseRows.filter(r => r.product === product);
+  // Shape guard (P2-1 pattern): a null or non-object slot in the rows array
+  // (partial fetch, hand-edited cache) used to throw TypeError on `r.product`,
+  // crashing account boot and dropping a paying Pro user to Free.
+  const rows = licenseRows.filter(r => r && typeof r === 'object' && r.product === product);
   if (!rows.length) return null;
   const best = [...rows].sort((a, b) => compareLicenseRows(a, b, nowMs))[0];
   return {

@@ -75,6 +75,19 @@ test('normalizeOscTarget - null returns null', () => {
   assert.equal(normalizeOscTarget(null), null);
 });
 
+test('normalizeOscTarget - _v:1 fast path backfills host/port (mirrors normalizeClickTrack)', () => {
+  // A truncated {_v:1, id} used to pass through bare, shipping undefined
+  // host/port straight into the sidecar's UDP routing.
+  const n = normalizeOscTarget({ _v: 1, id: 'notch' });
+  assert.equal(n.host,  '127.0.0.1');
+  assert.equal(n.port,  8000);
+  assert.equal(n.label, '');
+  // present keys still win over the defaults
+  const kept = normalizeOscTarget({ _v: 1, host: '192.168.12.10', port: 9000 });
+  assert.equal(kept.host, '192.168.12.10');
+  assert.equal(kept.port, 9000);
+});
+
 test('OSC_TARGET_PRESETS has expected entries', () => {
   assert.ok(OSC_TARGET_PRESETS.notchLocal);
   assert.ok(OSC_TARGET_PRESETS.tdLocal);

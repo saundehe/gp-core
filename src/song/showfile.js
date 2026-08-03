@@ -87,7 +87,11 @@ export function createShowFileSection({
  */
 export function normalizeShowFileSection(raw) {
   if (!raw) return null;
-  if (raw._v >= 1) return { ...raw };
+  // Backfill tracks on the fast path (mirrors normalizeNote's fast-path
+  // defaults): createShowFileSection guarantees tracks:[], but a truncated
+  // {_v:1, name:'Chorus'} decoded with tracks undefined and consumers that
+  // iterate section.tracks threw.
+  if (raw._v >= 1) return { ...raw, tracks: Array.isArray(raw.tracks) ? raw.tracks : [] };
   return createShowFileSection({
     ...raw,
     name:   raw.name   ?? '',
@@ -123,12 +127,17 @@ export function createShowFileSongEntry({
     _v: 1,
     song:     song ? (song._v >= 1 ? song : createSong(song)) : createSong(),
     rw:       rw   ? (rw._v >= 1   ? rw   : createShowFileRw(rw)) : createShowFileRw(),
-    // P2-1: filter non-object entries (a null/corrupt slot) instead of
-    // throwing on `s._v` of null; `?? []` covers an explicit `sections: null`
-    // (the parameter default only covers `undefined`).
+    // P2-1: filter non-object entries (a corrupt slot) instead of throwing on
+    // `s._v` of null; `?? []` covers an explicit `sections: null` (the
+    // parameter default only covers `undefined`). A null slot is KEPT and
+    // mapped to a placeholder section, matching normalizeShowFileSongEntry's
+    // fast path: sections mirror song.sections by index, so dropping a null
+    // slot shifts every later section's rig scene/preset off by one.
     sections: (sections ?? [])
-      .filter(s => s && typeof s === 'object')
-      .map(s => s._v >= 1 ? s : createShowFileSection(s)),
+      .filter(s => s === null || (s && typeof s === 'object'))
+      .map(s => s === null
+        ? createShowFileSection()
+        : (s._v >= 1 ? s : createShowFileSection(s))),
     loopwork,
     ...rest,
   };

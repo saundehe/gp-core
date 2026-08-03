@@ -38,7 +38,19 @@ export function createSetlistEntry({
  */
 export function normalizeSetlistEntry(raw) {
   if (!raw) return null;
-  if (raw._v >= 1) return { ...raw };
+  // Backfill on the fast path too (mirrors normalizeNote/normalizeClickTrack):
+  // a truncated {_v:1, song_id:'x'} left transpose/tempo_mult undefined, and
+  // consumers compute key + transpose / tempo * tempo_mult unconditionally,
+  // emitting NaN into pitch/tempo math. Defaults first so present keys win.
+  if (raw._v >= 1) return {
+    song_id:    null,
+    song_title: '',
+    key:        null,
+    transpose:  0,
+    tempo_mult: 1.0,
+    notes:      '',
+    ...raw,
+  };
   return createSetlistEntry({
     ...raw,
     songId:     raw.song_id    ?? raw.songId    ?? null,

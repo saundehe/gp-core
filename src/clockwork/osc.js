@@ -47,7 +47,10 @@ export function createOscTarget({
  */
 export function normalizeOscTarget(raw) {
   if (!raw) return null;
-  if (raw._v >= 1) return { ...raw };
+  // Backfill on the fast path too (mirrors normalizeClickTrack): a truncated
+  // {_v:1, id:'x'} left host/port undefined, and undefined host/port shipped
+  // straight into the sidecar's UDP routing. Defaults first so present keys win.
+  if (raw._v >= 1) return { id: '', host: '127.0.0.1', port: 8000, label: '', ...raw };
   return createOscTarget(raw);
 }
 

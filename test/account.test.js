@@ -361,6 +361,24 @@ test('sessionToLicense - filters cross-product rows', () => {
   assert.equal(sessionToLicense([riffLic, rigLic], PRODUCTS.rigwork).product,  PRODUCTS.rigwork);
 });
 
+test('sessionToLicense - a null or non-object row slot is dropped, not thrown on (P2-1)', () => {
+  const lic = createLicense({ product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.monthly });
+  assert.doesNotThrow(() => sessionToLicense([null, lic, 'junk', 7], PRODUCTS.rigwork));
+  const result = sessionToLicense([null, lic, 'junk', 7], PRODUCTS.rigwork);
+  assert.equal(result.product, PRODUCTS.rigwork);
+  assert.equal(result.status,  STATUS.active);
+  // all-corrupt rows just mean no license, not a crash
+  assert.equal(sessionToLicense([null, undefined], PRODUCTS.rigwork), null);
+});
+
+test('resolveAccountState - a null license row slot still resolves the Pro license (P2-1)', () => {
+  const user  = { id: 'u1', email: 'heath@gp.com' };
+  const rows  = [null, createLicense({ product: PRODUCTS.rigwork, status: STATUS.active, tier: TIERS.annual })];
+  const state = resolveAccountState(user, rows, PRODUCTS.rigwork);
+  assert.equal(state.isPro, true);
+  assert.equal(state.tierLabel, 'Pro (annual)');
+});
+
 // ── resolveAccountState ───────────────────────────────────────────────────────
 
 test('resolveAccountState - null user returns FREE_STATE copy', () => {
