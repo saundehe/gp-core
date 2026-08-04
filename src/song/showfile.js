@@ -284,13 +284,32 @@ export const SHOWFILE_VERSION = 1;
 export function normalizeShowFile(raw) {
   if (!raw) return null;
   if (typeof raw !== 'object' || Array.isArray(raw)) return null;
-  if (typeof raw._v === 'number' && raw._v > SHOWFILE_VERSION) return null;
-  if (raw._v >= 1) {
-    return {
-      ...raw,
-      setlist: raw.setlist ? normalizeSetlist(raw.setlist) : createSetlist(),
-      songs:   normalizeShowFileSongsMapDeep(raw.songs),
-    };
+  // _v is compared numerically, not by typeof. The old `typeof raw._v === 'number'` gate
+  // let a STRING version skip the refuse-newer check entirely, and the `raw._v >= 1`
+  // below then coerced it anyway - so `_v: '2'`, a file from a NEWER gp-core, was
+  // accepted and processed with v1 semantics instead of being refused. decodeShowFile
+  // takes arbitrary base64 out of a URL hash, so that input is reachable, not just
+  // hand-edited. Every encoder here writes a numeric _v (see createShowFile), so a
+  // string version never originates from gp-core itself.
+  //
+  // Present-but-unparseable (`_v: 'abc'`) is refused rather than falling through to the
+  // legacy branch: reinterpreting a file whose own version claim is nonsense is how you
+  // fabricate a valid-looking Show File out of garbage, which the shape guard above
+  // exists to prevent. Absent _v is untouched and still means legacy.
+  if (raw._v !== undefined && raw._v !== null) {
+    const v = Number(raw._v);
+    if (!Number.isFinite(v)) return null;
+    if (v > SHOWFILE_VERSION) return null;
+    if (v >= 1) {
+      return {
+        ...raw,
+        // Canonicalise on accept. Without this a `_v: '1'` file stays a string forever and
+        // carries the same coercion trap into every downstream `_v >= 1` check.
+        _v:      v,
+        setlist: raw.setlist ? normalizeSetlist(raw.setlist) : createSetlist(),
+        songs:   normalizeShowFileSongsMapDeep(raw.songs),
+      };
+    }
   }
   return createShowFile({
     ...raw,
@@ -354,8 +373,14 @@ export function describeShowFileDecodeError(str) {
   // be reported as malformed here too rather than falling through to `null`
   // ("would decode fine").
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return 'malformed';
-  if (typeof raw._v === 'number' && raw._v > SHOWFILE_VERSION) {
-    return 'newer-version';
+  // Mirror normalizeShowFile's _v handling too, for the same reason the shape guard is
+  // mirrored above. With the typeof gate, a `_v: '2'` file was refused by the normalizer
+  // but described here as null ("would decode fine"), which is exactly the disagreement
+  // this helper exists to avoid.
+  if (raw._v !== undefined && raw._v !== null) {
+    const v = Number(raw._v);
+    if (!Number.isFinite(v)) return 'malformed';
+    if (v > SHOWFILE_VERSION) return 'newer-version';
   }
   return null;
 }
